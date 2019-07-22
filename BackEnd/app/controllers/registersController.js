@@ -1,3 +1,4 @@
+"use strict";
 const registerModel = require('../models/registersModel');
 
 module.exports = {
@@ -13,9 +14,9 @@ module.exports = {
     const { id } = req.params;
     registerModel.findByIdAndDelete(id, err => {
       if(err){
-        return res.send({err})
+        return res.send({err});
       }
       return res.send({ok:'Register deleted'});
-    })
+    });
   }
-}
+};

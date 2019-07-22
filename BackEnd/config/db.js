@@ -2,7 +2,7 @@
 const mongoose = require('mongoose');
 
 module.exports = function (url) {
-  mongoose.connect(url, {useNewUrlParser: true, useFindAndModify: false});
+  mongoose.connect(url, {useNewUrlParser: true, useFindAndModify: false, useCreateIndex: true });
   mongoose.connection.on('connected', () => {console.log('Mongoose connected');});
   process.on('SIGINT', () => {
     mongoose.connection.close(() => {
@@ -10,4 +10,4 @@ module.exports = function (url) {
         process.exit(0);
     });
   });
-}
+};

@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
@@ -15,14 +15,13 @@ const accountSchema = mongoose.Schema({
     type: Boolean,
     default: false
   },
-  registerDate: {
-    type: Date,
-    default: Date.now()
-  },
   parents: {
     type: [ObjectId],
     default: []
   }
+},
+{
+  timestamps: true
 });
 
 module.exports = mongoose.model('Account', accountSchema);

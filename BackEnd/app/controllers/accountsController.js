@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 const accountsModal = require('../models/accountsModel');
 
 module.exports = {
@@ -44,8 +44,7 @@ module.exports = {
           err
         });
       }
-      return res.send({ok:'ok'})
-    });
-    
+      return res.send({ok:'ok'});
+    });  
   }
-}
+};

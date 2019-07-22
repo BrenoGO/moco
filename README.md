@@ -1,15 +1,15 @@
-#My Money Controller
+# My Money Controller
 Thats a app to control all your expenses in the easiest way.
 
-##How does it work
+## How does it work
 inicialyse with configuration: 
 + basic personal data
 + accounts plan
 + defaults to use like deafult account, default payment plan
-##Developing Plan 
-###Front End Web
+## Developing Plan 
+### Front End Web
 Using React
-###Front End Mobile
+### Front End Mobile
 Using React Native
 Top Tab Navigation
 when opens the app, goes to a default operation that the users chose
@@ -52,10 +52,10 @@ Extracts (after clicking extracts, get all from db. if changes date, gets all ag
 Settings
 
 
-###Back End
+### Back End
 Node.js
 
-###DataBase
+### DataBase
 mongo?!
 starts with mongo and analyse if relational would be better
 + login (JWT)
