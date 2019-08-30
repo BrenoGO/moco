@@ -1,0 +1,8 @@
+#loginForm{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#loginSubmit{
+  width: 40%;
+}

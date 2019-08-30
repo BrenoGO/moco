@@ -1,0 +1,37 @@
+#backDrop{
+  z-index: 2;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #170C3A;
+  opacity: 0.9  ;
+}
+#Modal{
+  border: 1px solid black;
+  z-index: 3;
+  background-color: #fff;
+  position: fixed;
+  width: 400px;
+  top: 20%;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+}
+#headerModal{
+  display: flex;
+  justify-content: space-between;
+}
+#Body{
+  display: flex;
+  flex-direction: column;
+}
+#Body button {
+  width: 174px;
+  align-self: flex-end;
+  margin-right: 20px;
+}
+#Body p {
+  text-align: initial;
+}

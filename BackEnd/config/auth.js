@@ -1,4 +1,5 @@
-"use strict";
+
+
 const passport = require('passport');
 const passportJWT = require('passport-jwt');
 const jwt = require('jsonwebtoken');
@@ -15,34 +16,34 @@ const jwtOptions = {
 };
 
 module.exports = {
-  get auth(){
-    const strategy = new JwtStrategy(jwtOptions, function(jwt_payload, next){
-      userModel.findById(jwt_payload._id).exec().then(user => {
-        if(user){
+  get auth() {
+    const strategy = new JwtStrategy(jwtOptions, ((jwtPayload, next) => {
+      userModel.findById(jwtPayload._id).exec().then((user) => {
+        if (user) {
           next(null, user);
-        }else{
+        } else {
           next(null, false);
         }
       });
-    });
+    }));
     passport.use(strategy);
     return {
-      initialize: function(){
+      initialize() {
         return passport.initialize();
       },
-      get authenticate(){
-        return passport.authenticate('jwt', {session: false});
+      get authenticate() {
+        return passport.authenticate('jwt', { session: false });
       }
     };
   },
-  login: function(email, password, callback){
+  login(email, password, callback) {
     const enPW = encrypt(password);
-    userModel.findOne({email, password: enPW}).exec().then(user => {
-      if(user){
+    userModel.findOne({ email, password: enPW }).exec().then((user) => {
+      if (user) {
         const payload = { _id: user._id };
-        var token = jwt.sign(payload, jwtOptions.secretOrKey);
-        callback({message: 'ok', token});
-      }else{
+        const token = jwt.sign(payload, jwtOptions.secretOrKey);
+        callback({ message: 'ok', token });
+      } else {
         callback(false);
       }
     });

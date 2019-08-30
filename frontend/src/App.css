@@ -1,0 +1,45 @@
+.App {
+  text-align: center;
+  margin-top: -15px;
+  width: 50%;
+  height: 100%;
+  margin: 0 auto;
+}
+button{
+  font-family: 'Source Sans Pro';
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  min-width: 174px;
+  height: 50px;
+  border: 0;
+  border-radius: 5px;
+  line-height: 24px;
+  font-size: 18px;
+  cursor: pointer;
+  outline: none;
+}
+.smallBut{
+  padding: 1px;
+  margin: 2px;
+  min-width: 40px;
+  height: 20px;
+  line-height: 14px;
+  font-size: 14px;
+}
+.but-primary-danger {
+  background: #F95E5A;
+  color: #FFFFFF;
+}
+.but-primary-danger:hover{
+  background: #CC4C4C;
+}
+.but-primary-danger:active{
+  background: #A53F3F;
+}
+.but-primary-danger:disabled{
+  background: #FCAEAC;
+  color: #FEEFEE;
+}

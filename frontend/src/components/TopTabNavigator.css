@@ -1,0 +1,21 @@
+#topTabNav{
+  position: fixed;
+  z-index: 1;
+  display: flex;
+  justify-content: space-around;
+  line-height: 50px;
+  width: 50%;
+  top: 0;
+  margin: 0 auto;
+  background-color: rgb(250, 250, 250);
+}
+.navLink{
+  text-decoration: none;
+  width: 100%;
+  color: black;
+}
+.active{
+  background-color: rgb(240, 240, 250);
+  color: black;
+}
+
