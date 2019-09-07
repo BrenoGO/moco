@@ -1,65 +1,31 @@
 import React, { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+
 import './App.css';
 import './AppMobile.css';
-import {
-  BrowserRouter as Router,
-  Route,
-  Switch,
-  Redirect
-} from 'react-router-dom';
 
 import auth from './services/Auth';
-import TopTabNavigator from './components/TopTabNavigator';
-import PrivateRoute from './components/PrivateRoute';
-import Login from './views/Login';
-import Operations from './views/Operations';
-import Accounts from './views/Accounts';
-import Reports from './views/Reports';
-import Settings from './views/Settings';
+
+import { setAccounts, setDefaults } from './actions/AccountsActions';
+
+import Routes from './routes';
 
 export default function App() {
-  const [pageTo, setPageTo] = useState('/');
+  const [logged, setLogged] = useState(undefined);
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (localStorage.getItem('token')) {
-      auth.login(() => setPageTo('/Accounts'));
+      auth.login((accounts, defaults) => {
+        dispatch(setAccounts(accounts));
+        dispatch(setDefaults(defaults));
+        setLogged(true);
+      });
     } else {
-      auth.logout(() => setPageTo('/login'));
+      auth.logout(() => setLogged(false));
     }
-  }, []);
+  }, [dispatch]);
 
-  return (
-    <div className="App">
-      <Router>
-        <TopTabNavigator />
-        <Switch>
-          <Route
-            path="/"
-            exact
-            component={() => <Redirect to={pageTo} />}
-          />
-          <Route
-            path="/login"
-            component={Login}
-          />
-          <PrivateRoute
-            path="/Operations"
-            component={Operations}
-          />
-          <PrivateRoute
-            path="/Accounts"
-            component={Accounts}
-          />
-          <PrivateRoute
-            path="/Reports"
-            component={Reports}
-          />
-          <PrivateRoute
-            path="/Settings"
-            component={Settings}
-          />
-        </Switch>
-      </Router>
-    </div>
-  );
+  return <Routes logged={logged} />;
 }

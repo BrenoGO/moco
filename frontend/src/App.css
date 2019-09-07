@@ -5,10 +5,20 @@
   height: 100%;
   margin: 0 auto;
 }
+#flags{
+  position: absolute;
+  top: 50px;
+  z-index: 10;
+}
+.flagImg{
+  width: 30px;
+  height: 30px;
+  margin: 5px;
+  cursor: pointer;
+}
 button{
   font-family: 'Source Sans Pro';
   font-weight: 600;
-  display: flex;
   align-items: center;
   justify-content: center;
   padding: 5px;
@@ -42,4 +52,18 @@ button{
 .but-primary-danger:disabled{
   background: #FCAEAC;
   color: #FEEFEE;
+}
+.but-primary-neutral {
+  background: #365DF0;
+  color: #FFF;
+}
+.but-primary-neutral:hover{
+  background: #2F55CC;
+}
+.but-primary-neutral:active{
+  background: #244AA8;
+}
+.but-primary-neutral:disabled{
+  background: #B9C6FA;
+  color: #E1E7FD;
 }

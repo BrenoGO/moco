@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 
-import Modal from './Modal';
+import Modal from '../Modal';
 
-import { AccountsService } from '../services/AccountsService';
+import { AccountsService } from '../../services/AccountsService';
 
-import { deleteAccounts, updateAccount } from '../actions/AccountsActions';
+import { deleteAccounts, updateAccount } from '../../actions/AccountsActions';
 
 export default function FinalAccount(props) {
   const { account } = props;
@@ -16,13 +16,14 @@ export default function FinalAccount(props) {
   const dispatch = useDispatch();
 
   async function deleteAccount() {
-    const deletedIds = await AccountsService.delete(account._id);
+    const deletedIds = await AccountsService.delete(account.id);
+    console.log(deletedIds);
     setBoolWarning(false);
-    dispatch(deleteAccounts(deletedIds.ok.map(item => item._id)));
+    dispatch(deleteAccounts(deletedIds.ok.map(item => item.id)));
   }
   function edit() {
-    AccountsService.update(account._id, { ...account, name: newName });
-    dispatch(updateAccount(account._id, newName));
+    AccountsService.update(account.id, { ...account, name: newName });
+    dispatch(updateAccount(account.id, newName));
     setEditing(false);
   }
 

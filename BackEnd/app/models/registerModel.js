@@ -2,33 +2,6 @@ const mongoose = require('mongoose');
 
 const { ObjectId } = mongoose.Schema.Types;
 
-const whereSchema = mongoose.Schema({
-  accountId: {
-    type: ObjectId,
-    required: true
-  },
-  value: {
-    type: Number,
-    required: true
-  },
-  balance: Number,
-  bills: {
-    type: [ObjectId],
-    ref: 'Bill'
-  }
-});
-const whatSchema = mongoose.Schema({
-  accountId: {
-    type: ObjectId,
-    required: true
-  },
-  value: {
-    type: Number,
-    required: true
-  },
-  description: String
-});
-
 const RegisterSchema = mongoose.Schema({
   userId: {
     type: ObjectId,
@@ -50,10 +23,19 @@ const RegisterSchema = mongoose.Schema({
     type: Date,
     default: Date.now
   },
-  whereAccount: [whereSchema],
-  whatAccount: [whatSchema],
+  whereAccountId: Number,
+  whereAccountBalance: Number,
+  whatAccountId: Number,
   description: String,
-  note: String
+  notes: String,
+  value: {
+    type: Number,
+    required: true
+  },
+  bills: {
+    type: [ObjectId],
+    ref: 'Bill'
+  }
 },
 {
   timestamps: true

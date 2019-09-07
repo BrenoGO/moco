@@ -3,11 +3,11 @@ import { useSelector, useDispatch } from 'react-redux';
 
 import './GroupAccount.css';
 
-import { AccountsService } from '../services/AccountsService';
-import { addAccount, deleteAccounts, updateAccount } from '../actions/AccountsActions';
+import { AccountsService } from '../../services/AccountsService';
+import { addAccount, deleteAccounts, updateAccount } from '../../actions/AccountsActions';
 
 import FinalAccount from './FinalAccount';
-import Modal from './Modal';
+import Modal from '../Modal';
 
 export default function GroupAccount(props) {
   const { account } = props;
@@ -27,29 +27,29 @@ export default function GroupAccount(props) {
   const dispatch = useDispatch();
 
   const childrenAc = accounts.filter(
-    ac => ac.parents[ac.parents.length - 1] === account._id
+    ac => ac.parents[ac.parents.length - 1] === account.id
   );
 
   async function addChild() {
+    const id = accounts.reduce((ac, atual) => (atual.id > ac.id ? atual : ac)).id + 1;
     const newAccount = await AccountsService.store(
-      { ...addForm, parents: [...account.parents, account._id] }
+      { ...addForm, parents: [...account.parents, account.id], id }
     );
     dispatch(addAccount(newAccount[0]));
     setAddForm({ name: '', allowValue: false });
     setAdding(false);
   }
   async function deleteAccount() {
-    const deletedIds = await AccountsService.delete(account._id);
+    const deletedIds = await AccountsService.delete(account.id);
+    console.log(deletedIds);
     setBoolWarning(false);
-    dispatch(deleteAccounts(deletedIds.ok.map(item => item._id)));
+    dispatch(deleteAccounts(deletedIds.ok.map(item => item.id)));
   }
   function edit() {
-    console.log('editing');
-    AccountsService.update(account._id, { ...account, name: newName });
-    dispatch(updateAccount(account._id, newName));
+    AccountsService.update(account.id, { ...account, name: newName });
+    dispatch(updateAccount(account.id, newName));
     setEditing(false);
   }
-  console.log('group account');
   return (
     <>
       {boolWarning && (

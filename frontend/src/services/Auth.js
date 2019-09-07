@@ -1,11 +1,30 @@
+import { AccountsService } from './AccountsService';
+import { SettingsService } from './SettingsService';
+
+async function getData(method) {
+  const resp = await method();
+  if (resp.error) {
+    if (String(resp.error).match(/not authorized/i)) {
+      this.logout(() => {
+        localStorage.removeItem('token');
+      });
+    } else {
+      console.log(resp);
+    }
+  }
+  return resp;
+}
+
 class Auth {
   constructor() {
     this.authenticated = false;
   }
 
-  login(cb) {
+  async login(cb) {
+    const accounts = await getData(AccountsService.listAll);
+    const defaults = await getData(SettingsService.getDefaults);
     this.authenticated = true;
-    cb();
+    cb(accounts, defaults);
   }
 
   logout(cb) {

@@ -8,6 +8,10 @@ const accountSchema = mongoose.Schema({
     required: true,
     ref: 'User'
   },
+  id: {
+    type: Number,
+    required: true
+  },
   name: {
     type: String,
     required: true
@@ -21,7 +25,7 @@ const accountSchema = mongoose.Schema({
     default: false
   },
   parents: {
-    type: [ObjectId],
+    type: [Number],
     default: []
   }
 },

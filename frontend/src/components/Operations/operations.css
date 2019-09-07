@@ -1,0 +1,8 @@
+.selectAccount{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+#whatAccountSelectorLabel{
+  display: flex;
+}

@@ -5,6 +5,7 @@ const { auth } = require('./auth');
 const routesAccounts = require('../app/routes/accountRoutes');
 const routesRegisters = require('../app/routes/registerRoutes');
 const routesUsers = require('../app/routes/userRoutes');
+const routesSettings = require('../app/routes/settingRoutes');
 
 module.exports = function () {
   const app = express();
@@ -17,6 +18,7 @@ module.exports = function () {
   routesAccounts(app);
   routesRegisters(app);
   routesUsers(app);
+  routesSettings(app);
 
   return app;
 };
