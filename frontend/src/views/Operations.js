@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import './views.css';
 
 import AtSight from '../components/Operations/AtSight';
+import FutureOper from '../components/Operations/FutureOper';
 
 export default function Operations() {
   const [opType, setOpType] = useState('atSight');
@@ -38,6 +39,10 @@ export default function Operations() {
         return (
           <AtSight organizedAccounts={organizedAccounts} />
         );
+      case 'future':
+        return (
+          <FutureOper organizedAccounts={organizedAccounts} />
+        );
       default:
         return false;
     }
@@ -52,7 +57,7 @@ export default function Operations() {
             Type:
             <select id="opType" value={opType} onChange={e => setOpType(e.target.value)}>
               <option value="atSight">At Sight</option>
-              <option value="generateBill">Generate Bill</option>
+              <option value="future">Future Operation</option>
               <option value="payOrReceiveBill">Pay or Receive Bill</option>
               <option value="transference">Transference</option>
             </select>

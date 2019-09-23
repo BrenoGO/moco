@@ -17,7 +17,6 @@ export default function FinalAccount(props) {
 
   async function deleteAccount() {
     const deletedIds = await AccountsService.delete(account.id);
-    console.log(deletedIds);
     setBoolWarning(false);
     dispatch(deleteAccounts(deletedIds.ok.map(item => item.id)));
   }

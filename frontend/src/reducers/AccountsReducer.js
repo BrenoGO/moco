@@ -4,6 +4,7 @@ import {
   DELETE_ACCOUNTS,
   UPDATE_ACCOUNT,
   SET_DEFAULTS,
+  RESET_BALANCE
 } from '../actions/AccountsActions';
 
 const INICIAL_STATE = {
@@ -35,6 +36,17 @@ export default function AccountsReducer(state = INICIAL_STATE, action) {
       };
     case SET_DEFAULTS:
       return { ...state, defaults: action.defaults };
+    case RESET_BALANCE:
+      return {
+        ...state,
+        defaults: {
+          ...state.defaults,
+          balances: state.defaults.balances.map((ac) => {
+            if (ac.id !== action.ac.accountId) return ac;
+            return action.ac;
+          })
+        }
+      };
     default:
       return state;
   }

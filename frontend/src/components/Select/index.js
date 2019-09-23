@@ -18,6 +18,7 @@ const defaultSelectedFieldStyle = {
   height: '100%',
 };
 const defaultOptContainerStyle = {
+  zIndex: 9,
   position: 'absolute',
   marginTop: '-40px',
   marginLeft: '10px',

@@ -7,6 +7,13 @@ class Internationalization {
 
   setInitials(initials) {
     this.initials = initials;
+    localStorage.setItem('Intl-initials', initials);
+  }
+
+  resetInitials(initials) {
+    this.initials = initials;
+    localStorage.setItem('Intl-initials', initials);
+    window.location.reload(false);
   }
 
   getInitials() {
@@ -30,11 +37,40 @@ class Internationalization {
       currency,
       minimumFractionDigits: 2
     });
-    let newValue = value.replace(/\D/g, '');
+
+    let newValue = value;
+    if (typeof newValue === 'number') newValue = String(newValue.toFixed(2));
+    newValue = newValue.replace(/\D/g, '');
     if (newValue === '') newValue = '000';
     if (newValue.length === 1) newValue = `00${newValue}`;
     newValue = `${newValue.substring(0, newValue.length - 2)}.${newValue.substr(-2, 2)}`;
     return formatter.format(newValue);
+  }
+
+  toNumber(str) {
+    if (typeof str === 'number') return str;
+    let value = (str.replace(/\D/gi, ''));
+    if (value === '') value = '000';
+    if (value.length === 1) value = `00${value}`;
+    value = Number(`${value.substring(0, value.length - 2)}.${value.substr(-2, 2)}`);
+    return value;
+  }
+
+  formatDate(date) {
+    return new Intl.DateTimeFormat(this.initials).format(date);
+  }
+
+  formatDateAndTime(date) {
+    const options = {
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      hour12: false
+    };
+    return new Intl.DateTimeFormat(this.initials, options).format(date);
   }
 }
 export default new Internationalization();

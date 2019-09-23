@@ -1,4 +1,4 @@
-const api = 'http://localhost:3001/';
+const api = 'http://192.168.1.100:3001/';
 
 export const ApiService = {
   get(endpoint) {

@@ -14,7 +14,10 @@ module.exports = {
     try {
       const register = await registerModel.create(req.body);
       return res.json(register);
-    } catch (error) { return res.json(error); }
+    } catch (error) {
+      console.log(error);
+      return res.json(error);
+    }
   },
   search: async (req, res) => {
     const keys = Object.keys(req.body);

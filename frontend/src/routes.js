@@ -26,13 +26,13 @@ export default function Routes({ logged }) {
           src={brazilFlag}
           className="flagImg"
           alt="brazilFlag"
-          onClick={() => { internacionalization.setInitials('pt-BR'); }}
+          onClick={() => { internacionalization.resetInitials('pt-BR'); }}
         />
         <img
           src={usFlag}
           className="flagImg"
           alt="usFlag"
-          onClick={() => { internacionalization.setInitials('en-US'); }}
+          onClick={() => { internacionalization.resetInitials('en-US'); }}
         />
       </div>
       <Router>

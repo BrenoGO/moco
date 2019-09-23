@@ -4,6 +4,9 @@ import { useSelector, useDispatch } from 'react-redux';
 import './GroupAccount.css';
 
 import { AccountsService } from '../../services/AccountsService';
+import { RegistersService } from '../../services/RegistersService';
+import internacionalization from '../../services/Internacionalization';
+
 import { addAccount, deleteAccounts, updateAccount } from '../../actions/AccountsActions';
 
 import FinalAccount from './FinalAccount';
@@ -21,6 +24,7 @@ export default function GroupAccount(props) {
     allowValue: false
   });
   const [boolWarning, setBoolWarning] = useState(false);
+  const [initialValue, setInitialValue] = useState(internacionalization.getInitials() !== 'pt-BR' ? 'Initial: $ 0.00' : 'Initial: R$ 0,00');
 
   const accounts = useSelector(state => state.AccountsReducer.accounts);
 
@@ -35,13 +39,23 @@ export default function GroupAccount(props) {
     const newAccount = await AccountsService.store(
       { ...addForm, parents: [...account.parents, account.id], id }
     );
+    if (newAccount[0].parents.includes(3)) {
+      const value = internacionalization.toNumber(initialValue);
+      await RegistersService.store({
+        opType: 'incomeAtSight',
+        whereAccountId: newAccount[0].id,
+        whereAccountBalance: value,
+        description: 'Initial Balance',
+        value
+      });
+    }
+
     dispatch(addAccount(newAccount[0]));
     setAddForm({ name: '', allowValue: false });
     setAdding(false);
   }
   async function deleteAccount() {
     const deletedIds = await AccountsService.delete(account.id);
-    console.log(deletedIds);
     setBoolWarning(false);
     dispatch(deleteAccounts(deletedIds.ok.map(item => item.id)));
   }
@@ -116,16 +130,26 @@ export default function GroupAccount(props) {
               value={addForm.name}
               onChange={e => setAddForm({ ...addForm, name: e.target.value })}
             />
-            <label htmlFor="allowValue">
+            <label htmlFor={`allowValue${account.id}`}>
               <input
                 type="checkbox"
-                id="allowValue"
+                id={`allowValue${account.id}`}
                 checked={addForm.allowValue}
                 onChange={() => setAddForm({ ...addForm, allowValue: !addForm.allowValue })}
               />
               Accept Value
             </label>
-            <button type="button" onClick={addChild}>Add!</button>
+            {addForm.allowValue && (account.id === 3 || account.parents.includes(3)) && (
+              <input
+                type="text"
+                placeholder="initial value"
+                value={initialValue}
+                onChange={
+                  e => setInitialValue(internacionalization.currencyFormatter(e.target.value))
+                }
+              />
+            )}
+            <button type="button" className="smallBut" onClick={addChild}>Add!</button>
           </div>
         </div>
       )}

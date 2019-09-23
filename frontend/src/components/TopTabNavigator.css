@@ -9,6 +9,7 @@
   margin: 0 auto;
   background-color: rgb(250, 250, 250);
 }
+
 .navLink{
   text-decoration: none;
   width: 100%;
@@ -18,4 +19,11 @@
   background-color: rgb(240, 240, 250);
   color: black;
 }
+
+@media screen and (max-width: 1000px) {
+  #topTabNav{
+    width: 100%;
+  }
+}
+
 

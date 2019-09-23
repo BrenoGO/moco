@@ -5,6 +5,7 @@ import './App.css';
 import './AppMobile.css';
 
 import auth from './services/Auth';
+import internacionalization from './services/Internacionalization';
 
 import { setAccounts, setDefaults } from './actions/AccountsActions';
 
@@ -26,6 +27,13 @@ export default function App() {
       auth.logout(() => setLogged(false));
     }
   }, [dispatch]);
+
+  useEffect(() => {
+    const initials = localStorage.getItem('Intl-initials');
+    if (initials) {
+      internacionalization.setInitials(initials);
+    }
+  }, []);
 
   return <Routes logged={logged} />;
 }

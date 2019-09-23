@@ -20,6 +20,18 @@ module.exports = [
     id: 4
   },
   {
+    allowValue: false,
+    name: 'To Pay',
+    parents: [4],
+    id: 13
+  },
+  {
+    allowValue: false,
+    name: 'To Receive',
+    parents: [4],
+    id: 14
+  },
+  {
     allowValue: true,
     name: 'Salary',
     parents: [1],
@@ -66,18 +78,6 @@ module.exports = [
     name: 'Investments',
     parents: [3],
     id: 12
-  },
-  {
-    allowValue: false,
-    name: 'To Pay',
-    parents: [4],
-    id: 13
-  },
-  {
-    allowValue: false,
-    name: 'To Receive',
-    parents: [4],
-    id: 14
   },
   {
     allowValue: true,
