@@ -39,29 +39,30 @@ export default function Routes({ logged }) {
         <TopTabNavigator />
         <Switch>
           <Route
-            path="/"
+            path={`${process.env.PUBLIC_URL}/`}
             exact
             component={Root}
           />
           <Route
-            path="/login"
+            path={`${process.env.PUBLIC_URL}/login`}
+            logged={logged}
             exact
             component={Login}
           />
           <PrivateRoute
-            path="/Operations"
+            path={`${process.env.PUBLIC_URL}/Operations`}
             component={Operations}
           />
           <PrivateRoute
-            path="/Accounts"
+            path={`${process.env.PUBLIC_URL}/Accounts`}
             component={Accounts}
           />
           <PrivateRoute
-            path="/Reports"
+            path={`${process.env.PUBLIC_URL}/Reports`}
             component={Reports}
           />
           <PrivateRoute
-            path="/Settings"
+            path={`${process.env.PUBLIC_URL}/Settings`}
             component={Settings}
           />
         </Switch>

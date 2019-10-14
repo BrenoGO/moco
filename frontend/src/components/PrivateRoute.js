@@ -10,7 +10,7 @@ export default function PrivateRoute({ component: Component, ...rest }) {
       render={props => (
         auth.isAuth() === true
           ? <Component {...props} />
-          : <Redirect to="/login" />
+          : <Redirect to={`${process.env.PUBLIC_URL}/login`} />
       )}
     />
   );

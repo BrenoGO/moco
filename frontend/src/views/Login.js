@@ -16,12 +16,12 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [password, setPassword] = useState('');
-  const [redirect, setRedirect] = useState({ bool: false, to: '/' });
+  const [redirect, setRedirect] = useState({ bool: false, to: `${process.env.PUBLIC_URL}/` });
 
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (auth.isAuth()) setRedirect({ bool: true, to: '/operations' });
+    if (auth.isAuth()) setRedirect({ bool: true, to: `${process.env.PUBLIC_URL}/Operations` });
   }, []);
 
   async function handleSubmit(e) {
@@ -30,7 +30,7 @@ export default function Login() {
     const resp = await UsersService.login({ email, password });
 
     if (resp.error) {
-      auth.logout(() => setRedirect({ bool: false, to: '/' }));
+      auth.logout(() => setRedirect({ bool: false, to: `${process.env.PUBLIC_URL}/` }));
       alert(resp.error);
       setLoading(false);
     } else {
@@ -38,14 +38,14 @@ export default function Login() {
       auth.login(() => auth.login((accounts, defaults) => {
         dispatch(setAccounts(accounts));
         dispatch(setDefaults(defaults));
-        setRedirect({ bool: true, to: '/operations' });
+        setRedirect({ bool: true, to: `${process.env.PUBLIC_URL}/Operations` });
         setLoading(false);
       }));
     }
   }
 
   if (loading) return <Loading />;
-  if (redirect.bool) return <Redirect to="/operations" />;
+  if (redirect.bool) return <Redirect to={`${process.env.PUBLIC_URL}/Operations`} />;
   return (
     <div className="view">
       <h1>Login</h1>
