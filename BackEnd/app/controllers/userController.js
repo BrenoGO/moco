@@ -1,5 +1,5 @@
 const userModel = require('../models/userModel');
-const { encrypt, decrypt } = require('../../config/cryptography');
+const { encrypt } = require('../../config/cryptography');
 const { login } = require('../../config/auth');
 
 
@@ -11,10 +11,7 @@ module.exports = {
   userById: async (req, res) => {
     const { id } = req.params;
     const user = await userModel.findById(id);
-    const { password } = user;
-    const dePW = decrypt(password);
-    return res.json({ ...user._doc, dePW });
-    // return res.json({dePW});
+    return res.json({ ...user._doc });
   },
   addUser: async (req, res) => {
     const { name, email, password } = req.body;
