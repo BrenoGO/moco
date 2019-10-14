@@ -6,7 +6,7 @@ const routes = require('../app/routes');
 
 module.exports = function () {
   const app = express();
-  app.set('port', 3001);
+  app.set('port', process.env.PORT || 3001);
 
   app.use(express.json());
   app.use(cors());
