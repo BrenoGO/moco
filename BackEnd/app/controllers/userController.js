@@ -1,5 +1,5 @@
 const userModel = require('../models/userModel');
-const { encrypt, decrypt } = require('../../config/private');
+const { encrypt, decrypt } = require('../../config/cryptography');
 const { login } = require('../../config/auth');
 
 
