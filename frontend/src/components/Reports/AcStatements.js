@@ -1,25 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import DatePicker from 'react-datepicker';
-
-import 'react-datepicker/dist/react-datepicker.css';
 
 import Select from '../Select';
 
+import helper from '../../services/helper';
 import { RegistersService } from '../../services/RegistersService';
 import internacionalization from '../../services/Internacionalization';
 
-export default function AcStatements({ curAccounts }) {
-  const [acId, setAcId] = useState(10);
+export default function AcStatements() {
+  const accounts = useSelector(state => state.AccountsReducer.accounts);
+  const { defaultAccounts } = useSelector(state => state.DefaultsReducer);
+  const curAccounts = helper.organizedAccounts(accounts, defaultAccounts.currentAccounts);
+
+  const [acId, setAcId] = useState(defaultAccounts.whereAccounts.AtSight);
   const initialDate = new Date();
   initialDate.setDate(initialDate.getDate() - 30);
   const [initDate, setInitDate] = useState(new Date(initialDate));
   const [finalDate, setFinalDate] = useState(new Date());
   const [registers, setRegisters] = useState([]);
 
-  const accounts = useSelector(state => state.AccountsReducer.accounts);
-
   useEffect(() => {
+    let mounted = true;
     RegistersService.search({
       whereAccountId: acId,
       emitDate: {
@@ -27,21 +28,24 @@ export default function AcStatements({ curAccounts }) {
         $lt: finalDate
       }
     }).then((regs) => {
-      setRegisters(regs);
+      if (mounted) setRegisters(regs);
     });
+    return () => { mounted = false; };
   }, [acId, initDate, finalDate]);
 
   function handleDateChange(when, date) {
     switch (when) {
       case 'init':
-        setInitDate(date);
+        setInitDate(helper.inputDateToNewDate(date));
         break;
       case 'final':
-        setFinalDate(date);
+        setFinalDate(helper.inputDateToNewDate(date));
         break;
       default:
+        break;
     }
   }
+
   return (
     <div>
       <div><h3>Current Accounts Statements</h3></div>
@@ -58,16 +62,24 @@ export default function AcStatements({ curAccounts }) {
         <div>
           Initial:
           {' '}
-          <DatePicker selected={initDate} onChange={d => handleDateChange('init', d)} />
+          <input
+            type="date"
+            value={helper.dateToInput(initDate)}
+            onChange={e => handleDateChange('init', e.target.value)}
+          />
         </div>
         <div>
           Final:
           {' '}
-          <DatePicker selected={finalDate} onChange={d => handleDateChange('final', d)} />
+          <input
+            type="date"
+            value={helper.dateToInput(finalDate)}
+            onChange={e => handleDateChange('final', e.target.value)}
+          />
         </div>
       </div>
       <div id="report">
-        <table>
+        <table className="table">
           <thead>
             <tr>
               <td>opType</td>

@@ -38,22 +38,16 @@ class Internationalization {
       minimumFractionDigits: 2
     });
 
+    let sign = '';
     let newValue = value;
-    if (typeof newValue === 'number') newValue = String(newValue.toFixed(2));
+
+    if (typeof newValue === 'number') newValue = newValue.toFixed(2);
+    if (newValue[0] === '-') sign = '-';
     newValue = newValue.replace(/\D/g, '');
     if (newValue === '') newValue = '000';
     if (newValue.length === 1) newValue = `00${newValue}`;
-    newValue = `${newValue.substring(0, newValue.length - 2)}.${newValue.substr(-2, 2)}`;
+    newValue = `${sign}${newValue.substring(0, newValue.length - 2)}.${newValue.substr(-2, 2)}`;
     return formatter.format(newValue);
-  }
-
-  toNumber(str) {
-    if (typeof str === 'number') return str;
-    let value = (str.replace(/\D/gi, ''));
-    if (value === '') value = '000';
-    if (value.length === 1) value = `00${value}`;
-    value = Number(`${value.substring(0, value.length - 2)}.${value.substr(-2, 2)}`);
-    return value;
   }
 
   formatDate(date) {

@@ -5,9 +5,9 @@ const passportJWT = require('passport-jwt');
 const jwt = require('jsonwebtoken');
 
 const userModel = require('../app/models/userModel');
-const secretOrKey = require('./private').JWTsecretOrKey;
 const { encrypt } = require('./private');
 
+const secretOrKey = process.env.JWT_SECRET_OR_KEY;
 const { ExtractJwt, Strategy: JwtStrategy } = passportJWT;
 
 const jwtOptions = {

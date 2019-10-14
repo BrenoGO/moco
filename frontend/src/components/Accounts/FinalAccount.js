@@ -26,9 +26,9 @@ export default function FinalAccount(props) {
     setEditing(false);
   }
 
-  return (
-    <>
-      {boolWarning && (
+  function warning() {
+    if (boolWarning) {
+      return (
         <Modal
           buttonMessage="Delete"
           type="confirm-danger"
@@ -37,31 +37,37 @@ export default function FinalAccount(props) {
           confirmFunction={deleteAccount}
         >
           {`Are you sure you want to delete the
-          ${account.name}
-          account?`}
+        ${account.name}
+        account?`}
         </Modal>
-      )}
-      <div className="account">
-        <div className="accountName">
-          {
-            editing
-              ? (
-                <div className="divEdit">
-                  <label htmlFor="newName">
-                    Editing:
-                    <input type="text" syze="10" id="newName" value={newName} onChange={e => setNewName(e.target.value)} />
-                  </label>
-                  <button type="button" className="smallBut" onClick={edit}>Edit</button>
-                </div>
-              )
-              : <span className="spanName">{account.name}</span>
-          }
-        </div>
-        <div className="actions">
-          <button type="button" className="smallBut" onClick={() => setEditing(!editing)}>Edit</button>
-          <button type="button" className="smallBut" onClick={() => setBoolWarning(true)}>Delete</button>
-        </div>
+      );
+    }
+    return '';
+  }
+
+  if (editing) {
+    return (
+      <div className="inAction">
+        {warning()}
+        <label htmlFor={`editing-${account.id}`} className="addingLabel">
+            Editing:
+          <input type="text" id={`editing-${account.id}`} value={newName} onChange={e => setNewName(e.target.value)} />
+        </label>
+        <button type="button" className="btn smallBut btn-danger" onClick={() => setEditing(!editing)}>Cancel</button>
+        <button type="button" className="btn smallBut btn-primary" onClick={edit}>Edit</button>
       </div>
-    </>
+    );
+  }
+  return (
+    <div className="account">
+      {warning()}
+      <div className="accountName">
+        <span className="spanName">{account.name}</span>
+      </div>
+      <div className="actions">
+        <button type="button" className="btn smallBut btn-primary" onClick={() => setEditing(!editing)}>{!editing ? 'Edit' : 'cancel'}</button>
+        <button type="button" className="btn smallBut btn-danger" onClick={() => setBoolWarning(true)}>Delete</button>
+      </div>
+    </div>
   );
 }

@@ -12,6 +12,14 @@ const schema = mongoose.Schema({
     type: Number,
     required: true
   },
+  type: {
+    type: String,
+    required: true,
+    enum: [
+      'ToPay',
+      'ToReceive'
+    ]
+  },
   dueDate: {
     type: Date,
     required: true
@@ -20,14 +28,17 @@ const schema = mongoose.Schema({
     type: Date,
     required: true
   },
+  installment: String,
+  notes: String,
+  whereAccount: {
+    type: Number,
+    required: true,
+  },
+  paymentDate: Date,
   operation: {
     type: ObjectId,
-    required: true,
     ref: 'Operation'
-  },
-  description: String,
-  installment: String,
-  note: String
+  }
 },
 {
   timestamps: true

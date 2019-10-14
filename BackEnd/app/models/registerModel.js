@@ -14,9 +14,11 @@ const RegisterSchema = mongoose.Schema({
     enum: [
       'expenseAtSight', //  where is a current
       'incomeAtSight', //  where is a current
-      'expenseToPay', // where is a future.. generates a bill
-      'incomeToReceive', // where is a future.. generates a bill
-      'transference'
+      'expenseToPay', // where is a future.. generates a bill, have to have operation
+      'incomeToReceive', // where is a future.. generates a bill, have to have operation
+      'payment',
+      'transference',
+      'complex' // when has many registers and bills. have to have a operation
     ]
   },
   emitDate: {
@@ -32,8 +34,12 @@ const RegisterSchema = mongoose.Schema({
     type: Number,
     required: true
   },
-  bills: {
-    type: [ObjectId],
+  operation: {
+    type: ObjectId,
+    ref: 'Operation'
+  },
+  bill: {
+    type: ObjectId,
     ref: 'Bill'
   }
 },

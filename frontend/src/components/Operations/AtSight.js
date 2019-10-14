@@ -1,65 +1,67 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import DatePicker from 'react-datepicker';
-
-import 'react-datepicker/dist/react-datepicker.css';
 
 import './operations.css';
 
+import helper from '../../services/helper';
 import internacionalization from '../../services/Internacionalization';
 import { RegistersService } from '../../services/RegistersService';
 
-import { resetBalance } from '../../actions/AccountsActions';
+import { resetBalance } from '../../actions/DefaultsActions';
 
 import Select from '../Select';
 
-export default function AtSight(props) {
-  const { organizedAccounts } = props;
-
-  const defaults = useSelector(state => (state.AccountsReducer.defaults));
+export default function AtSight() {
+  const initialValue = internacionalization.getInitials() !== 'pt-BR' ? '$ 0.00' : 'R$ 0,00';
+  const accounts = useSelector(state => state.AccountsReducer.accounts);
+  const { defaultAccounts, balances } = useSelector(state => (state.DefaultsReducer));
   const dispatch = useDispatch();
 
-  const [opValue, setOpValue] = useState(internacionalization.getInitials() !== 'pt-BR' ? '$ 0.00' : 'R$ 0,00');
+  const [opValue, setOpValue] = useState(initialValue);
   const [opDesc, setOpDesc] = useState('');
   const [opNotes, setOpNotes] = useState('');
-  const [whatAccountId, setWhatAccountId] = useState(defaults.defaultAccounts.whatId);
+  const [whatAccountId, setWhatAccountId] = useState(defaultAccounts.whatAccounts.expense);
   const [whereAccountId, setWhereAccountId] = useState(
-    defaults.defaultAccounts.whereId
+    defaultAccounts.whereAccounts.AtSight
   );
-  const [whatAccounts, setWhatAccounts] = useState({ id: 2, name: 'expense' });
+  const [whatAccounts, setWhatAccounts] = useState({ id: defaultAccounts.expense, name: 'expense' });
   const [emitDate, setEmitDate] = useState(new Date());
 
-  const currentAccounts = organizedAccounts(3);
-  const whatAccountsToSelect = organizedAccounts(whatAccounts.id);
-
-  useEffect(() => {
-    if (defaults.defaultAccounts.whereId) setWhereAccountId(defaults.defaultAccounts.whereId);
-    if (defaults.defaultAccounts.whatId) setWhatAccountId(defaults.defaultAccounts.whatId);
-  }, [defaults]);
+  const currentAccounts = helper.organizedAccounts(accounts, defaultAccounts.currentAccounts);
+  const whatAccountsToSelect = helper.organizedAccounts(accounts, whatAccounts.id);
 
   function editOpValue(value) {
     setOpValue(internacionalization.currencyFormatter(value));
   }
 
+  function handleWhatAccountsChange(type) {
+    setWhatAccounts({ id: defaultAccounts[type], name: type });
+    setWhatAccountId(defaultAccounts.whatAccounts[type]);
+  }
+
   function reSetState() {
-    setOpValue(internacionalization.getInitials() !== 'pt-BR' ? '$ 0.00' : 'R$ 0,00');
+    setOpValue(initialValue);
     setOpDesc('');
     setOpNotes('');
-    setWhatAccountId(defaults.defaultAccounts.whatId);
-    setWhereAccountId(defaults.defaultAccounts.whereId);
-    setWhatAccounts({ id: 2, name: 'expense' });
+    setWhatAccountId(defaultAccounts.whatAccounts.expense);
+    setWhereAccountId(defaultAccounts.whereAccounts.AtSight);
+    setWhatAccounts({ id: defaultAccounts.expense, name: 'expense' });
     setEmitDate(new Date());
   }
+
   function submit() {
-    const lastWhereAccountBalance = defaults.balances.filter(
+    const value = helper.toNumber(opValue);
+
+    if (value === 0) return alert('value is 0!');
+
+    const lastWhereBalance = balances.filter(
       item => item.accountId === whereAccountId
     )[0].balance;
 
-    const value = internacionalization.toNumber(opValue);
-    if (value === 0) return alert('value is 0!');
+    const whereAccountBalance = whatAccounts.name === 'expense'
+      ? lastWhereBalance - value
+      : lastWhereBalance + value;
 
-    const whereAccountBalance = lastWhereAccountBalance + value;
-    reSetState();
     dispatch(resetBalance({ accountId: whereAccountId, balance: whereAccountBalance }));
     const Obj = {
       opType: `${whatAccounts.name}AtSight`,
@@ -67,7 +69,9 @@ export default function AtSight(props) {
       whatAccountId,
       whereAccountBalance,
       value,
+      emitDate
     };
+    reSetState();
 
     if (opDesc) Obj.description = opDesc;
     if (opNotes) Obj.notes = opNotes;
@@ -81,16 +85,18 @@ export default function AtSight(props) {
         <div>
           Emit date:
           {' '}
-          <DatePicker selected={emitDate} onChange={d => setEmitDate(d)} />
+          <input
+            type="date"
+            value={helper.dateToInput(emitDate)}
+            onChange={e => setEmitDate(helper.inputDateToNewDate(e.target.value))}
+          />
         </div>
         <label htmlFor="selectExpenseOrIncome">
           Expense or Income:
           <select
             id="selectExpenseOrIncome"
             value={whatAccounts.name}
-            onChange={e => setWhatAccounts(
-              e.target.value === 'expense' ? { id: 2, name: 'expense' } : { id: 1, name: 'income' }
-            )}
+            onChange={e => handleWhatAccountsChange(e.target.value)}
           >
             <option value="expense">Expense</option>
             <option value="income">Income</option>
@@ -142,7 +148,7 @@ export default function AtSight(props) {
         </label>
       </div>
       <div id="divButRegister">
-        <button type="button" className="but-primary-neutral" onClick={submit}>Register</button>
+        <button type="button" className="btn btn-primary" onClick={submit}>Register</button>
       </div>
     </>
   );

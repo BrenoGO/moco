@@ -10,7 +10,12 @@ module.exports = {
     return res.json(registers);
   },
   store: async (req, res) => {
-    req.body.userId = req.user._id;
+    if (!Array.isArray(req.body)) {
+      req.body.userId = req.user._id;
+    } else {
+      req.body.forEach((item) => { item.userId = req.user._id; });
+    }
+
     try {
       const register = await registerModel.create(req.body);
       return res.json(register);
@@ -59,6 +64,17 @@ module.exports = {
         return res.send({ err });
       }
       return res.send({ ok: 'Register deleted' });
+    });
+  },
+  clearAll: (req, res) => {
+    registerModel.deleteMany({}, (err) => {
+      if (err) {
+        return res.send({
+          notOk: 'not deleted',
+          err
+        });
+      }
+      return res.send({ ok: 'All Clear' });
     });
   }
 };

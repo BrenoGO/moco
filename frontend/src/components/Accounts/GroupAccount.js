@@ -5,6 +5,7 @@ import './GroupAccount.css';
 
 import { AccountsService } from '../../services/AccountsService';
 import { RegistersService } from '../../services/RegistersService';
+import helper from '../../services/helper';
 import internacionalization from '../../services/Internacionalization';
 
 import { addAccount, deleteAccounts, updateAccount } from '../../actions/AccountsActions';
@@ -32,7 +33,10 @@ export default function GroupAccount(props) {
 
   const childrenAc = accounts.filter(
     ac => ac.parents[ac.parents.length - 1] === account.id
-  );
+  ).sort((a, b) => {
+    if (b.allowValue) return 1;
+    return b.id - a.id;
+  });
 
   async function addChild() {
     const id = accounts.reduce((ac, atual) => (atual.id > ac.id ? atual : ac)).id + 1;
@@ -40,7 +44,7 @@ export default function GroupAccount(props) {
       { ...addForm, parents: [...account.parents, account.id], id }
     );
     if (newAccount[0].parents.includes(3)) {
-      const value = internacionalization.toNumber(initialValue);
+      const value = helper.toNumber(initialValue);
       await RegistersService.store({
         opType: 'incomeAtSight',
         whereAccountId: newAccount[0].id,
@@ -54,16 +58,19 @@ export default function GroupAccount(props) {
     setAddForm({ name: '', allowValue: false });
     setAdding(false);
   }
+
   async function deleteAccount() {
     const deletedIds = await AccountsService.delete(account.id);
     setBoolWarning(false);
     dispatch(deleteAccounts(deletedIds.ok.map(item => item.id)));
   }
+
   function edit() {
     AccountsService.update(account.id, { ...account, name: newName });
     dispatch(updateAccount(account.id, newName));
     setEditing(false);
   }
+
   return (
     <>
       {boolWarning && (
@@ -79,58 +86,68 @@ export default function GroupAccount(props) {
             account and all its children?`}
         </Modal>
       )}
-      <div className={`account ${account.parents.length === 0 ? 'rootAccount' : 'groupAccount'}`}>
-        <div className="accountName">
-          {
-            editing
-              ? (
-                <div className="divEdit">
-                  <label htmlFor="newName">
-                    Editing:
-                    <input type="text" syze="10" id="newName" value={newName} onChange={e => setNewName(e.target.value)} />
-                  </label>
-                  <button type="button" className="smallBut" onClick={edit}>Edit</button>
-                </div>
-              )
-              : <span className="spanName">{account.name}</span>
-          }
-        </div>
-        <div className="actions">
-          <button type="button" className="smallBut" onClick={() => setAdding(!adding)}>{!adding ? 'Add' : 'cancel'}</button>
-          <button type="button" className="smallBut" onClick={() => setEditing(!editing)}>{!editing ? 'Edit' : 'cancel'}</button>
-          {account.parents.length > 0 && (
-            <button
-              type="button"
-              className="smallBut"
-              onClick={() => setBoolWarning(true)}
-            >
-              Delete
-            </button>
-          )}
-        </div>
-        <div className="thirdDiv">
-          {
-            childrenAc.length > 0 ? (
-              <button type="button" onClick={() => setOpened(!opened)} className="openAccount smallBut">
-                { opened ? '-' : '+' }
-              </button>
-            )
-              : <span> </span>
-          }
-        </div>
-      </div>
+      { editing
+        ? (
+          <div className={`inAction ${account.parents.length === 0 ? 'rootAccount' : 'groupAccount'}`}>
+            <label htmlFor={`editing-${account.id}`} className="addingLabel">
+                  Editing:
+              <input type="text" id={`editing-${account.id}`} value={newName} onChange={e => setNewName(e.target.value)} />
+            </label>
+            <button type="button" className="btn smallBut btn-danger" onClick={() => setEditing(!editing)}>Cancel</button>
+            <button type="button" className="btn smallBut btn-primary" onClick={edit}>Edit</button>
+          </div>
+        )
+        : (
+          <div className={`account ${account.parents.length === 0 ? 'rootAccount' : 'groupAccount'}`}>
+            <div className="accountName">
+              <span className="spanGroupName">{account.name}</span>
+            </div>
+            <div className="actions">
+              <button type="button" className={`btn smallBut ${adding ? 'btn-danger' : 'groupAcBtn'}`} onClick={() => setAdding(!adding)}>{!adding ? 'Add' : 'cancel'}</button>
+              {!adding
+                && <button type="button" className="btn smallBut groupAcBtn" onClick={() => setEditing(!editing)}>{!editing ? 'Edit' : 'cancel'}</button>
+              }
+
+              {account.parents.length > 0 && !adding && (
+                <button
+                  type="button"
+                  className="btn smallBut btn-danger"
+                  onClick={() => setBoolWarning(true)}
+                >
+                  Delete
+                </button>
+              )}
+            </div>
+            <div className="thirdDiv">
+              {
+                !adding && childrenAc.length > 0 ? (
+                  <button type="button" onClick={() => setOpened(!opened)} className="btn openAccount smallBut">
+                    { opened ? '-' : '+' }
+                  </button>
+                )
+                  : <span> </span>
+              }
+            </div>
+          </div>
+        )
+        }
       {adding && (
-        <div className="account">
-          <div className="accountHeader">
-            <span className="accountName">Adding: </span>
-            <input
-              type="text"
-              placeholder="Name"
-              name="name"
-              value={addForm.name}
-              onChange={e => setAddForm({ ...addForm, name: e.target.value })}
-            />
-            <label htmlFor={`allowValue${account.id}`}>
+        <div className="inAction">
+          <div className="inputingField">
+            <label htmlFor={`addingName${account.id}`} className="addingLabel">
+              Adding:
+              <input
+                id={`addingName${account.id}`}
+                type="text"
+                placeholder="Name"
+                name="name"
+                value={addForm.name}
+                onChange={e => setAddForm({ ...addForm, name: e.target.value })}
+              />
+            </label>
+          </div>
+          <div className="acceptAndBut">
+            <label className="addingLabel" htmlFor={`allowValue${account.id}`}>
               <input
                 type="checkbox"
                 id={`allowValue${account.id}`}
@@ -149,7 +166,7 @@ export default function GroupAccount(props) {
                 }
               />
             )}
-            <button type="button" className="smallBut" onClick={addChild}>Add!</button>
+            <button type="button" className="btn smallBut btn-primary" onClick={addChild}>Add!</button>
           </div>
         </div>
       )}

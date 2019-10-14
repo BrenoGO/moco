@@ -19,7 +19,7 @@ export default function Option(props) {
   }
   return (
     <div
-      onClick={() => (!disabled && onClick(index))}
+      onClick={() => onClick(index)}
       style={{ ...style, ...styleEvent }}
       onMouseEnter={() => setStyleEvent(mouseEnterStyle)}
       onMouseLeave={() => setStyleEvent(mouseLeaveStyle)}

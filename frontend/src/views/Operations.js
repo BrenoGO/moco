@@ -1,47 +1,37 @@
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
 
 import './views.css';
 
 import AtSight from '../components/Operations/AtSight';
 import FutureOper from '../components/Operations/FutureOper';
+import Complex from '../components/Operations/Complex';
+import PayOrReceiveBill from '../components/Operations/PayOrReceiveBill';
+import Transference from '../components/Operations/Transference';
 
 export default function Operations() {
   const [opType, setOpType] = useState('atSight');
-
-  const accounts = useSelector(state => state.AccountsReducer.accounts);
-
-  function getChildren(id) {
-    const children = accounts.filter(
-      ac => (ac.parents[ac.parents.length - 1] === id)
-    ).sort((a, b) => (a.id - b.id));
-    return children;
-  }
-  function organizedAccounts(id) {
-    const rootAccs = getChildren(id);
-    const orgAc = [];
-
-    function loopChildren(children) {
-      if (children.length > 0) {
-        children.forEach((child) => {
-          orgAc.push(child);
-          loopChildren(getChildren(child.id));
-        });
-      }
-    }
-    loopChildren(rootAccs);
-    return (orgAc);
-  }
 
   function typeComponent() {
     switch (opType) {
       case 'atSight':
         return (
-          <AtSight organizedAccounts={organizedAccounts} />
+          <AtSight />
         );
       case 'future':
         return (
-          <FutureOper organizedAccounts={organizedAccounts} />
+          <FutureOper />
+        );
+      case 'complex':
+        return (
+          <Complex />
+        );
+      case 'payOrReceiveBill':
+        return (
+          <PayOrReceiveBill />
+        );
+      case 'transference':
+        return (
+          <Transference />
         );
       default:
         return false;
@@ -58,6 +48,7 @@ export default function Operations() {
             <select id="opType" value={opType} onChange={e => setOpType(e.target.value)}>
               <option value="atSight">At Sight</option>
               <option value="future">Future Operation</option>
+              <option value="complex">Complex Operation</option>
               <option value="payOrReceiveBill">Pay or Receive Bill</option>
               <option value="transference">Transference</option>
             </select>

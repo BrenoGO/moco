@@ -1,9 +1,10 @@
-const accountsModal = require('../models/accountModel');
+const accountsModel = require('../models/accountModel');
+// const settingsModal = require('../models/settingModel');
 const registerModel = require('../models/registerModel');
 
 module.exports = {
   async index(req, res) {
-    const accounts = await accountsModal.find({ userId: req.user._id });
+    const accounts = await accountsModel.find({ userId: req.user._id });
     return res.json(accounts);
   },
   async insert(req, res) {
@@ -11,22 +12,22 @@ module.exports = {
       req.body = [req.body];
     }
     const newAccounts = req.body.map(item => ({ ...item, userId: req.user._id }));
-    const accounts = await accountsModal.create(newAccounts);
+    const accounts = await accountsModel.create(newAccounts);
 
     return res.json(accounts);
   },
   async update(req, res) {
     const { id } = req.params;
-    const account = await accountsModal.findOneAndUpdate({ id }, req.body, { new: true });
+    const account = await accountsModel.findOneAndUpdate({ id }, req.body, { new: true });
     res.json(account);
   },
   async removeByID(req, res) {
     const { id } = req.params;
-    const children = await accountsModal.find({ parents: id });
+    const children = await accountsModel.find({ parents: id });
     const toDelete = children.map(child => ({ id: child.id }));
     toDelete.push({ id: Number(id) });
     console.log(toDelete);
-    await accountsModal.deleteMany({
+    await accountsModel.deleteMany({
       $or: toDelete
     });
     const regToDelete = toDelete.map(item => ({
@@ -39,16 +40,16 @@ module.exports = {
 
     res.json({ ok: toDelete });
   },
-  async startsDefault(req, res) {
-    const defaultAccounts = require('../constants/defaultAccounts').map(item => ({ ...item, userId: req.user._id }));
-    const accounts = await accountsModal.create(defaultAccounts);
+  async initialAccounts(req, res) {
+    const initialAccounts = require('../constants/initialAccounts').map(item => ({ ...item, userId: req.user._id }));
+    const accounts = await accountsModel.create(initialAccounts);
     return res.json(accounts);
   },
   clearAll: (req, res) => {
-    accountsModal.deleteMany({}, (err) => {
+    accountsModel.deleteMany({}, (err) => {
       if (err) {
         return res.send({
-          naoOk: 'nao foi removido',
+          notOk: 'not deleted',
           err
         });
       }

@@ -21,15 +21,22 @@
   justify-content: center;
   margin-top: 20px;
 }
-thead{
-  font-weight: bold;
-}
-td{
-  padding: 2px;
-}
 .react-datepicker-wrapper{
   z-index: 0;
 }
 .register{
   background-color: #fff;
+}
+
+@media screen and (max-width: 1000px) {
+  #internalNav{
+    display: flex;
+    justify-content: space-around;
+  }
+  .options{
+    padding: 2px;
+    margin: 1px;
+    /* width: 15%; */
+    width: 25%;
+  }
 }

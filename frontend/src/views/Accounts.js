@@ -12,7 +12,10 @@ export default function Accounts() {
 
 
   function renderAccountCountainer() {
-    const rootAccounts = accounts.filter(account => account.parents.length === 0);
+    const rootAccounts = accounts.filter(
+      account => account.parents.length === 0
+    ).sort((a, b) => (a.id - b.id));
+
     return (
       <div id="accountContainer">
         {

@@ -7,7 +7,8 @@ import './Login.css';
 import auth from '../services/Auth';
 import { UsersService } from '../services/UsersService';
 
-import { setAccounts, setDefaults } from '../actions/AccountsActions';
+import { setAccounts } from '../actions/AccountsActions';
+import { setDefaults } from '../actions/DefaultsActions';
 
 import Loading from '../components/Loading';
 
@@ -47,7 +48,7 @@ export default function Login() {
   if (redirect.bool) return <Redirect to="/operations" />;
   return (
     <div className="view">
-      <h1>Login Area</h1>
+      <h1>Login</h1>
       <form id="loginForm" onSubmit={handleSubmit}>
         <label htmlFor="email">
         E-mail:
@@ -57,7 +58,7 @@ export default function Login() {
         Password:
           <input type="password" name="password" id="password" value={password} onChange={e => setPassword(e.target.value)} />
         </label>
-        <button id="loginSubmit" type="submit">Log In</button>
+        <button id="loginSubmit" className="but-primary-neutral" type="submit">Log In</button>
       </form>
     </div>
   );

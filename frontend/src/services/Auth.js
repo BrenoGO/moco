@@ -5,11 +5,13 @@ async function getData(method) {
   const resp = await method();
   if (resp.error) {
     if (String(resp.error).match(/not authorized/i)) {
+      alert('not authorized');
       this.logout(() => {
         localStorage.removeItem('token');
       });
     } else {
       console.log(resp);
+      alert(resp.error);
     }
   }
   return resp;

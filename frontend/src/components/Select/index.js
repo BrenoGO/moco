@@ -2,20 +2,24 @@ import React, { useState, useEffect, useRef } from 'react';
 
 import Option from './Option';
 
-import './Select.css';
 import arrows from './arrows.svg';
 
 const defaultStyle = {
-  backgroundColor: '#FFF',
+  backgroundColor: '#007bff',
+  margin: '5px',
   width: '150px',
   height: '30px',
-  cursor: 'default',
-  fontSize: '12px'
+  cursor: 'pointer',
+  fontSize: '16px',
+  borderRadius: '4px',
+  lineHeight: '1.5',
+  color: '#FFF'
 };
 const defaultSelectedFieldStyle = {
   display: 'grid',
   gridTemplateColumns: '90% 10%',
   height: '100%',
+  fontWeight: '400',
 };
 const defaultOptContainerStyle = {
   zIndex: 9,
@@ -23,22 +27,25 @@ const defaultOptContainerStyle = {
   marginTop: '-40px',
   marginLeft: '10px',
   padding: '5px',
-  border: '1px solid white',
+  border: '1px solid #FFF',
   borderRadius: '5px',
-  backgroundColor: 'white'
+  backgroundColor: '#FFF'
 };
 const defaultOptStyle = {
-  backgroundColor: '#FFF',
+  backgroundColor: '#FAFAFA',
   height: '30px',
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
   paddingRight: '5px',
   paddingLeft: '5px',
+  color: '#000'
 };
 const defautOptDisabledStyle = {
-  backgroundColor: 'rgba(0,0,250,0.95)',
-  fontWeight: 200
+  backgroundColor: '#0202FF',
+  fontWeight: 200,
+  borderRadius: '3px',
+  color: '#FAFAFA'
 };
 const defaultMouseEnterOptionStyle = {
   backgroundColor: 'rgba(180,180,230,0.95)',
@@ -91,8 +98,10 @@ export default function Select(props) {
 
   useEffect(() => {
     document.addEventListener('click', handleClickOutside, true);
+    document.addEventListener('touchstart', handleClickOutside, true);
     return () => {
       document.removeEventListener('click', handleClickOutside, true);
+      document.removeEventListener('touchstart', handleClickOutside, true);
     };
   }, []);
 
@@ -108,7 +117,6 @@ export default function Select(props) {
     onChange(options[optionIndex].value);
   }
   if (options.length === 0) options.push({ label: '', value: 0 });
-
   return (
     <div
       id={id}
@@ -121,7 +129,7 @@ export default function Select(props) {
         style={selectedFieldStyle}
       >
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          <span>{options[selectedIndex].label}</span>
+          {options[selectedIndex] && <span>{options[selectedIndex].label}</span>}
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <img src={arrows} alt="arrows" style={arrowsStyle} />

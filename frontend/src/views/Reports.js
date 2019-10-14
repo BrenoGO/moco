@@ -1,20 +1,16 @@
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
 
 import './views.css';
 import './Reports.css';
 
 import AcStatements from '../components/Reports/AcStatements';
-import Expenses from '../components/Reports/Expenses';
+import IncomesExpenses from '../components/Reports/IncomesExpenses';
 import Future from '../components/Reports/Future';
 import General from '../components/Reports/General';
 
-import Helper from '../services/helper';
 
 export default function Reports() {
   const [chosen, setChosen] = useState('acStat');
-
-  const accounts = useSelector(state => state.AccountsReducer.accounts);
 
   return (
     <div className="view">
@@ -23,8 +19,8 @@ export default function Reports() {
         <div className={`options ${chosen === 'acStat' ? 'chosen' : ''}`} onClick={() => setChosen('acStat')}>
           Account Statements
         </div>
-        <div className={`options ${chosen === 'expenses' ? 'chosen' : ''}`} onClick={() => setChosen('expenses')}>
-          Expenses
+        <div className={`options ${chosen === 'incomesExpenses' ? 'chosen' : ''}`} onClick={() => setChosen('incomesExpenses')}>
+          Incomes / Expenses
         </div>
         <div className={`options ${chosen === 'future' ? 'chosen' : ''}`} onClick={() => setChosen('future')}>
           Future
@@ -33,8 +29,8 @@ export default function Reports() {
           General
         </div>
       </div>
-      {chosen === 'acStat' && <AcStatements curAccounts={Helper.organizedAccounts(accounts, 3)} />}
-      {chosen === 'expenses' && <Expenses />}
+      {chosen === 'acStat' && <AcStatements />}
+      {chosen === 'incomesExpenses' && <IncomesExpenses />}
       {chosen === 'future' && <Future />}
       {chosen === 'general' && <General />}
     </div>

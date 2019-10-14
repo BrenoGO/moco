@@ -2,26 +2,45 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  align-items: center;
   width: 80%;
-  border: 1px solid black;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   background-color: #fff;
 }
 .rootAccount{
-  background-color: rgba(0,0,160,0.9);
+  background-color: rgba(0,0,220,0.9);
   margin-top: 5px;
+  box-shadow:0 0 0 0;
+  font-weight: bolder;
 }
 .groupAccount{
-  background-color: rgba(0,0,250,0.9);
+  background-color: rgba(0,0,255,0.9);
+  font-weight: bold;
 }
-.accountHeader{
+.inAction{
   display: flex;
-  justify-content: space-between;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  width: 80%;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 .accountName{
   display: flex;
   margin: 5px;
   width: 30%;
   justify-content: flex-start;
+}
+.editingAccountName{
+  display: flex;
+  margin: 5px;
+  justify-content: flex-start;
+}
+.spanGroupName{
+  color: #FFF;
+}
+.groupAcBtn{
+  background-color: #fff;
 }
 .actions{
   display: flex;
@@ -42,7 +61,28 @@
   background-color: rgba(0,0,250,0.9);
   border: 0px;
 }
-.divEdit{
+.addingLabel{
   display: flex;
   flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  margin: 3px;
+}
+.acceptAndBut{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+@media screen and (max-width: 1000px) {
+  .account {
+    width: 98%;
+  }
+  .inAction{
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    width: 98%;
+  }
 }

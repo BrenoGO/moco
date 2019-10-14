@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 
 import './App.css';
-import './AppMobile.css';
 
 import auth from './services/Auth';
 import internacionalization from './services/Internacionalization';
 
-import { setAccounts, setDefaults } from './actions/AccountsActions';
+import { setAccounts } from './actions/AccountsActions';
+import { setDefaults } from './actions/DefaultsActions';
 
 import Routes from './routes';
 
@@ -18,7 +18,7 @@ export default function App() {
 
   useEffect(() => {
     if (localStorage.getItem('token')) {
-      auth.login((accounts, defaults) => {
+      auth.login((accounts, defaults) => { // accounts and defaults are gotten in the login method
         dispatch(setAccounts(accounts));
         dispatch(setDefaults(defaults));
         setLogged(true);

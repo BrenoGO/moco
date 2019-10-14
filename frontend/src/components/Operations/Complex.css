@@ -1,0 +1,25 @@
+.whatAccountReg{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin-bottom: 5px;
+}
+#whatAccountsRegisters{
+  border: 1px solid black;
+  margin-bottom: 5px;
+}
+.whereAccountReg{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin-bottom: 5px;
+  border: solid 1px black;
+}
+#whereAccountsRegisters{
+  border: 1px solid black;
+  margin-bottom: 5px;
+}
+.ifCheckedImg{
+  margin-left: 8px;
+  margin-top: 2px;
+}

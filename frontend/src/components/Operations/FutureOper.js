@@ -1,29 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import DatePicker from 'react-datepicker';
-
-import 'react-datepicker/dist/react-datepicker.css';
+import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 
 import './operations.css';
 
+import helper from '../../services/helper';
 import internacionalization from '../../services/Internacionalization';
+import { BillsService } from '../../services/BillsService';
 import { RegistersService } from '../../services/RegistersService';
+import { OperationsService } from '../../services/OperationsService';
 
-import { resetBalance } from '../../actions/AccountsActions';
 
 import Select from '../Select';
 
-export default function FutureOper(props) {
+
+export default function FutureOper() {
+  const accounts = useSelector(state => state.AccountsReducer.accounts);
+  const { defaultAccounts } = useSelector(state => (state.DefaultsReducer));
+
   const initialValue = internacionalization.getInitials() !== 'pt-BR' ? '$ 0.00' : 'R$ 0,00';
-  const initialWhereId = 31;
+  const initialWhatId = defaultAccounts.whatAccounts.expense;
+  const initialWhereId = defaultAccounts.whereAccounts.ToPay;
   const today = new Date();
   const todayPlus30 = new Date();
   todayPlus30.setDate(todayPlus30.getDate() + 30);
-
-  const { organizedAccounts } = props;
-
-  const defaults = useSelector(state => (state.AccountsReducer.defaults));
-  const dispatch = useDispatch();
 
   const [bills, setBills] = useState([
     {
@@ -34,17 +33,28 @@ export default function FutureOper(props) {
   const [opValue, setOpValue] = useState(initialValue);
   const [opDesc, setOpDesc] = useState('');
   const [opNotes, setOpNotes] = useState('');
-  const [whatAccountId, setWhatAccountId] = useState(defaults.defaultAccounts.whatId);
+  const [whatAccountId, setWhatAccountId] = useState(initialWhatId);
   const [whereAccountId, setWhereAccountId] = useState(initialWhereId);
-  const [whatAccounts, setWhatAccounts] = useState({ id: 2, name: 'expense' });
+  const [whatAccounts, setWhatAccounts] = useState({ id: defaultAccounts.expense, name: 'expense' });
+  const [whereAccounts, setWhereAccounts] = useState({ id: defaultAccounts.toPay, name: 'ToPay' });
   const [emitDate, setEmitDate] = useState(today);
 
-  const futureAccounts = organizedAccounts(4);
-  const whatAccountsToSelect = organizedAccounts(whatAccounts.id);
+  const whatAccountsToSelect = helper.organizedAccounts(accounts, whatAccounts.id);
+  const whereAccountsToSelect = helper.organizedAccounts(accounts, whereAccounts.id);
 
-  useEffect(() => {
-    if (defaults.defaultAccounts.whatId) setWhatAccountId(defaults.defaultAccounts.whatId);
-  }, [defaults]);
+  function setAccounts(type) {
+    if (type === 'expense') {
+      setWhatAccounts({ id: defaultAccounts.expense, name: 'expense' });
+      setWhatAccountId(defaultAccounts.whatAccounts.expense);
+      setWhereAccounts({ id: defaultAccounts.ToPay, name: 'ToPay' });
+      setWhatAccountId(defaultAccounts.whereAccounts.ToPay);
+    } else {
+      setWhatAccounts({ id: defaultAccounts.income, name: 'income' });
+      setWhatAccountId(defaultAccounts.whatAccounts.income);
+      setWhereAccounts({ id: defaultAccounts.ToReceive, name: 'ToReceive' });
+      setWhatAccountId(defaultAccounts.whereAccounts.ToReceive);
+    }
+  }
 
   function editBillValue(index, value) {
     setBills(bills.map((item, i) => {
@@ -56,9 +66,9 @@ export default function FutureOper(props) {
   function editOnBlur() {
     const sum = bills.reduce((a, b, i) => {
       if (i === 1) {
-        return internacionalization.toNumber(a.value) + internacionalization.toNumber(b.value);
+        return helper.toNumber(a.value) + helper.toNumber(b.value);
       }
-      return a + internacionalization.toNumber(b.value);
+      return a + helper.toNumber(b.value);
     });
     setOpValue(internacionalization.currencyFormatter(sum));
   }
@@ -72,7 +82,7 @@ export default function FutureOper(props) {
 
   function distributeValue(strValue, tempBills) {
     const installments = tempBills.length;
-    const value = internacionalization.toNumber(strValue);
+    const value = helper.toNumber(strValue);
     const instVal = Number((value / installments).toFixed(2));
     return (tempBills.map((bill, index) => {
       if (index === 0) {
@@ -96,7 +106,7 @@ export default function FutureOper(props) {
     setOpValue(initialValue);
     setOpDesc('');
     setOpNotes('');
-    setWhatAccountId(defaults.defaultAccounts.whatId);
+    setWhatAccountId(initialWhatId);
     setWhereAccountId(initialWhereId);
     setWhatAccounts({ id: 2, name: 'expense' });
     setEmitDate(new Date());
@@ -121,31 +131,44 @@ export default function FutureOper(props) {
     setBills(newBills);
   }
 
-  function submit() {
-    const lastWhereAccountBalance = defaults.balances.filter(
-      item => item.accountId === whereAccountId
-    )[0].balance;
-
-    const value = internacionalization.toNumber(opValue);
+  async function submit() {
+    const value = helper.toNumber(opValue);
     if (value === 0) return alert('value is 0!');
 
-    const whereAccountBalance = lastWhereAccountBalance + value;
-    reSetState();
-    dispatch(resetBalance({ accountId: whereAccountId, balance: whereAccountBalance }));
-    const Obj = {
-      opType: `${whatAccounts.name}AtSight`,
+    let type = 'ToPay';
+    if (whatAccounts.name === 'income') type = 'ToReceive';
+
+    const billsResp = await BillsService.store(bills.map((bill, index) => ({
+      type,
+      value: helper.toNumber(bill.value),
+      dueDate: bill.date,
+      emitDate,
+      installment: `${index + 1}/${bills.length}`,
+      whereAccount: whereAccountId
+    })));
+
+    const regResp = await RegistersService.store({
+      opType: `${whatAccounts.name}${whereAccounts.name}`,
+      emitDate,
       whereAccountId,
       whatAccountId,
-      whereAccountBalance,
-      value,
+      value: helper.toNumber(opValue),
+    });
+
+    const operObj = {
+      registers: [regResp._id],
+      bills: billsResp.map(bill => bill._id),
+      emitDate,
+      description: opDesc,
+      notes: opNotes
     };
+    if (opDesc) operObj.description = opDesc;
+    if (opNotes) operObj.notes = opNotes;
 
-    if (opDesc) Obj.description = opDesc;
-    if (opNotes) Obj.notes = opNotes;
+    await OperationsService.store(operObj);
 
-    return RegistersService.store(Obj);
+    return reSetState();
   }
-
 
   return (
     <>
@@ -153,16 +176,18 @@ export default function FutureOper(props) {
         <div>
           Emit date:
           {' '}
-          <DatePicker selected={emitDate} onChange={d => setEmitDate(d)} />
+          <input
+            type="date"
+            value={helper.dateToInput(emitDate)}
+            onChange={e => setEmitDate(helper.inputDateToNewDate(e.target.value))}
+          />
         </div>
         <label htmlFor="selectExpenseOrIncome">
           Expense or Income:
           <select
             id="selectExpenseOrIncome"
             value={whatAccounts.name}
-            onChange={e => setWhatAccounts(
-              e.target.value === 'expense' ? { id: 2, name: 'expense' } : { id: 1, name: 'income' }
-            )}
+            onChange={e => setAccounts(e.target.value)}
           >
             <option value="expense">Expense</option>
             <option value="income">Income</option>
@@ -170,12 +195,12 @@ export default function FutureOper(props) {
         </label>
       </div>
       <div id="selectWhereAccount" className="selectAccount">
-        <div id="whereAccountsSelectorLabel">Future Account:</div>
+        <div id="whereAccountsSelectorLabel">Payment Option:</div>
         <Select
           id="whereAccountsSelector"
           value={whereAccountId}
           onChange={setWhereAccountId}
-          options={futureAccounts.map(account => ({
+          options={whereAccountsToSelect.map(account => ({
             value: account.id,
             disabled: !account.allowValue,
             label: account.name
@@ -230,7 +255,11 @@ export default function FutureOper(props) {
               <div className="installmentDate">
                 Date:
                 {' '}
-                <DatePicker selected={bill.date} onChange={d => editBillDate(index, d)} />
+                <input
+                  type="date"
+                  value={helper.dateToInput(bill.date)}
+                  onChange={e => editBillDate(index, helper.inputDateToNewDate(e.target.value))}
+                />
               </div>
               <div className="installmentValue">
                 Value:
@@ -248,7 +277,7 @@ export default function FutureOper(props) {
         {}
       </div>
       <div id="divButRegister">
-        <button type="button" className="but-primary-neutral" onClick={submit}>Register</button>
+        <button type="button" className="btn btn-primary" onClick={submit}>Register</button>
       </div>
     </>
   );

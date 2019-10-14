@@ -21,6 +21,7 @@ module.exports = {
     "no-underscore-dangle": 0,
     "no-plusplus": 0,
     "no-await-in-loop": 0,
-    "global-require": 0
+    "global-require": 0,
+    "no-param-reassign": 0
   },
 };
