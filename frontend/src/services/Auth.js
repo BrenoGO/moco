@@ -12,16 +12,15 @@ class Auth {
     if (resp.error) {
       if (String(resp.error).match(/not authorized/i)) {
         alert('not authorized');
-        this.logout(() => {
-          localStorage.removeItem('token');
-          console.log(process.env);
-          window.location.href = process.env.PUBLIC_URL;
-        });
-        return false;
+      } else {
+        alert('error getting data:', resp.error);
       }
-      alert('error getting data:', resp.error);
+      this.authenticated = false;
+      localStorage.removeItem('token');
+      window.location.href = process.env.PUBLIC_URL;
       return false;
     }
+    console.log(resp);
     return resp;
   }
 

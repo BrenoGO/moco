@@ -56,7 +56,8 @@ export default function Login() {
       else alert(resp.error.message);
       return setLoading(false);
     }
-
+    console.log('resp:', resp);
+    console.log('token:', resp.token);
     if (resp.token) {
       await localStorage.setItem('token', resp.token);
       dispatch(setAccounts(resp.accounts));
