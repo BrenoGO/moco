@@ -4,10 +4,9 @@ import { useDispatch } from 'react-redux';
 import './App.css';
 
 import auth from './services/Auth';
-import internacionalization from './services/Internacionalization';
 
 import { setAccounts } from './actions/AccountsActions';
-import { setDefaults } from './actions/DefaultsActions';
+import { setDefaults, updateDefault } from './actions/DefaultsActions';
 
 import Routes from './routes';
 
@@ -29,11 +28,11 @@ export default function App() {
   }, [dispatch]);
 
   useEffect(() => {
-    const initials = localStorage.getItem('Intl-initials');
-    if (initials) {
-      internacionalization.setInitials(initials);
+    const locale = localStorage.getItem('locale');
+    if (locale) {
+      dispatch(updateDefault('locale', locale));
     }
-  }, []);
+  }, [dispatch]);
 
   return <Routes logged={logged} />;
 }

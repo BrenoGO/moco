@@ -38,7 +38,7 @@ export default function TransferenceAccounts() {
   }
 
   return (
-    <div id="transferenceAccountsDiv">
+    <div className="flex-column">
       <div id="transfAcHeader">
         <h3>Transference Accounts:</h3>
       </div>

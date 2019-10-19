@@ -35,7 +35,7 @@ export default function PaymentOptions() {
   }
 
   return (
-    <div id="paymentsDiv">
+    <div className="flex-column">
       <div id="paymentsHeader">
         <h3>Payment Options:</h3>
       </div>

@@ -33,7 +33,7 @@ export default function DefaultAccounts() {
   }
 
   return (
-    <div id="defaultAccountsDiv">
+    <div className="flex-column">
       <div id="defAcHeader">
         <h3>Default Accounts:</h3>
       </div>

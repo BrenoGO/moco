@@ -7,5 +7,5 @@ module.exports = (app) => {
   app.post('/settings/initialSettings', auth.authenticate, settingsController.initialSettings);
   app.post('/settings', auth.authenticate, settingsController.store);
   app.put('/settings/:name', auth.authenticate, settingsController.update);
-  app.delete('/settings/clearAll', auth.authenticate, settingsController.clearAll);
+  app.delete('/settings/clearAll', settingsController.clearAll);
 };

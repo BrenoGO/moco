@@ -23,6 +23,50 @@ const helpers = {
     loopChildren(rootAccs);
     return (orgAc);
   },
+  currencyFormatter: (locale, value) => {
+    let currency = '';
+    switch (locale) {
+      case 'en-US':
+        currency = 'USD';
+        break;
+      case 'pt-BR':
+        currency = 'BRL';
+        break;
+      default:
+        currency = 'USD';
+    }
+    const formatter = new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency,
+      minimumFractionDigits: 2
+    });
+
+    let sign = '';
+    let newValue = value;
+
+    if (typeof newValue === 'number') newValue = newValue.toFixed(2);
+    if (newValue[0] === '-') sign = '-';
+    newValue = newValue.replace(/\D/g, '');
+    if (newValue === '') newValue = '000';
+    if (newValue.length === 1) newValue = `00${newValue}`;
+    newValue = `${sign}${newValue.substring(0, newValue.length - 2)}.${newValue.substr(-2, 2)}`;
+    return formatter.format(newValue);
+  },
+  formatDate(locale, date) {
+    return new Intl.DateTimeFormat(locale).format(date);
+  },
+  formatDateAndTime(locale, date) {
+    const options = {
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      hour12: false
+    };
+    return new Intl.DateTimeFormat(locale, options).format(date);
+  },
   toNumber(str) {
     if (typeof str === 'number') return str;
     let value = str;

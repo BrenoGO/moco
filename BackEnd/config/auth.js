@@ -7,12 +7,11 @@ const jwt = require('jsonwebtoken');
 const userModel = require('../app/models/userModel');
 const { encrypt } = require('./cryptography');
 
-const secretOrKey = process.env.JWT_SECRET_OR_KEY;
 const { ExtractJwt, Strategy: JwtStrategy } = passportJWT;
 
 const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme('jwt'),
-  secretOrKey
+  secretOrKey: process.env.JWT_SECRET_OR_KEY
 };
 
 module.exports = {
@@ -38,14 +37,35 @@ module.exports = {
   },
   login(email, password, callback) {
     const enPW = encrypt(password);
-    userModel.findOne({ email, password: enPW }).exec().then((user) => {
-      if (user) {
-        const payload = { _id: user._id };
-        const token = jwt.sign(payload, jwtOptions.secretOrKey);
-        callback({ message: 'ok', token });
-      } else {
-        callback(false);
-      }
-    });
+    userModel.findOne({ email, password: enPW })
+      .then((user) => {
+        if (user) {
+          const payload = { _id: user._id };
+          const token = jwt.sign(payload, jwtOptions.secretOrKey);
+          callback({ message: 'ok', token });
+        } else {
+          callback(false);
+        }
+      })
+      .catch((error) => {
+        callback(error);
+      });
+  },
+  signUp(userData, callback) {
+    const { name, email, password } = userData;
+    const enPW = encrypt(password);
+    userModel.create({ name, email, password: enPW })
+      .then((user) => {
+        if (user) {
+          const payload = { _id: user._id };
+          const token = jwt.sign(payload, jwtOptions.secretOrKey);
+          callback({ message: 'ok', token, userId: user._id });
+        } else {
+          callback(false);
+        }
+      })
+      .catch((error) => {
+        callback(error);
+      });
   }
 };

@@ -4,7 +4,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import './operations.css';
 
 import helper from '../../services/helper';
-import internacionalization from '../../services/Internacionalization';
 import { RegistersService } from '../../services/RegistersService';
 
 import { resetBalance } from '../../actions/DefaultsActions';
@@ -12,9 +11,9 @@ import { resetBalance } from '../../actions/DefaultsActions';
 import Select from '../Select';
 
 export default function AtSight() {
-  const initialValue = internacionalization.getInitials() !== 'pt-BR' ? '$ 0.00' : 'R$ 0,00';
   const accounts = useSelector(state => state.AccountsReducer.accounts);
-  const { defaultAccounts, balances } = useSelector(state => (state.DefaultsReducer));
+  const { defaultAccounts, balances, locale } = useSelector(state => (state.DefaultsReducer));
+  const initialValue = locale !== 'pt-BR' ? '$ 0.00' : 'R$ 0,00';
   const dispatch = useDispatch();
 
   const [opValue, setOpValue] = useState(initialValue);
@@ -31,7 +30,7 @@ export default function AtSight() {
   const whatAccountsToSelect = helper.organizedAccounts(accounts, whatAccounts.id);
 
   function editOpValue(value) {
-    setOpValue(internacionalization.currencyFormatter(value));
+    setOpValue(helper.currencyFormatter(locale, value));
   }
 
   function handleWhatAccountsChange(type) {

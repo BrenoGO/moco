@@ -5,11 +5,17 @@ const accountModel = require('../models/accountModel');
 module.exports = {
   getDefaults: async (req, res) => {
     const response = {};
-    const defaultAccounts = await settingModel.findOne({ userId: req.user._id, name: 'defaultAccounts' });
-    response.defaultAccounts = defaultAccounts.data;
+    const settings = await settingModel.findOne({ userId: req.user._id });
+
+    response.defaultAccounts = settings.data.defaultAccounts;
+    response.locale = settings.data.locale;
 
     const currentAccounts = await accountModel.find(
-      { userId: req.user._id, parents: 3, allowValue: true },
+      {
+        userId: req.user._id,
+        parents: response.defaultAccounts.currentAccounts,
+        allowValue: true
+      },
       { id: true, name: true, _id: false }
     );
 
@@ -33,16 +39,16 @@ module.exports = {
   ),
   update: async (req, res) => {
     const { name } = req.params;
-    const setting = await settingModel.findOneAndUpdate(
-      { userId: req.user._id, name },
-      req.body,
-      { new: true }
-    );
-    res.json(setting);
+    const setting = await settingModel.findOne({ userId: req.user._id });
+    setting.data[name] = req.body.data;
+    const newSetting = await settingModel.findByIdAndUpdate(setting._id, { data: setting.data });
+
+    res.json(newSetting);
   },
   initialSettings: async (req, res) => {
-    const initialSettings = require('../constants/initialSettings').map(item => ({ ...item, userId: req.user._id }));
-    const settings = await settingModel.create(initialSettings);
+    const settings = await settingModel.create({
+      data: require('../constants/initialSettings'), userId: req.user._id
+    });
     return res.json(settings);
   },
   clearAll: (req, res) => {

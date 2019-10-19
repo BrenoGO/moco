@@ -6,14 +6,19 @@ import {
 
 const INICIAL_STATE = {
   defaultAccounts: {},
-  balances: []
+  balances: [],
+  locale: localStorage.getItem('locale') || 'en-US'
 };
 
 export default function SettingsReducer(state = INICIAL_STATE, action) {
   switch (action.type) {
     case SET_DEFAULTS:
+      localStorage.setItem('locale', action.defaults.locale);
       return action.defaults;
     case UPDATE_DEFAULT:
+      if (action.whichDefault === 'locale') {
+        localStorage.setItem('locale', action.data);
+      }
       return { ...state, [action.whichDefault]: action.data };
     case RESET_BALANCE:
       return {

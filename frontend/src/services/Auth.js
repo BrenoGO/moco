@@ -1,32 +1,39 @@
 import { AccountsService } from './AccountsService';
 import { SettingsService } from './SettingsService';
 
-async function getData(method) {
-  const resp = await method();
-  if (resp.error) {
-    if (String(resp.error).match(/not authorized/i)) {
-      alert('not authorized');
-      this.logout(() => {
-        localStorage.removeItem('token');
-      });
-    } else {
-      console.log(resp);
-      alert(resp.error);
-    }
-  }
-  return resp;
-}
 
 class Auth {
   constructor() {
     this.authenticated = false;
   }
 
+  async getData(method) {
+    const resp = await method();
+    if (resp.error) {
+      if (String(resp.error).match(/not authorized/i)) {
+        alert('not authorized');
+        this.logout(() => {
+          localStorage.removeItem('token');
+          console.log(process.env);
+          window.location.href = process.env.PUBLIC_URL;
+        });
+        return false;
+      }
+      alert('error getting data:', resp.error);
+      return false;
+    }
+    return resp;
+  }
+
   async login(cb) {
-    const accounts = await getData(AccountsService.listAll);
-    const defaults = await getData(SettingsService.getDefaults);
-    this.authenticated = true;
-    cb(accounts, defaults);
+    const accounts = await this.getData(AccountsService.listAll);
+    if (accounts) {
+      const defaults = await this.getData(SettingsService.getDefaults);
+      if (defaults) {
+        this.authenticated = true;
+        cb(accounts, defaults);
+      }
+    }
   }
 
   logout(cb) {
@@ -35,6 +42,12 @@ class Auth {
   }
 
   isAuth() {
+    if (!this.authenticated) {
+      if (localStorage.getItem('token')) {
+        return true;
+      }
+      return false;
+    }
     return this.authenticated;
   }
 }

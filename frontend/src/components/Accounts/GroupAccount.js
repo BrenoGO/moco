@@ -6,7 +6,6 @@ import './GroupAccount.css';
 import { AccountsService } from '../../services/AccountsService';
 import { RegistersService } from '../../services/RegistersService';
 import helper from '../../services/helper';
-import internacionalization from '../../services/Internacionalization';
 
 import { addAccount, deleteAccounts, updateAccount } from '../../actions/AccountsActions';
 
@@ -15,6 +14,10 @@ import Modal from '../Modal';
 
 export default function GroupAccount(props) {
   const { account } = props;
+
+  const accounts = useSelector(state => state.AccountsReducer.accounts);
+  const { locale } = useSelector(state => state.DefaultsReducer);
+  const defaultInitialValue = locale !== 'pt-BR' ? 'Initial: $ 0.00' : 'Initial: R$ 0,00';
 
   const [opened, setOpened] = useState(false);
   const [adding, setAdding] = useState(false);
@@ -25,9 +28,7 @@ export default function GroupAccount(props) {
     allowValue: false
   });
   const [boolWarning, setBoolWarning] = useState(false);
-  const [initialValue, setInitialValue] = useState(internacionalization.getInitials() !== 'pt-BR' ? 'Initial: $ 0.00' : 'Initial: R$ 0,00');
-
-  const accounts = useSelector(state => state.AccountsReducer.accounts);
+  const [initialValue, setInitialValue] = useState(defaultInitialValue);
 
   const dispatch = useDispatch();
 
@@ -162,7 +163,7 @@ export default function GroupAccount(props) {
                 placeholder="initial value"
                 value={initialValue}
                 onChange={
-                  e => setInitialValue(internacionalization.currencyFormatter(e.target.value))
+                  e => setInitialValue(helper.currencyFormatter(locale, e.target.value))
                 }
               />
             )}

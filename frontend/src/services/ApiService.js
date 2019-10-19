@@ -1,4 +1,5 @@
-const api = 'https://my-money-controller-be.herokuapp.com/';
+// const api = 'https://my-money-controller-be.herokuapp.com/';
+const api = 'http://localhost:3001/';
 
 export const ApiService = {
   get(endpoint) {
@@ -11,6 +12,9 @@ export const ApiService = {
       .then((resp) => {
         if (resp.status === 401) {
           throw new Error('Not authorized.');
+        }
+        if (resp.error) {
+          throw new Error(resp.error);
         }
         return resp.json();
       })
