@@ -5,6 +5,7 @@ import './GroupAccount.css';
 
 import { AccountsService } from '../../services/AccountsService';
 import { RegistersService } from '../../services/RegistersService';
+import { AccMsgs } from '../../services/Messages';
 import helper from '../../services/helper';
 
 import { addAccount, deleteAccounts, updateAccount } from '../../actions/AccountsActions';
@@ -35,9 +36,17 @@ export default function GroupAccount(props) {
   const childrenAc = accounts.filter(
     ac => ac.parents[ac.parents.length - 1] === account.id
   ).sort((a, b) => {
-    if (b.allowValue) return 1;
-    return b.id - a.id;
+    if (a.allowValue && !b.allowValue) return -1;
+    if (b.allowValue && !a.allowValue) return 1;
+    return a.id - b.id;
   });
+
+  // const childrenAc = accounts.filter(
+  //   ac => ac.parents[ac.parents.length - 1] === account.id
+  // ).sort((a, b) => {
+  //   if (b.allowValue) return 1;
+  //   return b.id - a.id;
+  // });
 
   async function addChild() {
     const id = accounts.reduce((ac, atual) => (atual.id > ac.id ? atual : ac)).id + 1;
@@ -67,7 +76,8 @@ export default function GroupAccount(props) {
   }
 
   function edit() {
-    AccountsService.update(account.id, { ...account, name: newName });
+    console.log('in edit');
+    AccountsService.update(account.id, { name: newName });
     dispatch(updateAccount(account.id, newName));
     setEditing(false);
   }
@@ -76,37 +86,51 @@ export default function GroupAccount(props) {
     <>
       {boolWarning && (
         <Modal
-          buttonMessage="Delete"
+          buttonMessage={AccMsgs[locale].butMsgWarningDeleteAc}
           type="confirm-danger"
           close={() => setBoolWarning(false)}
-          title="Are You Sure?"
+          title={AccMsgs[locale].titleWarningDeleteAc}
           confirmFunction={deleteAccount}
         >
-          {`Are you sure you want to delete the
-            ${account.name}
-            account and all its children?`}
+          {`${AccMsgs[locale].initWarningDeleteAc}${account.name}${AccMsgs[locale].endWarningDeleteAc}`}
         </Modal>
       )}
       { editing
         ? (
-          <div className={`inAction ${account.parents.length === 0 ? 'rootAccount' : 'groupAccount'}`}>
+          <div id={account.id} className={`inAction ${account.parents.length === 0 ? 'rootAccount' : 'groupAccount'}`}>
             <label htmlFor={`editing-${account.id}`} className="addingLabel">
-                  Editing:
+              {AccMsgs[locale].editing}
               <input type="text" id={`editing-${account.id}`} value={newName} onChange={e => setNewName(e.target.value)} />
             </label>
-            <button type="button" className="btn smallBut btn-danger" onClick={() => setEditing(!editing)}>Cancel</button>
-            <button type="button" className="btn smallBut btn-primary" onClick={edit}>Edit</button>
+            <button type="button" className="btn smallBut btn-danger" onClick={() => setEditing(!editing)}>
+              {AccMsgs[locale].cancel}
+            </button>
+            <button type="button" className="btn smallBut btn-primary" onClick={edit}>
+              {AccMsgs[locale].edit}
+            </button>
           </div>
         )
         : (
-          <div className={`account ${account.parents.length === 0 ? 'rootAccount' : 'groupAccount'}`}>
+          <div id={account.id} className={`account ${account.parents.length === 0 ? 'rootAccount' : 'groupAccount'}`}>
             <div className="accountName">
               <span className="spanGroupName">{account.name}</span>
             </div>
             <div className="actions">
-              <button type="button" className={`btn smallBut ${adding ? 'btn-danger' : 'groupAcBtn'}`} onClick={() => setAdding(!adding)}>{!adding ? 'Add' : 'cancel'}</button>
+              <button type="button" className={`btn smallBut ${adding ? 'btn-danger' : 'groupAcBtn'}`} onClick={() => setAdding(!adding)}>
+                {!adding
+                  ? AccMsgs[locale].add
+                  : AccMsgs[locale].cancel
+                }
+              </button>
               {!adding
-                && <button type="button" className="btn smallBut groupAcBtn" onClick={() => setEditing(!editing)}>{!editing ? 'Edit' : 'cancel'}</button>
+                && (
+                <button type="button" className="btn smallBut groupAcBtn" onClick={() => setEditing(!editing)}>
+                  {!editing
+                    ? AccMsgs[locale].edit
+                    : AccMsgs[locale].cancel
+                  }
+                </button>
+                )
               }
 
               {account.parents.length > 0 && !adding && (
@@ -115,7 +139,7 @@ export default function GroupAccount(props) {
                   className="btn smallBut btn-danger"
                   onClick={() => setBoolWarning(true)}
                 >
-                  Delete
+                  {AccMsgs[locale].delete}
                 </button>
               )}
             </div>
@@ -136,11 +160,11 @@ export default function GroupAccount(props) {
         <div className="inAction">
           <div className="inputingField">
             <label htmlFor={`addingName${account.id}`} className="addingLabel">
-              Adding:
+              {AccMsgs[locale].adding}
               <input
                 id={`addingName${account.id}`}
                 type="text"
-                placeholder="Name"
+                placeholder={AccMsgs[locale].name}
                 name="name"
                 value={addForm.name}
                 onChange={e => setAddForm({ ...addForm, name: e.target.value })}
@@ -155,19 +179,20 @@ export default function GroupAccount(props) {
                 checked={addForm.allowValue}
                 onChange={() => setAddForm({ ...addForm, allowValue: !addForm.allowValue })}
               />
-              Accept Value
+              {AccMsgs[locale].acceptVal}
             </label>
             {addForm.allowValue && (account.id === 3 || account.parents.includes(3)) && (
               <input
                 type="text"
-                placeholder="initial value"
                 value={initialValue}
                 onChange={
                   e => setInitialValue(helper.currencyFormatter(locale, e.target.value))
                 }
               />
             )}
-            <button type="button" className="btn smallBut btn-primary" onClick={addChild}>Add!</button>
+            <button type="button" className="btn smallBut btn-primary" onClick={addChild}>
+              {AccMsgs[locale].addA}
+            </button>
           </div>
         </div>
       )}

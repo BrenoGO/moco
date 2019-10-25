@@ -4,12 +4,13 @@ import { useSelector, useDispatch } from 'react-redux';
 import Select from '../Select';
 import helpers from '../../services/helper';
 
+import { SettingsMsgs } from '../../services/Messages';
 import { SettingsService } from '../../services/SettingsService';
 
 import { updateDefault } from '../../actions/DefaultsActions';
 
 export default function DefaultAccounts() {
-  const { defaultAccounts } = useSelector(state => state.DefaultsReducer);
+  const { defaultAccounts, locale } = useSelector(state => state.DefaultsReducer);
   const accounts = useSelector(state => state.AccountsReducer.accounts);
 
   const [chosenAccounts, setChosenAccounts] = useState({
@@ -35,11 +36,11 @@ export default function DefaultAccounts() {
   return (
     <div className="flex-column">
       <div id="defAcHeader">
-        <h3>Default Accounts:</h3>
+        <h3>{SettingsMsgs[locale].defAcc}</h3>
       </div>
       <div id="defAcContent">
         <div id="selectWhatIncomes" className="selectAccount">
-          <div id="whatIncomesAccountSelectorLabel">Incomes:</div>
+          <div id="whatIncomesAccountSelectorLabel">{SettingsMsgs[locale].incomes}</div>
           <Select
             id="whatIncomesAccountSelector"
             value={chosenAccounts.income}
@@ -54,7 +55,7 @@ export default function DefaultAccounts() {
           />
         </div>
         <div id="selectWhatExpenses" className="selectAccount">
-          <div id="whatExpensesAccountSelectorLabel">Expenses:</div>
+          <div id="whatExpensesAccountSelectorLabel">{SettingsMsgs[locale].expenses}</div>
           <Select
             id="whatExpensesAccountSelector"
             value={chosenAccounts.expense}
@@ -75,7 +76,7 @@ export default function DefaultAccounts() {
           && (
             <div id="diffAcDiv">
               <button type="button" className="but-primary-neutral" onClick={changeAccounts}>
-                Save Changes
+                {SettingsMsgs[locale].saveChanges}
               </button>
             </div>
           )

@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import Modal from '../Modal';
 
+import { AccMsgs } from '../../services/Messages';
 import { AccountsService } from '../../services/AccountsService';
 
 import { deleteAccounts, updateAccount } from '../../actions/AccountsActions';
 
 export default function FinalAccount(props) {
+  const { locale } = useSelector(state => state.DefaultsReducer);
   const { account } = props;
   const [boolWarning, setBoolWarning] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -30,15 +32,13 @@ export default function FinalAccount(props) {
     if (boolWarning) {
       return (
         <Modal
-          buttonMessage="Delete"
+          buttonMessage={AccMsgs[locale].butMsgWarningDeleteAc}
           type="confirm-danger"
           close={() => setBoolWarning(false)}
-          title="Are You Sure?"
+          title={AccMsgs[locale].titleWarningDeleteAc}
           confirmFunction={deleteAccount}
         >
-          {`Are you sure you want to delete the
-        ${account.name}
-        account?`}
+          {`${AccMsgs[locale].initWarningDeleteAc}${account.name}${AccMsgs[locale].endWarningDeleteFiAc}`}
         </Modal>
       );
     }
@@ -47,26 +47,37 @@ export default function FinalAccount(props) {
 
   if (editing) {
     return (
-      <div className="inAction">
+      <div id={account.id} className="inAction">
         {warning()}
         <label htmlFor={`editing-${account.id}`} className="addingLabel">
-            Editing:
+          {AccMsgs[locale].editing}
           <input type="text" id={`editing-${account.id}`} value={newName} onChange={e => setNewName(e.target.value)} />
         </label>
-        <button type="button" className="btn smallBut btn-danger" onClick={() => setEditing(!editing)}>Cancel</button>
-        <button type="button" className="btn smallBut btn-primary" onClick={edit}>Edit</button>
+        <button type="button" className="btn smallBut btn-danger" onClick={() => setEditing(!editing)}>
+          {AccMsgs[locale].cancel}
+        </button>
+        <button type="button" className="btn smallBut btn-primary" onClick={edit}>
+          {AccMsgs[locale].edit}
+        </button>
       </div>
     );
   }
   return (
-    <div className="account">
+    <div id={account.id} className="account">
       {warning()}
       <div className="accountName">
         <span className="spanName">{account.name}</span>
       </div>
       <div className="actions">
-        <button type="button" className="btn smallBut btn-primary" onClick={() => setEditing(!editing)}>{!editing ? 'Edit' : 'cancel'}</button>
-        <button type="button" className="btn smallBut btn-danger" onClick={() => setBoolWarning(true)}>Delete</button>
+        <button type="button" className="btn smallBut btn-primary" onClick={() => setEditing(!editing)}>
+          {!editing
+            ? AccMsgs[locale].edit
+            : AccMsgs[locale].cancel
+          }
+        </button>
+        <button type="button" className="btn smallBut btn-danger" onClick={() => setBoolWarning(true)}>
+          {AccMsgs[locale].delete}
+        </button>
       </div>
     </div>
   );

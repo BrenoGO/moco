@@ -18,7 +18,10 @@ module.exports = {
   },
   async update(req, res) {
     const { id } = req.params;
-    const account = await accountsModel.findOneAndUpdate({ id }, req.body, { new: true });
+    console.log(id, req.body);
+    const account = await accountsModel.findOneAndUpdate(
+      { id, userId: req.user._id }, req.body, { new: true }
+    );
     res.json(account);
   },
   async removeByID(req, res) {

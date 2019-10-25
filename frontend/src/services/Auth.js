@@ -20,7 +20,6 @@ class Auth {
       window.location.href = process.env.PUBLIC_URL;
       return false;
     }
-    console.log(resp);
     return resp;
   }
 

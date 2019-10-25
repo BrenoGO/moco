@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 
 import './operations.css';
 
+import { OperMsgs } from '../../services/Messages';
 import helper from '../../services/helper';
 import { RegistersService } from '../../services/RegistersService';
 
@@ -28,10 +29,6 @@ export default function AtSight() {
 
   const currentAccounts = helper.organizedAccounts(accounts, defaultAccounts.currentAccounts);
   const whatAccountsToSelect = helper.organizedAccounts(accounts, whatAccounts.id);
-
-  function editOpValue(value) {
-    setOpValue(helper.currencyFormatter(locale, value));
-  }
 
   function handleWhatAccountsChange(type) {
     setWhatAccounts({ id: defaultAccounts[type], name: type });
@@ -82,8 +79,7 @@ export default function AtSight() {
     <>
       <div id="divSelectExpenseOrIncome">
         <div>
-          Emit date:
-          {' '}
+          {OperMsgs[locale].emitDate}
           <input
             type="date"
             value={helper.dateToInput(emitDate)}
@@ -91,19 +87,19 @@ export default function AtSight() {
           />
         </div>
         <label htmlFor="selectExpenseOrIncome">
-          Expense or Income:
+          {OperMsgs[locale].expOrInc}
           <select
             id="selectExpenseOrIncome"
             value={whatAccounts.name}
             onChange={e => handleWhatAccountsChange(e.target.value)}
           >
-            <option value="expense">Expense</option>
-            <option value="income">Income</option>
+            <option value="expense">{OperMsgs[locale].expense}</option>
+            <option value="income">{OperMsgs[locale].income}</option>
           </select>
         </label>
       </div>
       <div id="selectWhereAccount" className="selectAccount">
-        <div id="whereAccountsSelectorLabel">Current Account:</div>
+        <div id="whereAccountsSelectorLabel">{OperMsgs[locale].currAc}</div>
         <Select
           id="whereAccountsSelector"
           value={whereAccountId}
@@ -116,7 +112,7 @@ export default function AtSight() {
         />
       </div>
       <div id="selectWhatAccount" className="selectAccount">
-        <div id="whatAccountSelectorLabel">What Account:</div>
+        <div id="whatAccountSelectorLabel">{OperMsgs[locale].whatAc}</div>
         <Select
           id="whatAccountSelector"
           value={whatAccountId}
@@ -130,24 +126,26 @@ export default function AtSight() {
       </div>
       <div id="divValue">
         <label htmlFor="opValue">
-          Value:
-          <input type="text" id="opValue" value={opValue} onChange={e => editOpValue(e.target.value)} />
+          {OperMsgs[locale].value}
+          <input type="text" id="opValue" value={opValue} onChange={e => setOpValue(helper.currencyFormatter(locale, e.target.value))} />
         </label>
       </div>
       <div id="divDescription">
         <label htmlFor="opDesc">
-          Description:
+          {OperMsgs[locale].desc}
           <input type="text" id="opDesc" value={opDesc} onChange={e => setOpDesc(e.target.value)} />
         </label>
       </div>
       <div id="divNotes">
         <label htmlFor="opNotes">
-          Notes:
+          {OperMsgs[locale].notes}
           <input type="text" id="opNotes" value={opNotes} onChange={e => setOpNotes(e.target.value)} />
         </label>
       </div>
       <div id="divButRegister">
-        <button type="button" className="btn btn-primary" onClick={submit}>Register</button>
+        <button type="button" className="btn btn-primary" onClick={submit}>
+          {OperMsgs[locale].regBut}
+        </button>
       </div>
     </>
   );

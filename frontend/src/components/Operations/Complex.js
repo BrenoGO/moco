@@ -4,8 +4,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import './operations.css';
 import './Complex.css';
 
+import { OperMsgs } from '../../services/Messages';
 import helper from '../../services/helper';
-import internacionalization from '../../services/Internacionalization';
 import { BillsService } from '../../services/BillsService';
 import { RegistersService } from '../../services/RegistersService';
 import { OperationsService } from '../../services/OperationsService';
@@ -19,13 +19,14 @@ import Select from '../Select';
 
 
 export default function FutureOper() {
-  const initialValue = internacionalization.getInitials() !== 'pt-BR' ? '$ 0.00' : 'R$ 0,00';
+  const accounts = useSelector(state => state.AccountsReducer.accounts);
+  const { defaultAccounts, balances, locale } = useSelector(state => (state.DefaultsReducer));
+
+  const initialValue = locale !== 'pt-BR' ? '$ 0.00' : 'R$ 0,00';
+
   const today = new Date();
   const todayPlus30 = new Date();
   todayPlus30.setDate(todayPlus30.getDate() + 30);
-
-  const accounts = useSelector(state => state.AccountsReducer.accounts);
-  const { defaultAccounts, balances } = useSelector(state => (state.DefaultsReducer));
 
   const [whatAccounts, setWhatAccounts] = useState(
     [{
@@ -108,7 +109,7 @@ export default function FutureOper() {
         ...whereAccount,
         bills: whereAccount.bills.map((bill, i2) => {
           if (billI !== i2) return bill;
-          return { ...bill, value: internacionalization.currencyFormatter(value) };
+          return { ...bill, value: helper.currencyFormatter(locale, value) };
         })
       };
     }));
@@ -137,7 +138,7 @@ export default function FutureOper() {
 
     setWhereAccounts(whereAccounts.map((item, i) => {
       if (index !== i) return item;
-      return { ...item, value: internacionalization.currencyFormatter(sum) };
+      return { ...item, value: helper.currencyFormatter(locale, sum) };
     }));
   }
 
@@ -150,10 +151,10 @@ export default function FutureOper() {
         if (value !== instVal * installments) {
           const dif = value - instVal * installments;
           const newValue = instVal + dif;
-          return { ...bill, value: internacionalization.currencyFormatter(newValue) };
+          return { ...bill, value: helper.currencyFormatter(locale, newValue) };
         }
       }
-      return { ...bill, value: internacionalization.currencyFormatter(instVal) };
+      return { ...bill, value: helper.currencyFormatter(locale, instVal) };
     }));
   }
 
@@ -181,7 +182,7 @@ export default function FutureOper() {
   }
 
   function handleWhatAccountsValueChange(index, value) {
-    const strValue = internacionalization.currencyFormatter(value);
+    const strValue = helper.currencyFormatter(locale, value);
 
     const newWhatAccounts = whatAccounts.map((item, i) => {
       if (index !== i) return item;
@@ -199,7 +200,7 @@ export default function FutureOper() {
         setWhereAccounts([
           {
             ...whereAccounts[0],
-            value: internacionalization.currencyFormatter(sum)
+            value: helper.currencyFormatter(locale, sum)
           }
         ]);
       }
@@ -265,7 +266,7 @@ export default function FutureOper() {
   }
 
   function handleWhereValueChange(strValue, index, type) {
-    const value = internacionalization.currencyFormatter(strValue);
+    const value = helper.currencyFormatter(locale, strValue);
 
     if (type === 'ToPay' || type === 'ToReceive') {
       const newBills = distributeValue(value, whereAccounts[index].bills);
@@ -421,8 +422,7 @@ export default function FutureOper() {
     <>
       <div id="divSelectExpenseOrIncome">
         <div>
-          Emit date:
-          {' '}
+          {OperMsgs[locale].emitDate}
           <input
             type="date"
             value={helper.dateToInput(emitDate)}
@@ -430,28 +430,31 @@ export default function FutureOper() {
           />
         </div>
         <label htmlFor="selectExpenseOrIncome">
-          Expenses or Incomes:
+          {OperMsgs[locale].expOrInc}
           <select
             id="selectExpenseOrIncome"
             value={whatAccountToSelect.name}
             onChange={e => setAccounts(e.target.value)}
           >
-            <option value="expense">Expense</option>
-            <option value="income">Income</option>
+            <option value="expense">{OperMsgs[locale].expense}</option>
+            <option value="income">{OperMsgs[locale].income}</option>
           </select>
         </label>
       </div>
       <div id="whatAccountsRegisters">
         <div className="titleOfWhatAcRegs">
           <h3>
-            {whatAccountToSelect.name === 'expense' ? 'Expenses:' : 'Incomes:'}
+            {whatAccountToSelect.name === 'expense'
+              ? OperMsgs[locale].expenses
+              : OperMsgs[locale].incomes
+            }
           </h3>
         </div>
         {whatAccounts.map((whatAccount, index) => (
           <div key={index} className="whatAccountReg">
             <div className="whatAccountContent">
               <div id={`selectWhatAccount-${index}`} className="selectAccount">
-                <div id={`whatAccountSelectorLabel-${index}`}>What Account:</div>
+                <div id={`whatAccountSelectorLabel-${index}`}>{OperMsgs[locale].whatAc}</div>
                 <Select
                   id={`whatAccountSelector-${index}`}
                   value={whatAccount.id}
@@ -465,7 +468,7 @@ export default function FutureOper() {
               </div>
               <div className="whatAccountValue">
                 <label htmlFor={`whatValue-${index}`}>
-                Value:
+                  {OperMsgs[locale].value}
                   <input
                     type="text"
                     id={`whatValue-${index}`}
@@ -476,7 +479,7 @@ export default function FutureOper() {
               </div>
               <div className="divWhatDescription">
                 <label htmlFor={`whatDesc-${index}`}>
-                  Description:
+                  {OperMsgs[locale].desc}
                   <input
                     id={`whatDesc-${index}`}
                     type="text"
@@ -487,7 +490,7 @@ export default function FutureOper() {
               </div>
               <div className="divWhatNotes">
                 <label htmlFor={`whatNotes-${index}`}>
-                  Notes:
+                  {OperMsgs[locale].notes}
                   <input
                     id={`whatNotes-${index}`}
                     type="text"
@@ -506,20 +509,19 @@ export default function FutureOper() {
         ))}
         <div id="divAddWhatAccount">
           <button type="button" id="butAddWhatAccount" onClick={handleAddWhatAccount}>
-            Add What Account
+            {OperMsgs[locale].addAcBut}
           </button>
         </div>
         <div id="TotalWhatAccount">
           <span>
-            Total:
-            {' '}
-            { internacionalization.currencyFormatter(sumWhatAccounts) }
+            {OperMsgs[locale].total}
+            { helper.currencyFormatter(locale, sumWhatAccounts) }
           </span>
         </div>
       </div>
       <div id="whereAccountsRegisters">
         <div id="titleWhereAccountsRegisters">
-          <h3>How was the payment?</h3>
+          <h3>{OperMsgs[locale].howPaym}</h3>
         </div>
         {whereAccounts.map((whereAccount, index) => {
           let whereAccountToSelect = [];
@@ -544,16 +546,19 @@ export default function FutureOper() {
                   onChange={e => handleWhereTypeChange(e.target.value, index)}
                 >
                   <option value="AtSight">
-                  At Sight
+                    {OperMsgs[locale].optAtSight}
                   </option>
                   <option
                     value={whatAccountToSelect.name === 'expense' ? 'ToPay' : 'ToReceive'}
                   >
-                    {whatAccountToSelect.name === 'expense' ? 'To Pay' : 'To Receive'}
+                    {whatAccountToSelect.name === 'expense'
+                      ? OperMsgs[locale].optToPay
+                      : OperMsgs[locale].optToRec
+                    }
                   </option>
                 </select>
                 <div id={`selectWhereAccount-${index}`} className="selectAccount">
-                  <div id={`whereAccountSelectorLabel-${index}`}>Where Account:</div>
+                  <div id={`whereAccountSelectorLabel-${index}`}>{OperMsgs[locale].whereAc}</div>
                   <Select
                     id={`whatAccountSelector-${index}`}
                     value={whereAccount.id}
@@ -567,6 +572,7 @@ export default function FutureOper() {
                 </div>
 
                 <div className="WhereValueDiv">
+                  {OperMsgs[locale].value}
                   <input
                     type="text"
                     value={whereAccount.value}
@@ -577,8 +583,7 @@ export default function FutureOper() {
                   <div className="whereBillsDiv">
                     <div className="divPaymentInstallments">
                       <label htmlFor="paymentInstallments">
-                        Installments:
-                        {' '}
+                        {OperMsgs[locale].installments}
                         <input type="number" value={whereAccount.bills.length} onChange={e => handleInstallmentsChange(index, e.target.value)} />
                       </label>
                     </div>
@@ -586,8 +591,7 @@ export default function FutureOper() {
                       {whereAccount.bills.map((bill, billI) => (
                         <div key={billI} className="installment">
                           <div className="installmentDate">
-                          Date:
-                            {' '}
+                            {OperMsgs[locale].date}
                             <input
                               type="date"
                               value={helper.dateToInput(bill.date)}
@@ -599,8 +603,7 @@ export default function FutureOper() {
                             />
                           </div>
                           <div className="installmentValue">
-                          Value:
-                            {' '}
+                            {OperMsgs[locale].value}
                             <input
                               type="text"
                               value={bill.value}
@@ -624,21 +627,20 @@ export default function FutureOper() {
         })}
         <div id="divAddWhereAccount">
           <button type="button" id="butAddWhereAccount" onClick={handleAddWhereAccount}>
-            Add Payment
+            {OperMsgs[locale].addPaymBut}
           </button>
         </div>
         <div id="TotalWhereAccount">
           <span>
-            Total:
-            {' '}
-            { internacionalization.currencyFormatter(sumWhereAccounts) }
+            {OperMsgs[locale].total}
+            { helper.currencyFormatter(locale, sumWhereAccounts) }
             {
               sumWhatAccounts === sumWhereAccounts
                 ? <img src={ImgChecked} width="20px" alt="checked" className="ifCheckedImg" />
                 : (
                   <span>
                     <img src={ImgX} width="20px" alt="not checked" className="ifCheckedImg" />
-                    Diff:
+                    {OperMsgs[locale].diff}
                     {sumWhatAccounts - sumWhereAccounts}
                   </span>
                 )
@@ -647,7 +649,9 @@ export default function FutureOper() {
         </div>
       </div>
       <div id="divButRegister">
-        <button type="button" className="btn btn-primary" onClick={submit}>Register</button>
+        <button type="button" className="btn btn-primary" onClick={submit}>
+          {OperMsgs[locale].regBut}
+        </button>
       </div>
     </>
   );

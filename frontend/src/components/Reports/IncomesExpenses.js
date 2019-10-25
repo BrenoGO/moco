@@ -3,9 +3,9 @@ import { useSelector } from 'react-redux';
 
 import Select from '../Select';
 
+import { RepMsgs } from '../../services/Messages';
 import helper from '../../services/helper';
 import { RegistersService } from '../../services/RegistersService';
-import internacionalization from '../../services/Internacionalization';
 
 import './IncomesExpenses.css';
 
@@ -16,7 +16,7 @@ export default function Expenses() {
   let total = 0;
 
   const accounts = useSelector(state => state.AccountsReducer.accounts);
-  const { defaultAccounts } = useSelector(state => state.DefaultsReducer);
+  const { defaultAccounts, locale } = useSelector(state => state.DefaultsReducer);
 
   const expenseAccounts = helper.organizedAccounts(accounts, defaultAccounts.expense);
   const incomeAccounts = helper.organizedAccounts(accounts, defaultAccounts.income);
@@ -65,8 +65,8 @@ export default function Expenses() {
     <div>
       <div>
         <select id="typeSelect" value={type} onChange={e => handleTypeChange(e.target.value)}>
-          <option value="expense">Expenses</option>
-          <option value="income">Incomes</option>
+          <option value="expense">{RepMsgs[locale].expenses}</option>
+          <option value="income">{RepMsgs[locale].incomes}</option>
         </select>
       </div>
       <div id="form">
@@ -87,8 +87,7 @@ export default function Expenses() {
           }
         />
         <div>
-      Initial:
-          {' '}
+          {RepMsgs[locale].initial}
           <input
             type="date"
             value={helper.dateToInput(initDate)}
@@ -96,8 +95,7 @@ export default function Expenses() {
           />
         </div>
         <div>
-      Final:
-          {' '}
+          {RepMsgs[locale].final}
           <input
             type="date"
             value={helper.dateToInput(finalDate)}
@@ -106,28 +104,24 @@ export default function Expenses() {
         </div>
       </div>
       <div id="report">
-        <table>
+        <table className="table">
           <thead>
             <tr>
-              <td>opType</td>
-              <td>Date</td>
-              <td>what</td>
-              <td>value</td>
-              <td>Total</td>
+              <td>{RepMsgs[locale].date}</td>
+              <td>{RepMsgs[locale].value}</td>
+              <td>{RepMsgs[locale].total}</td>
             </tr>
           </thead>
           <tbody>
             {registers.map((reg) => {
-              const whatAc = accounts.filter(item => item.id === reg.whatAccountId)[0];
-              const emitDate = internacionalization.formatDateAndTime(new Date(reg.emitDate));
-              total += reg.value;
+              const emitDate = helper.formatDateAndTime(locale, new Date(reg.emitDate));
+              const { value } = reg;
+              total += value;
               return (
                 <tr key={reg._id} className="register">
-                  <td>{reg.opType}</td>
                   <td>{emitDate}</td>
-                  <td>{whatAc ? whatAc.name : ''}</td>
-                  <td>{internacionalization.currencyFormatter(reg.value)}</td>
-                  <td>{internacionalization.currencyFormatter(total)}</td>
+                  <td className={value < 0 ? 'red' : ''}>{helper.currencyFormatter(locale, value)}</td>
+                  <td>{helper.currencyFormatter(locale, total)}</td>
                 </tr>
               );
             })}

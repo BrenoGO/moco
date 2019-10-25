@@ -3,13 +3,14 @@ import { useSelector, useDispatch } from 'react-redux';
 
 import Select from '../Select';
 import helpers from '../../services/helper';
+import { SettingsMsgs } from '../../services/Messages';
 
 import { SettingsService } from '../../services/SettingsService';
 
 import { updateDefault } from '../../actions/DefaultsActions';
 
 export default function PaymentOptions() {
-  const { defaultAccounts } = useSelector(state => state.DefaultsReducer);
+  const { defaultAccounts, locale } = useSelector(state => state.DefaultsReducer);
   const accounts = useSelector(state => state.AccountsReducer.accounts);
 
   const [chosenPayments, setChosenPayments] = useState({
@@ -37,11 +38,11 @@ export default function PaymentOptions() {
   return (
     <div className="flex-column">
       <div id="paymentsHeader">
-        <h3>Payment Options:</h3>
+        <h3>{SettingsMsgs[locale].paymentOptions}</h3>
       </div>
       <div id="paymentsContent">
         <div id="selectAtSight" className="selectAccount">
-          <div id="AtSightAccountSelectorLabel">At Sight:</div>
+          <div id="AtSightAccountSelectorLabel">{SettingsMsgs[locale].paymOptAtSight}</div>
           <Select
             id="AtSightAccountSelector"
             value={chosenPayments.AtSight}
@@ -56,7 +57,7 @@ export default function PaymentOptions() {
           />
         </div>
         <div id="selectToPay" className="selectAccount">
-          <div id="ToPayAccountSelectorLabel">To Pay:</div>
+          <div id="ToPayAccountSelectorLabel">{SettingsMsgs[locale].paymOptToPay}</div>
           <Select
             id="ToPayAccountSelector"
             value={chosenPayments.ToPay}
@@ -71,7 +72,7 @@ export default function PaymentOptions() {
           />
         </div>
         <div id="selectToReceive" className="selectAccount">
-          <div id="ToReceiveAccountSelectorLabel">To Receive:</div>
+          <div id="ToReceiveAccountSelectorLabel">{SettingsMsgs[locale].paymOptToRec}</div>
           <Select
             id="ToReceiveAccountSelector"
             value={chosenPayments.ToReceive}
@@ -94,7 +95,7 @@ export default function PaymentOptions() {
             && (
               <div id="diffAcDiv">
                 <button type="button" className="but-primary-neutral" onClick={changePayments}>
-                  Save Changes
+                  {SettingsMsgs[locale].saveChanges}
                 </button>
               </div>
             )

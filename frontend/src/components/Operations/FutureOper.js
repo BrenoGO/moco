@@ -3,8 +3,8 @@ import { useSelector } from 'react-redux';
 
 import './operations.css';
 
+import { OperMsgs } from '../../services/Messages';
 import helper from '../../services/helper';
-import internacionalization from '../../services/Internacionalization';
 import { BillsService } from '../../services/BillsService';
 import { RegistersService } from '../../services/RegistersService';
 import { OperationsService } from '../../services/OperationsService';
@@ -15,9 +15,9 @@ import Select from '../Select';
 
 export default function FutureOper() {
   const accounts = useSelector(state => state.AccountsReducer.accounts);
-  const { defaultAccounts } = useSelector(state => (state.DefaultsReducer));
+  const { defaultAccounts, locale } = useSelector(state => (state.DefaultsReducer));
 
-  const initialValue = internacionalization.getInitials() !== 'pt-BR' ? '$ 0.00' : 'R$ 0,00';
+  const initialValue = locale !== 'pt-BR' ? '$ 0.00' : 'R$ 0,00';
   const initialWhatId = defaultAccounts.whatAccounts.expense;
   const initialWhereId = defaultAccounts.whereAccounts.ToPay;
   const today = new Date();
@@ -59,7 +59,7 @@ export default function FutureOper() {
   function editBillValue(index, value) {
     setBills(bills.map((item, i) => {
       if (index !== i) return item;
-      return { ...item, value: internacionalization.currencyFormatter(value) };
+      return { ...item, value: helper.currencyFormatter(locale, value) };
     }));
   }
 
@@ -70,7 +70,7 @@ export default function FutureOper() {
       }
       return a + helper.toNumber(b.value);
     });
-    setOpValue(internacionalization.currencyFormatter(sum));
+    setOpValue(helper.currencyFormatter(locale, sum));
   }
 
   function editBillDate(index, value) {
@@ -89,10 +89,10 @@ export default function FutureOper() {
         if (value !== instVal * installments) {
           const dif = value - instVal * installments;
           const newValue = instVal + dif;
-          return { ...bill, value: internacionalization.currencyFormatter(newValue) };
+          return { ...bill, value: helper.currencyFormatter(locale, newValue) };
         }
       }
-      return { ...bill, value: internacionalization.currencyFormatter(instVal) };
+      return { ...bill, value: helper.currencyFormatter(locale, instVal) };
     }));
   }
 
@@ -113,7 +113,7 @@ export default function FutureOper() {
   }
 
   function handleValueChange(value) {
-    setOpValue(internacionalization.currencyFormatter(value));
+    setOpValue(helper.currencyFormatter(locale, value));
     const newBills = distributeValue(value, bills);
     setBills(newBills);
   }
@@ -174,8 +174,7 @@ export default function FutureOper() {
     <>
       <div id="divSelectExpenseOrIncome">
         <div>
-          Emit date:
-          {' '}
+          {OperMsgs[locale].emitDate}
           <input
             type="date"
             value={helper.dateToInput(emitDate)}
@@ -183,19 +182,19 @@ export default function FutureOper() {
           />
         </div>
         <label htmlFor="selectExpenseOrIncome">
-          Expense or Income:
+          {OperMsgs[locale].expOrInc}
           <select
             id="selectExpenseOrIncome"
             value={whatAccounts.name}
             onChange={e => setAccounts(e.target.value)}
           >
-            <option value="expense">Expense</option>
-            <option value="income">Income</option>
+            <option value="expense">{OperMsgs[locale].expense}</option>
+            <option value="income">{OperMsgs[locale].income}</option>
           </select>
         </label>
       </div>
       <div id="selectWhereAccount" className="selectAccount">
-        <div id="whereAccountsSelectorLabel">Payment Option:</div>
+        <div id="whereAccountsSelectorLabel">{OperMsgs[locale].paymentOptions}</div>
         <Select
           id="whereAccountsSelector"
           value={whereAccountId}
@@ -208,7 +207,7 @@ export default function FutureOper() {
         />
       </div>
       <div id="selectWhatAccount" className="selectAccount">
-        <div id="whatAccountSelectorLabel">What Account:</div>
+        <div id="whatAccountSelectorLabel">{OperMsgs[locale].whatAc}</div>
         <Select
           id="whatAccountSelector"
           value={whatAccountId}
@@ -222,7 +221,7 @@ export default function FutureOper() {
       </div>
       <div id="divValue">
         <label htmlFor="opValue">
-          Value:
+          {OperMsgs[locale].value}
           <input
             type="text"
             id="opValue"
@@ -233,28 +232,26 @@ export default function FutureOper() {
       </div>
       <div id="divDescription">
         <label htmlFor="opDesc">
-          Description:
+          {OperMsgs[locale].desc}
           <input type="text" id="opDesc" value={opDesc} onChange={e => setOpDesc(e.target.value)} />
         </label>
       </div>
       <div id="divNotes">
         <label htmlFor="opNotes">
-          Notes:
+          {OperMsgs[locale].notes}
           <input type="text" id="opNotes" value={opNotes} onChange={e => setOpNotes(e.target.value)} />
         </label>
       </div>
       <div id="bills">
         <div id="divPaymentInstallments">
           <label htmlFor="paymentInstallments">
-            Installments:
-            {' '}
+            {OperMsgs[locale].installments}
             <input type="number" value={bills.length} onChange={e => handleInstallmentsChange(e)} />
           </label>
           {bills.map((bill, index) => (
             <div key={index} className="installment">
               <div className="installmentDate">
-                Date:
-                {' '}
+                {OperMsgs[locale].date}
                 <input
                   type="date"
                   value={helper.dateToInput(bill.date)}
@@ -262,8 +259,7 @@ export default function FutureOper() {
                 />
               </div>
               <div className="installmentValue">
-                Value:
-                {' '}
+                {OperMsgs[locale].value}
                 <input
                   type="text"
                   value={bill.value}
@@ -277,7 +273,9 @@ export default function FutureOper() {
         {}
       </div>
       <div id="divButRegister">
-        <button type="button" className="btn btn-primary" onClick={submit}>Register</button>
+        <button type="button" className="btn btn-primary" onClick={submit}>
+          {OperMsgs[locale].regBut}
+        </button>
       </div>
     </>
   );

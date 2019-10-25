@@ -3,13 +3,13 @@ import { useSelector } from 'react-redux';
 
 import Select from '../Select';
 
+import { RepMsgs } from '../../services/Messages';
 import helper from '../../services/helper';
 import { RegistersService } from '../../services/RegistersService';
-import internacionalization from '../../services/Internacionalization';
 
 export default function AcStatements() {
   const accounts = useSelector(state => state.AccountsReducer.accounts);
-  const { defaultAccounts } = useSelector(state => state.DefaultsReducer);
+  const { defaultAccounts, locale } = useSelector(state => state.DefaultsReducer);
   const curAccounts = helper.organizedAccounts(accounts, defaultAccounts.currentAccounts);
 
   const [acId, setAcId] = useState(defaultAccounts.whereAccounts.AtSight);
@@ -48,7 +48,7 @@ export default function AcStatements() {
 
   return (
     <div>
-      <div><h3>Current Accounts Statements</h3></div>
+      <div><h3>{RepMsgs[locale].statemTitle}</h3></div>
       <div id="form">
         <Select
           value={acId}
@@ -60,8 +60,7 @@ export default function AcStatements() {
           }))}
         />
         <div>
-          Initial:
-          {' '}
+          {RepMsgs[locale].initial}
           <input
             type="date"
             value={helper.dateToInput(initDate)}
@@ -69,8 +68,7 @@ export default function AcStatements() {
           />
         </div>
         <div>
-          Final:
-          {' '}
+          {RepMsgs[locale].final}
           <input
             type="date"
             value={helper.dateToInput(finalDate)}
@@ -82,24 +80,29 @@ export default function AcStatements() {
         <table className="table">
           <thead>
             <tr>
-              <td>opType</td>
-              <td>Date</td>
-              <td>what</td>
-              <td>value</td>
-              <td>Balance</td>
+              <td>{RepMsgs[locale].thType}</td>
+              <td>{RepMsgs[locale].date}</td>
+              <td>{RepMsgs[locale].thAcc}</td>
+              <td>{RepMsgs[locale].value}</td>
+              <td>{RepMsgs[locale].balance}</td>
             </tr>
           </thead>
           <tbody>
             {registers.map((reg) => {
               const whatAc = accounts.filter(item => item.id === reg.whatAccountId)[0];
-              const emitDate = internacionalization.formatDateAndTime(new Date(reg.emitDate));
+              const emitDate = helper.formatDateAndTime(locale, new Date(reg.emitDate));
+              let { value } = reg;
+              const { opType, whereAccountBalance: balance } = reg;
+              if (opType.match(/expense/)) {
+                value *= -1;
+              }
               return (
                 <tr key={reg._id} className="register">
-                  <td>{reg.opType}</td>
+                  <td>{opType}</td>
                   <td>{emitDate}</td>
                   <td>{whatAc ? whatAc.name : ''}</td>
-                  <td>{internacionalization.currencyFormatter(reg.value)}</td>
-                  <td>{internacionalization.currencyFormatter(reg.whereAccountBalance)}</td>
+                  <td className={value < 0 ? 'red' : ''}>{helper.currencyFormatter(locale, value)}</td>
+                  <td className={balance < 0 ? 'red' : ''}>{helper.currencyFormatter(locale, balance)}</td>
                 </tr>
               );
             })}

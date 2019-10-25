@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
 import Select from '../Select';
+import { SettingsMsgs } from '../../services/Messages';
 import helper from '../../services/helper';
 
 import { SettingsService } from '../../services/SettingsService';
@@ -9,7 +10,7 @@ import { SettingsService } from '../../services/SettingsService';
 import { updateDefault } from '../../actions/DefaultsActions';
 
 export default function TransferenceAccounts() {
-  const { defaultAccounts } = useSelector(state => state.DefaultsReducer);
+  const { defaultAccounts, locale } = useSelector(state => state.DefaultsReducer);
   const accounts = useSelector(state => state.AccountsReducer.accounts);
 
   const whereAccountsToSelect = helper.organizedAccounts(
@@ -40,11 +41,11 @@ export default function TransferenceAccounts() {
   return (
     <div className="flex-column">
       <div id="transfAcHeader">
-        <h3>Transference Accounts:</h3>
+        <h3>{SettingsMsgs[locale].transfAcc}</h3>
       </div>
       <div id="TransfAcContent">
         <div id="selectTransfFrom" className="selectAccount">
-          <div id="transfFromSelectorLabel">From:</div>
+          <div id="transfFromSelectorLabel">{SettingsMsgs[locale].transFromAc}</div>
           <Select
             value={chosenAccounts.from}
             onChange={id => setChosenAccounts({ ...chosenAccounts, from: id })}
@@ -56,7 +57,7 @@ export default function TransferenceAccounts() {
           />
         </div>
         <div id="selectTransfTo" className="selectAccount">
-          <div id="TransfToAccountSelectorLabel">To:</div>
+          <div id="TransfToAccountSelectorLabel">{SettingsMsgs[locale].transToAc}</div>
           <Select
             value={chosenAccounts.to}
             onChange={id => setChosenAccounts({ ...chosenAccounts, to: id })}

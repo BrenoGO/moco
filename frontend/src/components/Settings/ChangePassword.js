@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 
 import { UsersService } from '../../services/UsersService';
+import { SettingsMsgs } from '../../services/Messages';
 
 export default function ChangePassword() {
+  const { locale } = useSelector(state => state.DefaultsReducer);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
@@ -17,21 +20,23 @@ export default function ChangePassword() {
   return (
     <div className="flex-column">
       <div className="setItemHeader">
-        <h3>Change Password:</h3>
+        <h3>
+          {SettingsMsgs[locale].changePW}
+        </h3>
       </div>
-      <div className="setContent">
+      <div className="setContent flex-column">
         <label htmlFor="newPass">
-          New Password:
+          {SettingsMsgs[locale].newPW}
           <input type="password" id="newPass" value={newPassword} onChange={e => setNewPassword(e.target.value)} />
         </label>
         <label htmlFor="confirmPass">
-          Confirm New Password:
+          {SettingsMsgs[locale].confirmNewPW}
           <input type="password" id="confirmPass" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
         </label>
         {newPassword && confirmPassword && (
           <div className="setButton">
             <button type="button" className="btn btn-warning" onClick={changePass}>
-              Save Changes
+              {SettingsMsgs[locale].saveChanges}
             </button>
           </div>
         )}

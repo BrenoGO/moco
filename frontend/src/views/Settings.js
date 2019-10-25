@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import './views.css';
 import './Settings.css';
 
 import auth from '../services/Auth';
+import { SettingsMsgs } from '../services/Messages';
 
 import Flags from '../components/Flags';
 import DefaultAccounts from '../components/Settings/DefaultAccounts';
@@ -13,6 +15,7 @@ import ChangePassword from '../components/Settings/ChangePassword';
 
 export default function Settings() {
   const [logOut, setLogOut] = useState(false);
+  const { locale } = useSelector(state => state.DefaultsReducer);
 
   function handleLogOut() {
     auth.logout(() => {
@@ -24,14 +27,14 @@ export default function Settings() {
   if (logOut) return <Redirect to={`${process.env.PUBLIC_URL}/login`} />;
   return (
     <div className="view">
-      <h1>Settings</h1>
+      <h1>{SettingsMsgs[locale].title}</h1>
       <div>
         <button
           type="button"
           className="btn btn-primary"
           onClick={handleLogOut}
         >
-          Log Out
+          {SettingsMsgs[locale].logOutBut}
         </button>
       </div>
       <Flags />

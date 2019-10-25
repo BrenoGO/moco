@@ -3,8 +3,9 @@ const helpers = {
     const children = accounts.filter(
       ac => (ac.parents[ac.parents.length - 1] === id)
     ).sort((a, b) => {
-      if (b.allowValue) return 1;
-      return b.id - a.id;
+      if (a.allowValue && !b.allowValue) return -1;
+      if (b.allowValue && !a.allowValue) return 1;
+      return a.id - b.id;
     });
     return children;
   },

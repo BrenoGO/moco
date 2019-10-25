@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 
+import { OperMsgs } from '../../services/Messages';
 import './operations.css';
 
 import ListOfBills from './ListOfBills';
 import PayBill from './PayBill';
 
 export default function PayOrReceiveBill() {
+  const { locale } = useSelector(state => state.DefaultsReducer);
+
   const [type, setType] = useState('ToPay');
   const [action, setAction] = useState({ name: 'listBills', params: {} });
 
@@ -13,14 +17,14 @@ export default function PayOrReceiveBill() {
     <>
       <div id="divSelectExpenseOrIncome">
         <label htmlFor="selectExpenseOrIncome">
-          To Pay or To Receive:
+          {OperMsgs[locale].toPayOrToReceive}
           <select
             id="selectExpenseOrIncome"
             value={type}
             onChange={e => setType(e.target.value)}
           >
-            <option value="ToPay">To Pay</option>
-            <option value="ToReceive">To Receive</option>
+            <option value="ToPay">{OperMsgs[locale].optToPay}</option>
+            <option value="ToReceive">{OperMsgs[locale].optToRec}</option>
           </select>
         </label>
       </div>

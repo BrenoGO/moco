@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
+import { OperMsgs } from '../../services/Messages';
 import helper from '../../services/helper';
-import internacionalization from '../../services/Internacionalization';
 import { RegistersService } from '../../services/RegistersService';
 import { OperationsService } from '../../services/OperationsService';
 
@@ -11,10 +11,9 @@ import { resetBalance } from '../../actions/DefaultsActions';
 import Select from '../Select';
 
 export default function Transference() {
-  const initialValue = internacionalization.getInitials() !== 'pt-BR' ? '$ 0.00' : 'R$ 0,00';
-
-  const { defaultAccounts, balances } = useSelector(state => state.DefaultsReducer);
+  const { defaultAccounts, balances, locale } = useSelector(state => state.DefaultsReducer);
   const { accounts } = useSelector(state => state.AccountsReducer);
+  const initialValue = locale !== 'pt-BR' ? '$ 0.00' : 'R$ 0,00';
 
   const whereAccountsToSelect = helper.organizedAccounts(
     accounts,
@@ -70,8 +69,7 @@ export default function Transference() {
   return (
     <div id="transferenceDiv">
       <div>
-        Transference Date:
-        {' '}
+        {OperMsgs[locale].transfDate}
         <input
           type="date"
           value={helper.dateToInput(transferenceDate)}
@@ -79,7 +77,7 @@ export default function Transference() {
         />
       </div>
       <div id="selectFromAccount" className="selectAccount">
-        <div id="fromSelectorLabel">From:</div>
+        <div id="fromSelectorLabel">{OperMsgs[locale].transFromAc}</div>
         <Select
           value={whereAccountIdFrom}
           onChange={setWhereAccountIdFrom}
@@ -91,7 +89,7 @@ export default function Transference() {
         />
       </div>
       <div id="selectToAccount" className="selectAccount">
-        <div id="toSelectorLabel">To:</div>
+        <div id="toSelectorLabel">{OperMsgs[locale].transToAc}</div>
         <Select
           value={whereAccountIdTo}
           onChange={setWhereAccountIdTo}
@@ -103,17 +101,16 @@ export default function Transference() {
         />
       </div>
       <div>
-        Value:
-        {' '}
+        {OperMsgs[locale].value}
         <input
           type="text"
           value={strValue}
-          onChange={e => setStrValue(internacionalization.currencyFormatter(e.target.value))}
+          onChange={e => setStrValue(helper.currencyFormatter(locale, e.target.value))}
         />
       </div>
       <div>
         <button type="button" className="btn btn-primary" onClick={transfer}>
-          Transfer!
+          {OperMsgs[locale].transfA}
         </button>
       </div>
     </div>

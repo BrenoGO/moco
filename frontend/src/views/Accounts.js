@@ -4,12 +4,14 @@ import { useSelector } from 'react-redux';
 import './views.css';
 import './Accounts.css';
 
+import { AccMsgs } from '../services/Messages';
+
 import GroupAccount from '../components/Accounts/GroupAccount';
 
 
 export default function Accounts() {
   const accounts = useSelector(state => state.AccountsReducer.accounts);
-
+  const { locale } = useSelector(state => state.DefaultsReducer);
 
   function renderAccountCountainer() {
     const rootAccounts = accounts.filter(
@@ -28,7 +30,7 @@ export default function Accounts() {
   }
   return (
     <div className="view">
-      <h1>Accounts</h1>
+      <h1>{AccMsgs[locale].title}</h1>
       { renderAccountCountainer() }
     </div>
   );
