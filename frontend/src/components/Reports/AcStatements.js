@@ -9,7 +9,7 @@ import { RegistersService } from '../../services/RegistersService';
 
 export default function AcStatements() {
   const accounts = useSelector(state => state.AccountsReducer.accounts);
-  const { defaultAccounts, locale } = useSelector(state => state.DefaultsReducer);
+  const { defaultAccounts, locale, balances } = useSelector(state => state.DefaultsReducer);
   const curAccounts = helper.organizedAccounts(accounts, defaultAccounts.currentAccounts);
 
   const [acId, setAcId] = useState(defaultAccounts.whereAccounts.AtSight);
@@ -46,6 +46,11 @@ export default function AcStatements() {
     }
   }
 
+  function getBalance(accountId) {
+    const { balance } = balances.find(item => item.accountId === accountId);
+    return helper.currencyFormatter(locale, balance);
+  }
+
   return (
     <div>
       <div><h3>{RepMsgs[locale].statemTitle}</h3></div>
@@ -75,6 +80,13 @@ export default function AcStatements() {
             onChange={e => handleDateChange('final', e.target.value)}
           />
         </div>
+      </div>
+      <div id="finalBalance">
+        <h3>
+          Balance:
+          {' '}
+          {getBalance(acId)}
+        </h3>
       </div>
       <div id="report">
         <table className="table">

@@ -12,7 +12,6 @@ import { updateDefault } from '../../actions/DefaultsActions';
 export default function DefaultAccounts() {
   const { defaultAccounts, locale } = useSelector(state => state.DefaultsReducer);
   const accounts = useSelector(state => state.AccountsReducer.accounts);
-
   const [chosenAccounts, setChosenAccounts] = useState({
     income: defaultAccounts.whatAccounts.income,
     expense: defaultAccounts.whatAccounts.expense,
@@ -30,7 +29,7 @@ export default function DefaultAccounts() {
         }
       }
     });
-    dispatch(updateDefault('defaultAccounts', setting.data));
+    dispatch(updateDefault('defaultAccounts', setting.data.defaultAccounts));
   }
 
   return (

@@ -1,5 +1,4 @@
 const accountsModel = require('../models/accountModel');
-// const settingsModal = require('../models/settingModel');
 const registerModel = require('../models/registerModel');
 
 module.exports = {
@@ -18,7 +17,6 @@ module.exports = {
   },
   async update(req, res) {
     const { id } = req.params;
-    console.log(id, req.body);
     const account = await accountsModel.findOneAndUpdate(
       { id, userId: req.user._id }, req.body, { new: true }
     );
@@ -29,14 +27,12 @@ module.exports = {
     const children = await accountsModel.find({ parents: id });
     const toDelete = children.map(child => ({ id: child.id }));
     toDelete.push({ id: Number(id) });
-    console.log(toDelete);
     await accountsModel.deleteMany({
       $or: toDelete
     });
     const regToDelete = toDelete.map(item => ({
       $or: [{ whereAccountId: item.id }, { whatAccountId: item.id }]
     }));
-    console.log('regToDelete:', regToDelete);
     await registerModel.deleteMany({
       $or: regToDelete
     });

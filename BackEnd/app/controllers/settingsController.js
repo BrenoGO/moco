@@ -41,7 +41,9 @@ module.exports = {
     const { name } = req.params;
     const setting = await settingModel.findOne({ userId: req.user._id });
     setting.data[name] = req.body.data;
-    const newSetting = await settingModel.findByIdAndUpdate(setting._id, { data: setting.data });
+    const newSetting = await settingModel.findByIdAndUpdate(
+      setting._id, { data: setting.data }, { new: true }
+    );
 
     res.json(newSetting);
   },
