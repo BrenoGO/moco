@@ -35,7 +35,7 @@ export default function TransferenceAccounts() {
         }
       }
     });
-    dispatch(updateDefault('defaultAccounts', setting.data));
+    dispatch(updateDefault('defaultAccounts', setting.data.defaultAccounts));
   }
 
   return (

@@ -32,7 +32,7 @@ export default function PaymentOptions() {
         }
       }
     });
-    dispatch(updateDefault('defaultAccounts', setting.data));
+    dispatch(updateDefault('defaultAccounts', setting.data.defaultAccounts));
   }
 
   return (
