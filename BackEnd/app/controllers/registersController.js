@@ -40,7 +40,7 @@ module.exports = {
       }
       return true;
     });
-    const registers = await registerModel.find(objSearch);
+    const registers = await registerModel.find(objSearch, null, { sort: { emitDate: -1 } });
     res.json(registers);
   },
   sumWhatAccount: async (req, res) => {
