@@ -22,10 +22,10 @@ module.exports = {
     const currentAccountsBalance = currentAccounts.map(async (ac) => {
       let balance = 0;
       const lastReg = await registerModel.findOne(
-        { whereAccountId: ac.id },
+        { userId: req.user._id, whereAccountId: ac.id },
         { whereAccountBalance: true, createdAt: true, _id: false },
       ).sort({ createdAt: -1 });
-      if (lastReg) balance = lastReg.whereAccountBalance;
+      if (lastReg && lastReg.whereAccountBalance) balance = lastReg.whereAccountBalance;
       return { accountId: ac.id, balance };
     });
     response.balances = await Promise.all(currentAccountsBalance);
@@ -39,13 +39,15 @@ module.exports = {
   ),
   update: async (req, res) => {
     const { name } = req.params;
+
     const setting = await settingModel.findOne({ userId: req.user._id });
-    setting.data[name] = req.body.data;
-    const newSetting = await settingModel.findByIdAndUpdate(
-      setting._id, { data: setting.data }, { new: true }
+    const newSetting = JSON.parse(JSON.stringify(setting));
+    newSetting.data[name] = req.body;
+    const newSetting2 = await settingModel.findByIdAndUpdate(
+      setting._id, { data: newSetting.data }, { new: true }
     );
 
-    res.json(newSetting);
+    res.json(newSetting2);
   },
   initialSettings: async (req, res) => {
     const settings = await settingModel.create({

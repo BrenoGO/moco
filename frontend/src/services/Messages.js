@@ -12,6 +12,24 @@ export const NavBarMsgs = {
     settings: 'Configurações',
   }
 };
+export const LoginMsgs = {
+  'en-US': {
+    login: 'Login',
+    email: 'E-mail: ',
+    pw: 'Password: ',
+    signUp: 'Sign Up',
+    name: 'Name: ',
+    cpw: 'Confirm Password: ',
+  },
+  'pt-BR': {
+    login: 'Login',
+    email: 'E-mail: ',
+    pw: 'Senha:',
+    signUp: 'Cadastre-se',
+    name: 'Nome: ',
+    cpw: 'Confirme a senha: ',
+  }
+};
 export const SettingsMsgs = {
   'en-US': {
     title: 'Settings',

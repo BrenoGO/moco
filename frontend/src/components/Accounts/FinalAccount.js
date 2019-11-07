@@ -7,9 +7,10 @@ import { AccMsgs } from '../../services/Messages';
 import { AccountsService } from '../../services/AccountsService';
 
 import { deleteAccounts, updateAccount } from '../../actions/AccountsActions';
+import { updateDefault } from '../../actions/DefaultsActions';
 
 export default function FinalAccount(props) {
-  const { locale } = useSelector(state => state.DefaultsReducer);
+  const { locale, defaultAccounts, balances } = useSelector(state => state.DefaultsReducer);
   const { account } = props;
   const [boolWarning, setBoolWarning] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -18,9 +19,14 @@ export default function FinalAccount(props) {
   const dispatch = useDispatch();
 
   async function deleteAccount() {
+    if (account.parents.includes(defaultAccounts.currentAccounts) && account.allowValue) {
+      //  is a current account, so the balances in DefaultsReducer gotta change
+      const newBalances = balances.filter(item => item.accountId !== account.id);
+      dispatch(updateDefault('balances', newBalances));
+    }
     const deletedIds = await AccountsService.delete(account.id);
     setBoolWarning(false);
-    dispatch(deleteAccounts(deletedIds.ok.map(item => item.id)));
+    dispatch(deleteAccounts(deletedIds.ok));
   }
   function edit() {
     AccountsService.update(account.id, { ...account, name: newName });

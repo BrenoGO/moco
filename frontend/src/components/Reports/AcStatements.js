@@ -114,7 +114,7 @@ export default function AcStatements() {
                   <td>{emitDate}</td>
                   <td>{whatAc ? whatAc.name : ''}</td>
                   <td className={value < 0 ? 'red' : ''}>{helper.currencyFormatter(locale, value)}</td>
-                  <td className={balance < 0 ? 'red' : ''}>{helper.currencyFormatter(locale, balance)}</td>
+                  <td className={balance < 0 ? 'red' : ''}>{helper.currencyFormatter(locale, balance || 0)}</td>
                 </tr>
               );
             })}

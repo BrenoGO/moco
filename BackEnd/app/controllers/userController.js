@@ -1,6 +1,9 @@
-const userModel = require('../models/userModel');
 const settingModel = require('../models/settingModel');
-const accountsModel = require('../models/accountModel');
+const registerModel = require('../models/registerModel');
+const accountModel = require('../models/accountModel');
+const userModel = require('../models/userModel');
+const billModel = require('../models/billModel');
+const operationModel = require('../models/operationModel');
 
 const { encrypt } = require('../../config/cryptography');
 const { login, signUp } = require('../../config/auth');
@@ -26,20 +29,22 @@ module.exports = {
         const thisObj = { data: require('../constants/initialSettings'), userId: result.userId };
         const settings = await settingModel.create(thisObj);
         const initialAccounts = require('../constants/initialAccounts').map(item => ({ ...item, userId: result.userId }));
-        const accounts = await accountsModel.create(initialAccounts);
+        const accounts = await accountModel.create(initialAccounts);
         return res.json({ token: result.token, defaults: settings.data, accounts });
       }
       return res.status(422).json({ error: { message: 'result was falsy' } });
     });
   },
-  removeUser: (req, res) => {
+  removeUser: async (req, res) => {
     const { id } = req.params;
-    userModel.findByIdAndDelete(id, (err) => {
-      if (err) {
-        return res.send({ message: 'erro ao remover', err });
-      }
-      return res.send({ ok: 'removed' });
-    });
+    await settingModel.deleteMany({ userId: id });
+    await registerModel.deleteMany({ userId: id });
+    await accountModel.deleteMany({ userId: id });
+    await billModel.deleteMany({ userId: id });
+    await operationModel.deleteMany({ userId: id });
+    await userModel.findByIdAndDelete(id);
+
+    return res.json({ ok: 'user deleted' });
   },
   login: (req, res) => {
     const { email, password } = req.body;

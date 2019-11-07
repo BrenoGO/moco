@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 
 import './Login.css';
 
 import auth from '../services/Auth';
 import { UsersService } from '../services/UsersService';
+import { LoginMsgs } from '../services/Messages';
 
 import { setAccounts } from '../actions/AccountsActions';
 import { setDefaults } from '../actions/DefaultsActions';
@@ -14,6 +15,7 @@ import Flags from '../components/Flags';
 import Loading from '../components/Loading';
 
 export default function Login() {
+  const { locale } = useSelector(state => state.DefaultsReducer);
   const [loading, setLoading] = useState(false);
   const [redirect, setRedirect] = useState({ bool: false, to: `${process.env.PUBLIC_URL}/` });
   const [email, setEmail] = useState('');
@@ -73,13 +75,13 @@ export default function Login() {
     <div className="view">
       <Flags />
       <div id="loginDiv" className="flex-column">
-        <h1>Login</h1>
+        <h1>{LoginMsgs[locale].login}</h1>
         <label htmlFor="email">
-          E-mail:
+          {LoginMsgs[locale].email}
           <input type="email" name="email" id="email" value={email} onChange={e => setEmail(e.target.value)} />
         </label>
         <label htmlFor="password">
-          Password:
+          {LoginMsgs[locale].pw}
           <input type="password" name="password" id="password" value={password} onChange={e => setPassword(e.target.value)} />
         </label>
         <button
@@ -88,25 +90,25 @@ export default function Login() {
           type="button"
           onClick={handleLogin}
         >
-          Log In
+          {LoginMsgs[locale].login}
         </button>
       </div>
       <div id="signUpDiv" className="flex-column">
-        <h1>Sign Up</h1>
+        <h1>{LoginMsgs[locale].signUp}</h1>
         <label htmlFor="name">
-          Name:
+          {LoginMsgs[locale].name}
           <input type="text" id="name" value={name} onChange={e => setName(e.target.value)} />
         </label>
         <label htmlFor="emailSU">
-          E-mail:
+          {LoginMsgs[locale].email}
           <input type="email" id="emailSU" value={emailSU} onChange={e => setEmailSU(e.target.value)} />
         </label>
         <label htmlFor="passwordSU">
-          Password:
+          {LoginMsgs[locale].pw}
           <input type="password" id="passwordSU" value={passwordSU} onChange={e => setPasswordSU(e.target.value)} />
         </label>
         <label htmlFor="confirmPasswordSU">
-          Confirm Password:
+          {LoginMsgs[locale].cpw}
           <input type="password" id="confirmPasswordSU" value={confirmPasswordSU} onChange={e => setConfirmPasswordSU(e.target.value)} />
         </label>
         <button
@@ -115,7 +117,7 @@ export default function Login() {
           type="button"
           onClick={handleSignUp}
         >
-          Sign Up
+          {LoginMsgs[locale].signUp}
         </button>
       </div>
     </div>

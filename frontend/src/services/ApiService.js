@@ -1,5 +1,6 @@
 const api = 'https://my-money-controller-be.herokuapp.com/';
 // const api = 'http://localhost:3001/';
+// const api = 'http://192.168.0.102:3001/';
 
 export const ApiService = {
   get(endpoint) {

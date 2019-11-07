@@ -307,9 +307,21 @@ export default function FutureOper() {
   function handleInstallmentsChange(index, installments) {
     let newBills = [];
     if (installments > whereAccounts[index].bills.length) { // aumentou parcela
-      const date = new Date(whereAccounts[index].bills[installments - 2].date);
-      date.setDate(date.getDate() + 30);
-      newBills = [...whereAccounts[index].bills, { date, value: initialValue }];
+      if (installments - whereAccounts[index].bills.length === 1) {
+        const date = new Date(whereAccounts[index].bills[installments - 2].date);
+        date.setDate(date.getDate() + 30);
+        newBills = [...whereAccounts[index].bills, { date, value: initialValue }];
+      } else {
+        for (let i = 0; i < installments; i++) {
+          if (i === 0) {
+            newBills.push({ date: todayPlus30, value: initialValue });
+          } else {
+            const date = new Date(newBills[i - 1].date);
+            date.setDate(date.getDate() + 30);
+            newBills.push({ date, value: initialValue });
+          }
+        }
+      }
     } else if (installments > 1) newBills = whereAccounts[index].bills.slice(0, installments);
     else newBills = whereAccounts[index].bills.slice(0, 1);
     newBills = distributeValue(whereAccounts[index].value, newBills);
@@ -319,11 +331,17 @@ export default function FutureOper() {
     }));
   }
 
+  function calcNewBalance(accId, value) {
+    const lastWhereAccountBalance = balances.filter(
+      item => item.accountId === accId
+    )[0].balance;
+    console.log('lastWhereAccountBalance', lastWhereAccountBalance);
+    return lastWhereAccountBalance + value;
+  }
+
   async function submit() {
-    // console.log(defaults);
-    // return console.log(whereAccounts);
     if (sumWhatAccounts === 0) return alert('value is 0!');
-    if (sumWhatAccounts !== sumWhereAccounts) {
+    if (sumWhatAccounts.toFixed(2) !== sumWhereAccounts.toFixed(2)) {
       return alert(
         'The sum of what accounts have to be iqual the sum of where accounts'
       );
@@ -353,8 +371,11 @@ export default function FutureOper() {
       billsIds = billsResp.map(bill => bill._id);
     }
 
+    let boolDispBal = false;
+    let balance = 0;
     const allRegs = whatAccounts.map((whatAccount) => {
       const value = helper.toNumber(whatAccount.value);
+      let i = 0;
       const newObj = {
         opType: 'complex',
         emitDate,
@@ -367,6 +388,24 @@ export default function FutureOper() {
       if (whereAccounts.length === 1) {
         newObj.whereAccountId = whereAccounts[0].id;
         newObj.opType = `${whatAccountToSelect.name}${whereAccounts[0].type}`;
+        if (whereAccounts[0].type === 'AtSight') {
+          boolDispBal = true;
+          let signal = 1;
+          if (whatAccountToSelect.name === 'expense') {
+            signal = -1;
+          }
+          if (i === 0) {
+            balance = calcNewBalance(whereAccounts[0].id, signal * value);
+            console.log('1:', balance);
+          } else {
+            balance += value * signal;
+            console.log('p2:', balance);
+          }
+          balance = Number(balance.toFixed(2));
+
+          newObj.whereAccountBalance = balance;
+          i++;
+        }
       } else {
         const distinctTypes = [...new Set(whereAccounts.map(item => item.type))];
         if (distinctTypes.length === 1) {
@@ -375,35 +414,31 @@ export default function FutureOper() {
       }
       return newObj;
     });
+
+    if (boolDispBal) {
+      dispatch(resetBalance({ accountId: whereAccounts[0].id, balance }));
+    }
+
     if (whereAccounts.length > 1) {
       whereAccounts.forEach((whereAccount) => {
         if (whereAccount.type === 'AtSight') {
-          const value = helper.toNumber(whereAccount.value);
+          let value = helper.toNumber(whereAccount.value);
           const newObj = {
             opType: `${whatAccountToSelect.name}${whereAccount.type}`,
             emitDate,
             whereAccountId: whereAccount.id,
             value
           };
-          const lastWhereAccountBalance = balances.filter(
-            item => item.accountId === whereAccount.id
-          )[0].balance;
-
           if (whatAccountToSelect.name === 'expense') {
-            const balance = lastWhereAccountBalance - value;
-            newObj.whereAccountBalance = balance;
-            dispatch(resetBalance({ accountId: whereAccount.id, balance }));
+            value = -value;
           }
-          if (whatAccountToSelect.name === 'income') {
-            const balance = lastWhereAccountBalance + value;
-            newObj.whereAccountBalance = balance;
-            dispatch(resetBalance({ accountId: whereAccount.id, balance }));
-          }
+          const newBalance = calcNewBalance(whereAccount.id, value);
+          newObj.whereAccountBalance = newBalance;
+          dispatch(resetBalance({ accountId: whereAccount.id, balance: newBalance }));
           allRegs.push(newObj);
         }
       });
     }
-
 
     const regResp = await RegistersService.store(allRegs);
 
@@ -417,7 +452,7 @@ export default function FutureOper() {
 
     return reSetState();
   }
-
+  console.log('p4:', balances);
   return (
     <>
       <div id="divSelectExpenseOrIncome">
@@ -584,7 +619,12 @@ export default function FutureOper() {
                     <div className="divPaymentInstallments">
                       <label htmlFor="paymentInstallments">
                         {OperMsgs[locale].installments}
-                        <input type="number" value={whereAccount.bills.length} onChange={e => handleInstallmentsChange(index, e.target.value)} />
+                        <select id="paymentInstallments" value={whereAccount.bills.length} onChange={e => handleInstallmentsChange(index, e.target.value)}>
+                          {
+                            [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+                              .map(i => (<option value={i}>{i}</option>))
+                          }
+                        </select>
                       </label>
                     </div>
                     <div className="installmentsDiv">
@@ -635,13 +675,13 @@ export default function FutureOper() {
             {OperMsgs[locale].total}
             { helper.currencyFormatter(locale, sumWhereAccounts) }
             {
-              sumWhatAccounts === sumWhereAccounts
+              sumWhatAccounts.toFixed(2) === sumWhereAccounts.toFixed(2)
                 ? <img src={ImgChecked} width="20px" alt="checked" className="ifCheckedImg" />
                 : (
                   <span>
                     <img src={ImgX} width="20px" alt="not checked" className="ifCheckedImg" />
                     {OperMsgs[locale].diff}
-                    {sumWhatAccounts - sumWhereAccounts}
+                    {(sumWhatAccounts - sumWhereAccounts).toFixed(2)}
                   </span>
                 )
             }

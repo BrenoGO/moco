@@ -65,7 +65,7 @@ export default function ListOfBills(props) {
           onChange={e => setPaymentDate(helper.inputDateToNewDate(e.target.value))}
         />
         <div id="selectWhereAccount" className="selectAccount">
-          <div id="whereAccountsSelectorLabel">{OperMsgs[locale].whereAc}</div>
+          <div id="whereAccountsSelectorLabel">{OperMsgs[locale].currAc}</div>
           <Select
             id="whereAccountsSelector"
             value={whereAccountId}

@@ -23,13 +23,11 @@ export default function PaymentOptions() {
 
   async function changePayments() {
     const setting = await SettingsService.update('defaultAccounts', {
-      data: {
-        ...defaultAccounts,
-        whereAccounts: {
-          AtSight: chosenPayments.AtSight,
-          ToPay: chosenPayments.ToPay,
-          ToReceive: chosenPayments.ToReceive,
-        }
+      ...defaultAccounts,
+      whereAccounts: {
+        AtSight: chosenPayments.AtSight,
+        ToPay: chosenPayments.ToPay,
+        ToReceive: chosenPayments.ToReceive,
       }
     });
     dispatch(updateDefault('defaultAccounts', setting.data.defaultAccounts));

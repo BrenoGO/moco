@@ -34,6 +34,9 @@ module.exports = {
     "jsx-a11y/no-static-element-interactions": 0,
     "class-methods-use-this": 0,
     "react/no-array-index-key": 0,
-    "no-nested-ternary": 0
+    "no-nested-ternary": 0,
+    "no-plusplus": 0,
+    "guard-for-in": 0,
+    "no-restricted-syntax": 0
   },
 };

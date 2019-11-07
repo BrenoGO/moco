@@ -18,13 +18,13 @@ export default function Bill(props) {
       {' '}
       <br />
       {OperMsgs[locale].dueDate}
-      {helper.formatDate(locale, bill.dueDate)}
+      {helper.formatDate(locale, helper.dbDateToNewDate(bill.dueDate))}
       {' '}
       {OperMsgs[locale].value}
       {helper.currencyFormatter(locale, bill.value)}
       <br />
       {OperMsgs[locale].emitDate}
-      {helper.formatDate(locale, bill.emitDate)}
+      {helper.formatDate(locale, helper.dbDateToNewDate(bill.emitDate))}
       {' '}
       {OperMsgs[locale].installment}
       {bill.installment}

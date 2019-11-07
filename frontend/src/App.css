@@ -33,6 +33,9 @@
     text-align: center;
     width: 100%;
   }
+  .inValue{
+    width: 120px;
+  }
 }
 
 /* button{

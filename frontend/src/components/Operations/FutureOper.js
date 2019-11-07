@@ -121,10 +121,22 @@ export default function FutureOper() {
   function handleInstallmentsChange(e) {
     const installments = e.target.value;
     let newBills = [];
-    if (installments > bills.length) { // aumentou parcela
-      const date = new Date(bills[installments - 2].date);
-      date.setDate(date.getDate() + 30);
-      newBills = [...bills, { date, value: initialValue }];
+    if (installments > bills.length) { // added installment
+      if (installments - bills.length === 1) {
+        const date = new Date(bills[installments - 2].date);
+        date.setDate(date.getDate() + 30);
+        newBills = [...bills, { date, value: initialValue }];
+      } else {
+        for (let i = 0; i < installments; i++) {
+          if (i === 0) {
+            newBills.push({ date: todayPlus30, value: initialValue });
+          } else {
+            const date = new Date(newBills[i - 1].date);
+            date.setDate(date.getDate() + 30);
+            newBills.push({ date, value: initialValue });
+          }
+        }
+      }
     } else if (installments > 1) newBills = bills.slice(0, installments);
     else newBills = bills.slice(0, 1);
     newBills = distributeValue(opValue, newBills);
@@ -246,7 +258,11 @@ export default function FutureOper() {
         <div id="divPaymentInstallments">
           <label htmlFor="paymentInstallments">
             {OperMsgs[locale].installments}
-            <input type="number" value={bills.length} onChange={e => handleInstallmentsChange(e)} />
+            <select id="paymentInstallments" value={bills.length} onChange={e => handleInstallmentsChange(e)}>
+              {
+                [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(i => (<option value={i}>{i}</option>))
+              }
+            </select>
           </label>
           {bills.map((bill, index) => (
             <div key={index} className="installment">

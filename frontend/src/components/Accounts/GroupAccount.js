@@ -5,10 +5,12 @@ import './GroupAccount.css';
 
 import { AccountsService } from '../../services/AccountsService';
 import { RegistersService } from '../../services/RegistersService';
+import { SettingsService } from '../../services/SettingsService';
 import { AccMsgs } from '../../services/Messages';
 import helper from '../../services/helper';
 
 import { addAccount, deleteAccounts, updateAccount } from '../../actions/AccountsActions';
+import { updateDefault } from '../../actions/DefaultsActions';
 
 import FinalAccount from './FinalAccount';
 import Modal from '../Modal';
@@ -17,7 +19,7 @@ export default function GroupAccount(props) {
   const { account } = props;
 
   const accounts = useSelector(state => state.AccountsReducer.accounts);
-  const { locale } = useSelector(state => state.DefaultsReducer);
+  const { locale, defaultAccounts, balances } = useSelector(state => state.DefaultsReducer);
   const defaultInitialValue = locale !== 'pt-BR' ? 'Initial: $ 0.00' : 'Initial: R$ 0,00';
 
   const [opened, setOpened] = useState(false);
@@ -40,13 +42,6 @@ export default function GroupAccount(props) {
     if (b.allowValue && !a.allowValue) return 1;
     return a.id - b.id;
   });
-
-  // const childrenAc = accounts.filter(
-  //   ac => ac.parents[ac.parents.length - 1] === account.id
-  // ).sort((a, b) => {
-  //   if (b.allowValue) return 1;
-  //   return b.id - a.id;
-  // });
 
   async function addChild() {
     const id = accounts.reduce((ac, atual) => (atual.id > ac.id ? atual : ac)).id + 1;
@@ -71,12 +66,42 @@ export default function GroupAccount(props) {
 
   async function deleteAccount() {
     const deletedIds = await AccountsService.delete(account.id);
-    setBoolWarning(false);
-    dispatch(deleteAccounts(deletedIds.ok.map(item => item.id)));
+    if (deletedIds.ok) {
+      setBoolWarning(false);
+      deletedIds.ok.forEach(async (id) => {
+        const acc = accounts.find(item => item.id === id);
+        if (acc.parents.includes(defaultAccounts.currentAccounts) && acc.allowValue) {
+          // is a final current account
+          const newBalances = balances.filter(item => item.accountId !== account.id);
+          dispatch(updateDefault('balances', newBalances));
+        }
+        const newDeAccs = JSON.parse(JSON.stringify(defaultAccounts));
+        let boolChanged = false;
+        for (const key in newDeAccs) {
+          if (newDeAccs[key] === id) {
+            newDeAccs[key] = null;
+            boolChanged = true;
+          }
+          if (typeof (newDeAccs[key]) === 'object') {
+            for (const k2 in newDeAccs[key]) {
+              if (newDeAccs[key][k2] === id) {
+                newDeAccs[key][k2] = null;
+                boolChanged = true;
+              }
+            }
+          }
+        }
+        if (boolChanged) {
+          console.log(newDeAccs);
+          dispatch(updateDefault('defaultAccounts', newDeAccs));
+          await SettingsService.update('defaultAccounts', newDeAccs);
+        }
+      });
+      dispatch(deleteAccounts(deletedIds.ok));
+    }
   }
 
   function edit() {
-    console.log('in edit');
     AccountsService.update(account.id, { name: newName });
     dispatch(updateAccount(account.id, newName));
     setEditing(false);

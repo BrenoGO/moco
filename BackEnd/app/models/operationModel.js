@@ -3,6 +3,11 @@ const { Schema, model } = require('mongoose');
 const { ObjectId } = Schema.Types;
 
 const schema = Schema({
+  userId: {
+    type: ObjectId,
+    required: true,
+    ref: 'User'
+  },
   registers: {
     type: [ObjectId],
     ref: 'Register'
