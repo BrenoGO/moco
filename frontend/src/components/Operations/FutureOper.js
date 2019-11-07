@@ -236,10 +236,22 @@ export default function FutureOper() {
           {OperMsgs[locale].value}
           <input
             type="text"
+            className="inValue"
+            inputMode="numeric"
             id="opValue"
             value={opValue}
             onChange={e => handleValueChange(e.target.value)}
           />
+          <button
+            type="button"
+            onClick={() => handleValueChange(
+              opValue.substring(0, 1) === '-'
+                ? opValue.substring(1)
+                : `-${opValue}`,
+            )}
+          >
+            {opValue.substring(0, 1) === '-' ? '+' : '-'}
+          </button>
         </label>
       </div>
       <div id="divDescription">
@@ -278,6 +290,8 @@ export default function FutureOper() {
                 {OperMsgs[locale].value}
                 <input
                   type="text"
+                  className="inValue"
+                  inputMode="numeric"
                   value={bill.value}
                   onChange={e => editBillValue(index, e.target.value)}
                   onBlur={e => editOnBlur(index, e.target.value)}

@@ -104,9 +104,21 @@ export default function Transference() {
         {OperMsgs[locale].value}
         <input
           type="text"
+          className="inValue"
+          inputMode="numeric"
           value={strValue}
           onChange={e => setStrValue(helper.currencyFormatter(locale, e.target.value))}
         />
+        <button
+          type="button"
+          onClick={() => setStrValue(
+            strValue.substring(0, 1) === '-'
+              ? helper.currencyFormatter(locale, strValue.substring(1))
+              : helper.currencyFormatter(locale, `-${strValue}`)
+          )}
+        >
+          {strValue.substring(0, 1) === '-' ? '+' : '-'}
+        </button>
       </div>
       <div>
         <button type="button" className="btn btn-primary" onClick={transfer}>

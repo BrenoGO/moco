@@ -30,13 +30,6 @@ export default function AtSight() {
   const currentAccounts = helper.organizedAccounts(accounts, defaultAccounts.currentAccounts);
   const whatAccountsToSelect = helper.organizedAccounts(accounts, whatAccounts.id);
 
-  function changeSignal(strValue) {
-    if (strValue.substring(0, 1) === '-') {
-      return setOpValue(helper.currencyFormatter(locale, strValue.substring(1)));
-    }
-    return setOpValue(helper.currencyFormatter(locale, `-${strValue}`));
-  }
-
   function handleWhatAccountsChange(type) {
     setWhatAccounts({ id: defaultAccounts[type], name: type });
     setWhatAccountId(defaultAccounts.whatAccounts[type]);
@@ -142,7 +135,14 @@ export default function AtSight() {
             onChange={e => setOpValue(helper.currencyFormatter(locale, e.target.value))}
             inputMode="numeric"
           />
-          <button type="button" onClick={() => changeSignal(opValue)}>
+          <button
+            type="button"
+            onClick={() => setOpValue(
+              opValue.substring(0, 1) === '-'
+                ? helper.currencyFormatter(locale, opValue.substring(1))
+                : helper.currencyFormatter(locale, `-${opValue}`)
+            )}
+          >
             {opValue.substring(0, 1) === '-' ? '+' : '-'}
           </button>
         </label>

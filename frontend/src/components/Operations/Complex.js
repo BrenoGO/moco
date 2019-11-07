@@ -506,10 +506,23 @@ export default function FutureOper() {
                   {OperMsgs[locale].value}
                   <input
                     type="text"
+                    className="inValue"
+                    inputMode="numeric"
                     id={`whatValue-${index}`}
                     value={whatAccount.value}
                     onChange={e => handleWhatAccountsValueChange(index, e.target.value)}
                   />
+                  <button
+                    type="button"
+                    onClick={() => handleWhatAccountsValueChange(
+                      index,
+                      whatAccount.value.substring(0, 1) === '-'
+                        ? whatAccount.value.substring(1)
+                        : `-${whatAccount.value}`,
+                    )}
+                  >
+                    {whatAccount.value.substring(0, 1) === '-' ? '+' : '-'}
+                  </button>
                 </label>
               </div>
               <div className="divWhatDescription">
@@ -610,9 +623,23 @@ export default function FutureOper() {
                   {OperMsgs[locale].value}
                   <input
                     type="text"
+                    className="inValue"
+                    inputMode="numeric"
                     value={whereAccount.value}
                     onChange={e => handleWhereValueChange(e.target.value, index, whereAccount.type)}
                   />
+                  <button
+                    type="button"
+                    onClick={() => handleWhereValueChange(
+                      whereAccount.value.substring(0, 1) === '-'
+                        ? whereAccount.value.substring(1)
+                        : `-${whereAccount.value}`,
+                      index,
+                      whereAccount.type
+                    )}
+                  >
+                    {whereAccount.value.substring(0, 1) === '-' ? '+' : '-'}
+                  </button>
                 </div>
                 {whereAccount.bills && (
                   <div className="whereBillsDiv">
@@ -646,10 +673,24 @@ export default function FutureOper() {
                             {OperMsgs[locale].value}
                             <input
                               type="text"
+                              className="inValue"
+                              inputMode="numeric"
                               value={bill.value}
                               onChange={e => editBillValue(index, billI, e.target.value)}
                               onBlur={() => editOnBlur(index)}
                             />
+                            <button
+                              type="button"
+                              onClick={() => editBillValue(
+                                index,
+                                billI,
+                                bill.value.substring(0, 1) === '-'
+                                  ? bill.value.substring(1)
+                                  : `-${bill.value}`,
+                              )}
+                            >
+                              {bill.value.substring(0, 1) === '-' ? '+' : '-'}
+                            </button>
                           </div>
                         </div>
                       ))}

@@ -98,6 +98,12 @@ const helpers = {
   inputDateToNewDate(strDate) {
     const [year, month, day] = strDate.split('-');
     return new Date(year, month - 1, day);
+  },
+  changeSignal(locale, strValue, changeValueFunc) {
+    if (strValue.substring(0, 1) === '-') {
+      return changeValueFunc(helpers.currencyFormatter(locale, strValue.substring(1)));
+    }
+    return changeValueFunc(helpers.currencyFormatter(locale, `-${strValue}`));
   }
 };
 
