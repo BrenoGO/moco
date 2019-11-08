@@ -88,11 +88,10 @@ export default function AcStatements() {
           {getBalance(acId)}
         </h3>
       </div>
-      <div id="report">
+      <div id="report" className="table-responsive">
         <table className="table">
           <thead>
             <tr>
-              <td>{RepMsgs[locale].thType}</td>
               <td>{RepMsgs[locale].date}</td>
               <td>{RepMsgs[locale].thAcc}</td>
               <td>{RepMsgs[locale].value}</td>
@@ -101,7 +100,21 @@ export default function AcStatements() {
           </thead>
           <tbody>
             {registers.map((reg) => {
+              console.log(reg);
               const whatAc = accounts.filter(item => item.id === reg.whatAccountId)[0];
+              let desc = reg.description || whatAc ? whatAc.name : '';
+              if (!desc) {
+                switch (reg.opType) {
+                  case 'transference':
+                    desc = RepMsgs[locale].transference;
+                    break;
+                  case 'payment':
+                    desc = RepMsgs[locale].payment;
+                    break;
+                  default:
+                    break;
+                }
+              }
               const emitDate = helper.formatDateAndTime(locale, new Date(reg.emitDate));
               let { value } = reg;
               const { opType, whereAccountBalance: balance } = reg;
@@ -110,9 +123,8 @@ export default function AcStatements() {
               }
               return (
                 <tr key={reg._id} className="register">
-                  <td>{opType}</td>
                   <td>{emitDate}</td>
-                  <td>{whatAc ? whatAc.name : ''}</td>
+                  <td>{desc}</td>
                   <td className={value < 0 ? 'red' : ''}>{helper.currencyFormatter(locale, value)}</td>
                   <td className={balance < 0 ? 'red' : ''}>{helper.currencyFormatter(locale, balance || 0)}</td>
                 </tr>

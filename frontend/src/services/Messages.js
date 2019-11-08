@@ -206,6 +206,8 @@ export const RepMsgs = {
     expenses: 'Expenses',
     incomes: 'Incomes',
     future: 'Future',
+    toPay: 'To Pay',
+    toReceive: 'To Receive',
     general: 'General',
     statemTitle: 'Current Accounts Statements',
     initial: 'Initial: ',
@@ -216,6 +218,10 @@ export const RepMsgs = {
     value: 'Value',
     balance: 'Balance',
     total: 'Total',
+    where: 'Where',
+    due: 'Due',
+    transference: 'Transference',
+    payment: 'Payment'
   },
   'pt-BR': {
     title: 'Relatórios',
@@ -224,6 +230,8 @@ export const RepMsgs = {
     expenses: 'Gastos',
     incomes: 'Entradas',
     future: 'Futuro',
+    toPay: 'A Pagar',
+    toReceive: 'A Receber',
     general: 'Geral',
     statemTitle: 'Extrato de Contas Correntes',
     initial: 'Inicial: ',
@@ -234,5 +242,9 @@ export const RepMsgs = {
     value: 'Valor',
     balance: 'Saldo',
     total: 'Total',
+    where: 'Onde',
+    due: 'Vence',
+    transference: 'Transferência',
+    payment: 'Pagamento'
   }
 };

@@ -44,15 +44,15 @@ export default function FutureOper() {
 
   function setAccounts(type) {
     if (type === 'expense') {
-      setWhatAccounts({ id: defaultAccounts.expense, name: 'expense' });
-      setWhatAccountId(defaultAccounts.whatAccounts.expense);
+      setWhatAccounts({ id: defaultAccounts[type], name: type });
+      setWhatAccountId(defaultAccounts.whatAccounts[type]);
       setWhereAccounts({ id: defaultAccounts.ToPay, name: 'ToPay' });
-      setWhatAccountId(defaultAccounts.whereAccounts.ToPay);
+      setWhereAccountId(defaultAccounts.whereAccounts.ToPay);
     } else {
       setWhatAccounts({ id: defaultAccounts.income, name: 'income' });
       setWhatAccountId(defaultAccounts.whatAccounts.income);
       setWhereAccounts({ id: defaultAccounts.ToReceive, name: 'ToReceive' });
-      setWhatAccountId(defaultAccounts.whereAccounts.ToReceive);
+      setWhereAccountId(defaultAccounts.whereAccounts.ToReceive);
     }
   }
 
@@ -272,7 +272,8 @@ export default function FutureOper() {
             {OperMsgs[locale].installments}
             <select id="paymentInstallments" value={bills.length} onChange={e => handleInstallmentsChange(e)}>
               {
-                [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(i => (<option value={i}>{i}</option>))
+                [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+                  .map(i => (<option key={i} value={i}>{i}</option>))
               }
             </select>
           </label>

@@ -38,9 +38,7 @@ export default function Expenses() {
     }).then((regs) => {
       if (mounted)setRegisters(regs);
     });
-    return () => {
-      mounted = false;
-    };
+    return () => { mounted = false; };
   }, [acId, initDate, finalDate]);
 
   function handleTypeChange(newType) {

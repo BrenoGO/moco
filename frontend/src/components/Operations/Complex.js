@@ -88,13 +88,13 @@ export default function FutureOper() {
 
   function setAccounts(type) {
     if (type === 'expense') {
-      setWhatAccountToSelect({ id: defaultAccounts.expense, name: 'expense' });
+      setWhatAccountToSelect({ id: defaultAccounts[type], name: 'expense' });
       setWhereAccounts(whereAccounts.map((item) => {
         if (item.type === 'ToPay' || item.type === 'AtSight') return item;
         return { ...item, type: 'ToPay' };
       }));
     } else {
-      setWhatAccountToSelect({ id: defaultAccounts.income, name: 'income' });
+      setWhatAccountToSelect({ id: defaultAccounts[type], name: 'income' });
       setWhereAccounts(whereAccounts.map((item) => {
         if (item.type === 'ToReceive' || item.type === 'AtSight') return item;
         return { ...item, type: 'ToReceive' };
@@ -452,7 +452,7 @@ export default function FutureOper() {
 
     return reSetState();
   }
-  console.log('p4:', balances);
+
   return (
     <>
       <div id="divSelectExpenseOrIncome">
@@ -649,7 +649,7 @@ export default function FutureOper() {
                         <select id="paymentInstallments" value={whereAccount.bills.length} onChange={e => handleInstallmentsChange(index, e.target.value)}>
                           {
                             [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-                              .map(i => (<option value={i}>{i}</option>))
+                              .map(i => (<option key={i} value={i}>{i}</option>))
                           }
                         </select>
                       </label>
