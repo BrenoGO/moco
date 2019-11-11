@@ -9,7 +9,6 @@ module.exports = {
 
     response.defaultAccounts = settings.data.defaultAccounts;
     response.locale = settings.data.locale;
-
     const currentAccounts = await accountModel.find(
       {
         userId: req.user._id,
@@ -42,11 +41,10 @@ module.exports = {
 
     const setting = await settingModel.findOne({ userId: req.user._id });
     const newSetting = JSON.parse(JSON.stringify(setting));
-    newSetting.data[name] = req.body;
+    newSetting.data[name] = req.body.data;
     const newSetting2 = await settingModel.findByIdAndUpdate(
       setting._id, { data: newSetting.data }, { new: true }
     );
-
     res.json(newSetting2);
   },
   initialSettings: async (req, res) => {

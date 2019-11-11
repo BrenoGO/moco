@@ -100,9 +100,9 @@ export default function AcStatements() {
           </thead>
           <tbody>
             {registers.map((reg) => {
-              console.log(reg);
               const whatAc = accounts.filter(item => item.id === reg.whatAccountId)[0];
-              let desc = reg.description || whatAc ? whatAc.name : '';
+              let desc = reg.description;
+              if (!desc) desc = whatAc ? whatAc.name : '';
               if (!desc) {
                 switch (reg.opType) {
                   case 'transference':
@@ -125,8 +125,8 @@ export default function AcStatements() {
                 <tr key={reg._id} className="register">
                   <td>{emitDate}</td>
                   <td>{desc}</td>
-                  <td className={value < 0 ? 'red' : ''}>{helper.currencyFormatter(locale, value)}</td>
-                  <td className={balance < 0 ? 'red' : ''}>{helper.currencyFormatter(locale, balance || 0)}</td>
+                  <td className={`text-nowrap ${value < 0 ? 'red' : ''}`}>{helper.currencyFormatter(locale, value)}</td>
+                  <td className={`text-nowrap ${balance < 0 ? 'red' : ''}`}>{helper.currencyFormatter(locale, balance || 0)}</td>
                 </tr>
               );
             })}

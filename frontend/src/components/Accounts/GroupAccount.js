@@ -94,7 +94,7 @@ export default function GroupAccount(props) {
         if (boolChanged) {
           console.log(newDeAccs);
           dispatch(updateDefault('defaultAccounts', newDeAccs));
-          await SettingsService.update('defaultAccounts', newDeAccs);
+          await SettingsService.update('defaultAccounts', { data: newDeAccs });
         }
       });
       dispatch(deleteAccounts(deletedIds.ok));

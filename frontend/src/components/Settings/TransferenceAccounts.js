@@ -27,10 +27,12 @@ export default function TransferenceAccounts() {
 
   async function changeTransfAccounts() {
     const setting = await SettingsService.update('defaultAccounts', {
-      ...defaultAccounts,
-      transferences: {
-        from: chosenAccounts.from,
-        to: chosenAccounts.to,
+      data: {
+        ...defaultAccounts,
+        transferences: {
+          from: chosenAccounts.from,
+          to: chosenAccounts.to,
+        }
       }
     });
     dispatch(updateDefault('defaultAccounts', setting.data.defaultAccounts));

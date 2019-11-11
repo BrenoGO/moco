@@ -21,10 +21,12 @@ export default function DefaultAccounts() {
 
   async function changeAccounts() {
     const setting = await SettingsService.update('defaultAccounts', {
-      ...defaultAccounts,
-      whatAccounts: {
-        income: chosenAccounts.income,
-        expense: chosenAccounts.expense,
+      data: {
+        ...defaultAccounts,
+        whatAccounts: {
+          income: chosenAccounts.income,
+          expense: chosenAccounts.expense,
+        }
       }
     });
     dispatch(updateDefault('defaultAccounts', setting.data.defaultAccounts));
