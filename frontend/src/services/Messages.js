@@ -96,7 +96,7 @@ export const OperMsgs = {
     paymOptToPay: 'To Pay:',
     optToRec: 'To Receive:',
     paymOptToRec: 'To Receive:',
-    installments: 'Intallments: ',
+    installments: 'Installments: ',
     date: 'Date: ',
     dueDate: 'Due Date: ',
     payDate: 'Payment Date: ',

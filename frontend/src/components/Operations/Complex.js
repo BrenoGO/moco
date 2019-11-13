@@ -336,7 +336,7 @@ export default function FutureOper() {
       item => item.accountId === accId
     )[0].balance;
     console.log('lastWhereAccountBalance', lastWhereAccountBalance);
-    return lastWhereAccountBalance + value;
+    return Number((lastWhereAccountBalance + value).toFixed(2));
   }
 
   async function submit() {

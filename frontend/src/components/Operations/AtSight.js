@@ -55,8 +55,8 @@ export default function AtSight() {
     )[0].balance;
 
     const whereAccountBalance = whatAccounts.name === 'expense'
-      ? lastWhereBalance - value
-      : lastWhereBalance + value;
+      ? Number((lastWhereBalance - value).toFixed(2))
+      : Number((lastWhereBalance + value).toFixed(2));
 
     dispatch(resetBalance({ accountId: whereAccountId, balance: whereAccountBalance }));
     const Obj = {

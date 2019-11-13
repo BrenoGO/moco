@@ -8,11 +8,11 @@ import { OperMsgs } from '../../services/Messages';
 import helper from '../../services/helper';
 import { BillsService } from '../../services/BillsService';
 import { RegistersService } from '../../services/RegistersService';
+import { OperationsService } from '../../services/OperationsService';
 
 import { resetBalance } from '../../actions/DefaultsActions';
 
 import './ListOfBills.css';
-
 
 export default function ListOfBills(props) {
   const { bill, setAction } = props;
@@ -33,24 +33,46 @@ export default function ListOfBills(props) {
   const dispatch = useDispatch();
 
   async function handlePayment() {
-    await BillsService.pay(bill._id, { paymentDate });
+    if (bill.group) {
+      bill.bills.forEach(async (item) => {
+        await BillsService.pay(item._id, { paymentDate });
+      });
+    } else {
+      await BillsService.pay(bill._id, { paymentDate });
+    }
 
     const whereAccountBalance = balances.filter(ac => ac.accountId === whereAccountId);
 
     const newBalance = bill.type === 'ToPay'
-      ? whereAccountBalance[0].balance - bill.value
-      : whereAccountBalance[0].balance + bill.value;
+      ? Number((whereAccountBalance[0].balance - bill.value).toFixed(2))
+      : Number((whereAccountBalance[0].balance + bill.value).toFixed(2));
 
     dispatch(resetBalance({ accountId: whereAccountId, balance: newBalance }));
 
-    await RegistersService.store({
-      opType: 'payment',
-      emitDate: paymentDate,
-      whereAccountId,
-      whereAccountBalance: newBalance,
-      value: bill.value,
-      bill: bill._id
-    });
+    if (bill.group) {
+      const register = await RegistersService.store({
+        opType: 'payment',
+        emitDate: paymentDate,
+        whereAccountId,
+        whereAccountBalance: newBalance,
+        value: bill.type === 'ToPay' ? -bill.value : bill.value,
+      });
+      await OperationsService.store({
+        bills: bill.bills.map(item => item._id),
+        registers: [register._id],
+        emitDate: paymentDate,
+        description: 'Group Payment'
+      });
+    } else {
+      await RegistersService.store({
+        opType: 'payment',
+        emitDate: paymentDate,
+        whereAccountId,
+        whereAccountBalance: newBalance,
+        value: bill.type === 'ToPay' ? -bill.value : bill.value,
+        bill: bill._id
+      });
+    }
 
     setAction({ name: 'listBills', params: {} });
   }

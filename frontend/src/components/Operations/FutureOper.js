@@ -36,11 +36,12 @@ export default function FutureOper() {
   const [whatAccountId, setWhatAccountId] = useState(initialWhatId);
   const [whereAccountId, setWhereAccountId] = useState(initialWhereId);
   const [whatAccounts, setWhatAccounts] = useState({ id: defaultAccounts.expense, name: 'expense' });
-  const [whereAccounts, setWhereAccounts] = useState({ id: defaultAccounts.toPay, name: 'ToPay' });
+  const [whereAccounts, setWhereAccounts] = useState({ id: defaultAccounts.ToPay, name: 'ToPay' });
   const [emitDate, setEmitDate] = useState(today);
 
   const whatAccountsToSelect = helper.organizedAccounts(accounts, whatAccounts.id);
   const whereAccountsToSelect = helper.organizedAccounts(accounts, whereAccounts.id);
+
 
   function setAccounts(type) {
     if (type === 'expense') {

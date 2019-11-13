@@ -40,7 +40,11 @@ module.exports = {
       }
       return true;
     });
-    const registers = await registerModel.find(objSearch, null, { sort: { emitDate: -1 } });
+    const registers = await registerModel.find(
+      objSearch,
+      null,
+      { sort: { emitDate: -1, updatedAt: -1 } }
+    );
     res.json(registers);
   },
   sumWhatAccount: async (req, res) => {
@@ -56,6 +60,11 @@ module.exports = {
       return sum + reg.whatAccount.value;
     });
     res.json(sumReg);
+  },
+  update: async (req, res) => {
+    const { id } = req.params;
+    const register = await registerModel.findByIdAndUpdate(id, req.body, { new: true });
+    return res.json(register);
   },
   removeById: (req, res) => {
     const { id } = req.params;

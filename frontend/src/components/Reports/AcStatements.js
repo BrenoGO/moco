@@ -7,6 +7,8 @@ import { RepMsgs } from '../../services/Messages';
 import helper from '../../services/helper';
 import { RegistersService } from '../../services/RegistersService';
 
+import editBut from '../../imgs/editBut.png';
+
 export default function AcStatements() {
   const accounts = useSelector(state => state.AccountsReducer.accounts);
   const { defaultAccounts, locale, balances } = useSelector(state => state.DefaultsReducer);
@@ -96,6 +98,7 @@ export default function AcStatements() {
               <td>{RepMsgs[locale].thAcc}</td>
               <td>{RepMsgs[locale].value}</td>
               <td>{RepMsgs[locale].balance}</td>
+              <td />
             </tr>
           </thead>
           <tbody>
@@ -127,6 +130,7 @@ export default function AcStatements() {
                   <td>{desc}</td>
                   <td className={`text-nowrap ${value < 0 ? 'red' : ''}`}>{helper.currencyFormatter(locale, value)}</td>
                   <td className={`text-nowrap ${balance < 0 ? 'red' : ''}`}>{helper.currencyFormatter(locale, balance || 0)}</td>
+                  <td><img src={editBut} width="10px" alt="editBut" /></td>
                 </tr>
               );
             })}
