@@ -113,7 +113,11 @@ export default function Expenses() {
           <tbody>
             {registers.map((reg) => {
               const emitDate = helper.formatDateAndTime(locale, new Date(reg.emitDate));
-              const { value } = reg;
+              let { value } = reg;
+              const { opType } = reg;
+              if (opType.match(/expense/)) {
+                value = -value;
+              }
               total += value;
               return (
                 <tr key={reg._id} className="register">

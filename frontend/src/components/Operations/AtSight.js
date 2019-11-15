@@ -46,17 +46,16 @@ export default function AtSight() {
   }
 
   function submit() {
-    const value = helper.toNumber(opValue);
+    let value = helper.toNumber(opValue);
 
     if (value === 0) return alert('value is 0!');
+    if (whatAccounts.name === 'expense') value = -value;
 
     const lastWhereBalance = balances.filter(
       item => item.accountId === whereAccountId
     )[0].balance;
 
-    const whereAccountBalance = whatAccounts.name === 'expense'
-      ? Number((lastWhereBalance - value).toFixed(2))
-      : Number((lastWhereBalance + value).toFixed(2));
+    const whereAccountBalance = Number((lastWhereBalance + value).toFixed(2));
 
     dispatch(resetBalance({ accountId: whereAccountId, balance: whereAccountBalance }));
     const Obj = {

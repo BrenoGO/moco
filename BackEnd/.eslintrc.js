@@ -22,6 +22,8 @@ module.exports = {
     "no-plusplus": 0,
     "no-await-in-loop": 0,
     "global-require": 0,
-    "no-param-reassign": 0
+    "no-param-reassign": 0,
+    "guard-for-in": 0,
+    "no-restricted-syntax": 0
   },
 };

@@ -439,11 +439,14 @@ export default function FutureOper() {
         }
       });
     }
-
-    const regResp = await RegistersService.store(allRegs);
+    const regIds = [];
+    for (const reg of allRegs) { //  guaranteed syncronism
+      const resp = await RegistersService.store(reg);
+      regIds.push(resp._id);
+    }
 
     const operObj = {
-      registers: regResp.map(reg => reg._id),
+      registers: regIds,
       bills: billsIds,
       emitDate,
     };

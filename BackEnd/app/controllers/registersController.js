@@ -10,13 +10,41 @@ module.exports = {
     return res.json(registers);
   },
   store: async (req, res) => {
-    if (!Array.isArray(req.body)) {
-      req.body.userId = req.user._id;
-    } else {
-      req.body.forEach((item) => { item.userId = req.user._id; });
-    }
+    req.body.userId = req.user._id;
 
     try {
+      if (req.body.whereAccountBalance) {
+        const postRegs = await registerModel.find(
+          {
+            userId: req.user._id,
+            emitDate: { $gt: req.body.emitDate },
+            whereAccountId: req.body.whereAccountId
+          },
+          null,
+          { sort: { emitDate: 1 } }
+        );
+        if (postRegs.length > 0) {
+          // has post regs
+          req.body.whereAccountBalance = Number(
+            (postRegs[0].whereAccountBalance - postRegs[0].value + req.body.value).toFixed(2)
+          );
+          for (const i in postRegs) {
+            if (i === '0') {
+              postRegs[i].whereAccountBalance = Number(
+                (req.body.whereAccountBalance + postRegs[i].value).toFixed(2)
+              );
+            } else {
+              postRegs[i].whereAccountBalance = Number(
+                (postRegs[i - 1].whereAccountBalance + postRegs[i].value).toFixed(2)
+              );
+            }
+            await registerModel.findByIdAndUpdate(
+              postRegs[i]._id,
+              { whereAccountBalance: postRegs[i].whereAccountBalance }
+            );
+          }
+        }
+      }
       const register = await registerModel.create(req.body);
       return res.json(register);
     } catch (error) {

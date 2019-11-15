@@ -119,11 +119,7 @@ export default function AcStatements() {
                 }
               }
               const emitDate = helper.formatDateAndTime(locale, new Date(reg.emitDate));
-              let { value } = reg;
-              const { opType, whereAccountBalance: balance } = reg;
-              if (opType.match(/expense/)) {
-                value *= -1;
-              }
+              const { value, whereAccountBalance: balance } = reg;
               return (
                 <tr key={reg._id} className="register">
                   <td>{emitDate}</td>
