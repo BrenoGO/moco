@@ -9,6 +9,7 @@ import { OperationsService } from '../../services/OperationsService';
 import { resetBalance } from '../../actions/DefaultsActions';
 
 import Select from '../Select';
+import Spinner from '../Spinner';
 
 export default function Transference() {
   const { defaultAccounts, balances, locale } = useSelector(state => state.DefaultsReducer);
@@ -24,6 +25,7 @@ export default function Transference() {
   const [whereAccountIdTo, setWhereAccountIdTo] = useState(defaultAccounts.transferences.to);
   const [whereAccountIdFrom, setWhereAccountIdFrom] = useState(defaultAccounts.transferences.from);
   const [strValue, setStrValue] = useState(initialValue);
+  const [loading, setLoading] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -35,6 +37,7 @@ export default function Transference() {
   }
 
   async function transfer() {
+    setLoading(true);
     const value = helper.toNumber(strValue);
 
     const fromAccountBalance = balances.filter(ac => ac.accountId === whereAccountIdFrom);
@@ -63,11 +66,12 @@ export default function Transference() {
       registers: [RegFrom, RegTo],
       emitDate: transferenceDate
     });
-
-    reSetState();
+    setLoading(false);
+    return reSetState();
   }
   return (
     <div id="transferenceDiv">
+      {loading && <Spinner />}
       <div>
         {OperMsgs[locale].transfDate}
         <input

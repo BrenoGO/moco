@@ -16,7 +16,7 @@ import ImgX from '../../imgs/Button_X.png';
 import ImgChecked from '../../imgs/checked.png';
 
 import Select from '../Select';
-
+import Spinner from '../Spinner';
 
 export default function FutureOper() {
   const accounts = useSelector(state => state.AccountsReducer.accounts);
@@ -45,6 +45,7 @@ export default function FutureOper() {
   );
   const [whatAccountToSelect, setWhatAccountToSelect] = useState({ id: defaultAccounts.expense, name: 'expense' });
   const [emitDate, setEmitDate] = useState(today);
+  const [loading, setLoading] = useState(false);
 
   const whatAccountsToSelect = helper.organizedAccounts(accounts, whatAccountToSelect.id);
   const currentAccounts = helper.organizedAccounts(accounts, defaultAccounts.currentAccounts);
@@ -340,6 +341,7 @@ export default function FutureOper() {
   }
 
   async function submit() {
+    setLoading(true);
     if (sumWhatAccounts === 0) return alert('value is 0!');
     if (sumWhatAccounts.toFixed(2) !== sumWhereAccounts.toFixed(2)) {
       return alert(
@@ -452,12 +454,13 @@ export default function FutureOper() {
     };
 
     await OperationsService.store(operObj);
-
+    setLoading(false);
     return reSetState();
   }
 
   return (
     <>
+      {loading && <Spinner />}
       <div id="divSelectExpenseOrIncome">
         <div>
           {OperMsgs[locale].emitDate}

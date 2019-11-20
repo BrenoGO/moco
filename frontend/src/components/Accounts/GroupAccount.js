@@ -35,13 +35,7 @@ export default function GroupAccount(props) {
 
   const dispatch = useDispatch();
 
-  const childrenAc = accounts.filter(
-    ac => ac.parents[ac.parents.length - 1] === account.id
-  ).sort((a, b) => {
-    if (a.allowValue && !b.allowValue) return -1;
-    if (b.allowValue && !a.allowValue) return 1;
-    return a.id - b.id;
-  });
+  const childrenAc = helper.getChildren(accounts, account.id);
 
   async function addChild() {
     const id = accounts.reduce((ac, atual) => (atual.id > ac.id ? atual : ac)).id + 1;

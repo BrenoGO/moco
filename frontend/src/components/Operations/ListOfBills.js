@@ -6,16 +6,20 @@ import { BillsService } from '../../services/BillsService';
 import './ListOfBills.css';
 
 import Bill from './Bill';
+import Spinner from '../Spinner';
 
 export default function ListOfBills(props) {
   const { type, setAction } = props; // 'ToPay' or 'ToReceive'
 
   const [bills, setBills] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
     BillsService.getTyped(type)
       .then((resp) => {
         setBills(resp);
+        setLoading(false);
       });
   }, [type]);
 
@@ -51,16 +55,19 @@ export default function ListOfBills(props) {
   }
 
   return (
-    <div id="listOfBills">
-      {billGroups().map(bill => (
-        <Bill
-          bill={bill}
-          key={bill._id}
-          handlePayClick={handlePayClick}
-          where="list"
-        />
-      ))}
-    </div>
+    <>
+      {loading && <Spinner />}
+      <div id="listOfBills">
+        {billGroups().map(bill => (
+          <Bill
+            bill={bill}
+            key={bill._id}
+            handlePayClick={handlePayClick}
+            where="list"
+          />
+        ))}
+      </div>
+    </>
   );
 }
 

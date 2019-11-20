@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
 import Select from '../Select';
+import Spinner from '../Spinner';
 
 import { RepMsgs } from '../../services/Messages';
 import helper from '../../services/helper';
@@ -20,8 +21,10 @@ export default function AcStatements() {
   const [initDate, setInitDate] = useState(new Date(initialDate));
   const [finalDate, setFinalDate] = useState(new Date());
   const [registers, setRegisters] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
     let mounted = true;
     RegistersService.search({
       whereAccountId: acId,
@@ -30,6 +33,7 @@ export default function AcStatements() {
         $lt: finalDate
       }
     }).then((regs) => {
+      setLoading(false);
       if (mounted) setRegisters(regs);
     });
     return () => { mounted = false; };
@@ -55,6 +59,7 @@ export default function AcStatements() {
 
   return (
     <div>
+      {loading && <Spinner />}
       <div><h3>{RepMsgs[locale].statemTitle}</h3></div>
       <div id="form">
         <Select

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
 import Select from '../Select';
+import Spinner from '../Spinner';
 
 import { RepMsgs } from '../../services/Messages';
 import helper from '../../services/helper';
@@ -26,8 +27,10 @@ export default function Expenses() {
   const [initDate, setInitDate] = useState(initialDate);
   const [finalDate, setFinalDate] = useState(new Date());
   const [registers, setRegisters] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
     let mounted = true;
     RegistersService.search({
       whatAccountId: acId,
@@ -36,6 +39,7 @@ export default function Expenses() {
         $lt: finalDate
       }
     }).then((regs) => {
+      setLoading(false);
       if (mounted)setRegisters(regs);
     });
     return () => { mounted = false; };
@@ -61,6 +65,7 @@ export default function Expenses() {
 
   return (
     <div>
+      {loading && <Spinner />}
       <div>
         <select id="typeSelect" value={type} onChange={e => handleTypeChange(e.target.value)}>
           <option value="expense">{RepMsgs[locale].expenses}</option>

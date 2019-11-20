@@ -10,6 +10,7 @@ import { RegistersService } from '../../services/RegistersService';
 import { resetBalance } from '../../actions/DefaultsActions';
 
 import Select from '../Select';
+import Spinner from '../Spinner';
 
 export default function AtSight() {
   const accounts = useSelector(state => state.AccountsReducer.accounts);
@@ -26,6 +27,7 @@ export default function AtSight() {
   );
   const [whatAccounts, setWhatAccounts] = useState({ id: defaultAccounts.expense, name: 'expense' });
   const [emitDate, setEmitDate] = useState(new Date());
+  const [loading, setLoading] = useState(false);
 
   const currentAccounts = helper.organizedAccounts(accounts, defaultAccounts.currentAccounts);
   const whatAccountsToSelect = helper.organizedAccounts(accounts, whatAccounts.id);
@@ -46,6 +48,7 @@ export default function AtSight() {
   }
 
   function submit() {
+    setLoading(true);
     let value = helper.toNumber(opValue);
 
     if (value === 0) return alert('value is 0!');
@@ -70,12 +73,13 @@ export default function AtSight() {
 
     if (opDesc) Obj.description = opDesc;
     if (opNotes) Obj.notes = opNotes;
-
+    setLoading(false);
     return RegistersService.store(Obj);
   }
 
   return (
     <>
+      {loading && <Spinner />}
       <div id="divSelectExpenseOrIncome">
         <div>
           {OperMsgs[locale].emitDate}

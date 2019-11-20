@@ -5,6 +5,8 @@ import { RepMsgs } from '../../services/Messages';
 import helper from '../../services/helper';
 import { BillsService } from '../../services/BillsService';
 
+import Spinner from '../Spinner';
+
 import './IncomesExpenses.css';
 
 export default function Future() {
@@ -21,10 +23,13 @@ export default function Future() {
 
   const [type, setType] = useState(initialType);
   const [bills, setBills] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
     let mounted = true;
     BillsService.getTyped(type).then((resp) => {
+      setLoading(false);
       if (mounted)setBills(resp);
     });
     return () => { mounted = false; };
@@ -32,6 +37,7 @@ export default function Future() {
 
   return (
     <div>
+      {loading && <Spinner />}
       <div>
         <select id="typeSelect" value={type} onChange={(e) => { setBills([]); setType(e.target.value); }}>
           <option value="ToPay">{RepMsgs[locale].toPay}</option>

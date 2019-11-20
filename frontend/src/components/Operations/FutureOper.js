@@ -9,7 +9,7 @@ import { BillsService } from '../../services/BillsService';
 import { RegistersService } from '../../services/RegistersService';
 import { OperationsService } from '../../services/OperationsService';
 
-
+import Spinner from '../Spinner';
 import Select from '../Select';
 
 
@@ -38,6 +38,7 @@ export default function FutureOper() {
   const [whatAccounts, setWhatAccounts] = useState({ id: defaultAccounts.expense, name: 'expense' });
   const [whereAccounts, setWhereAccounts] = useState({ id: defaultAccounts.ToPay, name: 'ToPay' });
   const [emitDate, setEmitDate] = useState(today);
+  const [loading, setLoading] = useState(false);
 
   const whatAccountsToSelect = helper.organizedAccounts(accounts, whatAccounts.id);
   const whereAccountsToSelect = helper.organizedAccounts(accounts, whereAccounts.id);
@@ -145,6 +146,7 @@ export default function FutureOper() {
   }
 
   async function submit() {
+    setLoading(true);
     const value = helper.toNumber(opValue);
     if (value === 0) return alert('value is 0!');
 
@@ -180,11 +182,14 @@ export default function FutureOper() {
 
     await OperationsService.store(operObj);
 
+    setLoading(false);
+
     return reSetState();
   }
 
   return (
     <>
+      {loading && <Spinner />}
       <div id="divSelectExpenseOrIncome">
         <div>
           {OperMsgs[locale].emitDate}

@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 
 import Bill from './Bill';
 import Select from '../Select';
+import Spinner from '../Spinner';
 
 import { OperMsgs } from '../../services/Messages';
 import helper from '../../services/helper';
@@ -29,10 +30,12 @@ export default function ListOfBills(props) {
   const [whereAccountId, setWhereAccountId] = useState(
     defaultAccounts.whereAccounts.AtSight
   );
+  const [loading, setLoading] = useState(false);
 
   const dispatch = useDispatch();
 
   async function handlePayment() {
+    setLoading(true);
     if (bill.group) {
       bill.bills.forEach(async (item) => {
         await BillsService.pay(item._id, { paymentDate });
@@ -73,12 +76,13 @@ export default function ListOfBills(props) {
         bill: bill._id
       });
     }
-
-    setAction({ name: 'listBills', params: {} });
+    setLoading(false);
+    return setAction({ name: 'listBills', params: {} });
   }
 
   return (
     <>
+      {loading && <Spinner />}
       <div id="payingBill">
         {OperMsgs[locale].payDate}
         <input
