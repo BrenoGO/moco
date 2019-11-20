@@ -90,7 +90,7 @@ export default function AcStatements() {
       </div>
       <div id="finalBalance">
         <h3>
-          Balance:
+          {RepMsgs[locale].balanceP}
           {' '}
           {getBalance(acId)}
         </h3>
