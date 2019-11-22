@@ -13,6 +13,7 @@ import { setDefaults } from '../actions/DefaultsActions';
 
 import Flags from '../components/Flags';
 import Loading from '../components/Loading';
+import Logo from '../imgs/logo.png';
 
 export default function Login() {
   const { locale } = useSelector(state => state.DefaultsReducer);
@@ -75,6 +76,7 @@ export default function Login() {
     <div className="view">
       <Flags />
       <div id="loginDiv" className="flex-column">
+        <img src={Logo} alt="logo" width="15%" />
         <h1>{LoginMsgs[locale].login}</h1>
         <label htmlFor="email">
           {LoginMsgs[locale].email}

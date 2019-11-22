@@ -72,7 +72,7 @@ export default function ListOfBills(props) {
         emitDate: paymentDate,
         whereAccountId,
         whereAccountBalance: newBalance,
-        value: bill.type === 'ToPay' ? -bill.value : bill.value,
+        value: bill.type === 'ToPay' ? (-bill.value).toFixed(2) : (bill.value).toFixed(2),
         bill: bill._id
       });
     }

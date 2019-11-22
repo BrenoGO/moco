@@ -14,7 +14,6 @@ export default function Expenses() {
   const initialDate = new Date();
   initialDate.setDate(initialDate.getDate() - 30);
   const initialType = 'expense';
-  let total = 0;
 
   const accounts = useSelector(state => state.AccountsReducer.accounts);
   const { defaultAccounts, locale } = useSelector(state => state.DefaultsReducer);
@@ -27,6 +26,18 @@ export default function Expenses() {
   const [initDate, setInitDate] = useState(initialDate);
   const [finalDate, setFinalDate] = useState(new Date());
   const [registers, setRegisters] = useState([]);
+  let total = 0;
+  if (registers[0]) {
+    if (registers[1]) {
+      total = registers.reduce((a, b, i) => {
+        if (i === 1) return a.value + b.value;
+        return a + b.value;
+      });
+    } else {
+      total = registers[0].value;
+    }
+  }
+
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -111,24 +122,40 @@ export default function Expenses() {
           <thead>
             <tr>
               <td>{RepMsgs[locale].date}</td>
+              <td>{RepMsgs[locale].thAcc}</td>
               <td>{RepMsgs[locale].value}</td>
               <td>{RepMsgs[locale].total}</td>
             </tr>
           </thead>
           <tbody>
-            {registers.map((reg) => {
+            {registers.map((reg, i) => {
               const emitDate = helper.formatDateAndTime(locale, new Date(reg.emitDate));
               let { value } = reg;
               const { opType } = reg;
+              if (i > 0) total -= registers[i - 1].value;
+              console.log(total, i);
               if (opType.match(/expense/)) {
                 value = -value;
               }
-              total += value;
+              let desc = reg.description;
+              if (!desc) {
+                switch (reg.opType) {
+                  case 'transference':
+                    desc = RepMsgs[locale].transference;
+                    break;
+                  case 'payment':
+                    desc = RepMsgs[locale].payment;
+                    break;
+                  default:
+                    break;
+                }
+              }
               return (
                 <tr key={reg._id} className="register">
                   <td>{emitDate}</td>
+                  <td>{desc}</td>
                   <td className={value < 0 ? 'red' : ''}>{helper.currencyFormatter(locale, value)}</td>
-                  <td>{helper.currencyFormatter(locale, total)}</td>
+                  <td className={total > 0 ? 'red' : ''}>{helper.currencyFormatter(locale, -total)}</td>
                 </tr>
               );
             })}
