@@ -12,7 +12,7 @@ module.exports = {
       userId: req.user._id,
       type,
       paymentDate: { $exists: false }
-    }, {}, { sort: { dueDate: 1 } });
+    }, {}, { sort: { dueDate: 1, emitDate: 1 } });
     res.json(bills);
   },
   all: async (req, res) => {

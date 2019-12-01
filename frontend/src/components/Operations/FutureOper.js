@@ -147,11 +147,14 @@ export default function FutureOper() {
 
   async function submit() {
     setLoading(true);
-    const value = helper.toNumber(opValue);
+    let value = helper.toNumber(opValue);
     if (value === 0) return alert('value is 0!');
 
-    let type = 'ToPay';
-    if (whatAccounts.name === 'income') type = 'ToReceive';
+    let type = 'ToReceive';
+    if (whatAccounts.name === 'expense') {
+      type = 'ToPay';
+      value = -value;
+    }
 
     const billsResp = await BillsService.store(bills.map((bill, index) => ({
       type,
@@ -164,10 +167,11 @@ export default function FutureOper() {
 
     const regResp = await RegistersService.store({
       opType: `${whatAccounts.name}${whereAccounts.name}`,
+      description: opDesc,
       emitDate,
       whereAccountId,
       whatAccountId,
-      value: helper.toNumber(opValue),
+      value
     });
 
     const operObj = {
