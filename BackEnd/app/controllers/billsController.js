@@ -19,6 +19,20 @@ module.exports = {
     const bills = await billModel.find({ userId: req.user._id });
     res.json(bills);
   },
+  search: async (req, res) => {
+    const objSearch = { userId: req.user._id };
+    const keys = Object.keys(req.body);
+    keys.forEach((key) => {
+      objSearch[key] = req.query[key];
+    });
+    const bills = await billModel.find(
+      objSearch,
+      null,
+      { sort: { emitDate: -1, updatedAt: -1 } }
+    );
+
+    res.json(bills);
+  },
   store: async (req, res) => {
     const bills = await billModel.create(
       req.body.map(bill => ({ ...bill, userId: req.user._id }))
@@ -30,6 +44,11 @@ module.exports = {
     const { paymentDate } = req.body;
     const bill = await billModel.findByIdAndUpdate(id, { paymentDate }, { new: true });
     res.json(bill);
+  },
+  update: async (req, res) => {
+    const { id } = req.params;
+    const bill = await billModel.findByIdAndUpdate(id, req.body, { new: true });
+    return res.json(bill);
   },
   delete: async (req, res) => {
     const { id } = req.params;

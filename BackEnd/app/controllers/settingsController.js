@@ -23,7 +23,7 @@ module.exports = {
       const lastReg = await registerModel.findOne(
         { userId: req.user._id, whereAccountId: ac.id },
         { whereAccountBalance: true, createdAt: true, _id: false },
-      ).sort({ createdAt: -1 });
+      ).sort({ emitDate: -1, createdAt: -1 });
       if (lastReg && lastReg.whereAccountBalance) balance = lastReg.whereAccountBalance;
       return { accountId: ac.id, balance };
     });
