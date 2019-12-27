@@ -23,7 +23,7 @@ module.exports = {
     const objSearch = { userId: req.user._id };
     const keys = Object.keys(req.body);
     keys.forEach((key) => {
-      objSearch[key] = req.query[key];
+      objSearch[key] = req.body[key];
     });
     const bills = await billModel.find(
       objSearch,
@@ -47,6 +47,7 @@ module.exports = {
   },
   update: async (req, res) => {
     const { id } = req.params;
+    console.log(req.body);
     const bill = await billModel.findByIdAndUpdate(id, req.body, { new: true });
     return res.json(bill);
   },

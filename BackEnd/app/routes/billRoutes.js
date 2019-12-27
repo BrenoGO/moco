@@ -7,8 +7,8 @@ module.exports = function (app) {
   app.get('/bills', auth.authenticate, billsController.all);
   app.post('/bills/search', auth.authenticate, billsController.search);
   app.post('/bills', auth.authenticate, billsController.store);
-  app.put('/bills/update/:id', auth.authenticate, billsController.update);
-  app.put('/bills/:id', auth.authenticate, billsController.pay);
+  app.put('/bills/pay/:id', auth.authenticate, billsController.pay);
+  app.put('/bills/:id', auth.authenticate, billsController.update);
   app.delete('/bills/clearAll', auth.authenticate, billsController.clearAll);
   app.delete('/bills/:id', auth.authenticate, billsController.delete);
 };

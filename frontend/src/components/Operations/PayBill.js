@@ -58,7 +58,7 @@ export default function ListOfBills(props) {
         emitDate: paymentDate,
         whereAccountId,
         whereAccountBalance: newBalance,
-        value: bill.type === 'ToPay' ? -bill.value : bill.value,
+        value: bill.type === 'ToPay' ? Number((-bill.value).toFixed(2)) : Number(bill.value.toFixed(2)),
       });
       await OperationsService.store({
         bills: bill.bills.map(item => item._id),
