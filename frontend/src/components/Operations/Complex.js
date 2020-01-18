@@ -376,8 +376,12 @@ export default function FutureOper() {
     let boolDispBal = false;
     let balance = 0;
     const allRegs = whatAccounts.map((whatAccount) => {
-      const value = helper.toNumber(whatAccount.value);
       let i = 0;
+      let signal = 1;
+      if (whatAccountToSelect.name === 'expense') {
+        signal = -1;
+      }
+      const value = helper.toNumber(whatAccount.value) * signal;
       const newObj = {
         opType: 'complex',
         emitDate,
@@ -392,10 +396,6 @@ export default function FutureOper() {
         newObj.opType = `${whatAccountToSelect.name}${whereAccounts[0].type}`;
         if (whereAccounts[0].type === 'AtSight') {
           boolDispBal = true;
-          let signal = 1;
-          if (whatAccountToSelect.name === 'expense') {
-            signal = -1;
-          }
           if (i === 0) {
             balance = calcNewBalance(whereAccounts[0].id, signal * value);
             console.log('1:', balance);
