@@ -8,12 +8,12 @@ Thats a app to control all your expenses in the easiest way.
 inicialyse with configuration:
 + basic personal data
 + accounts plan
-+ defaults to use like deafult account, default payment plan
++ defaults settings
 ## Developing Plan
 ### Front End Web
 Using React
 ### Front End Mobile
-Using React Native.
+Will use React Native.
 Top Tab Navigation
 when opens the app, goes to a default operation that the users chose
 check connectivity,
