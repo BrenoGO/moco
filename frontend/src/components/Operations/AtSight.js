@@ -51,7 +51,10 @@ export default function AtSight() {
     setLoading(true);
     let value = helper.toNumber(opValue);
 
-    if (value === 0) return alert('value is 0!');
+    if (value === 0) {
+      alert(`.${process.env.PUBLIC_URL}.valor é 0!`);
+      return setLoading(false);
+    }
     if (whatAccounts.name === 'expense') value = -value;
 
     const lastWhereBalance = balances.filter(
