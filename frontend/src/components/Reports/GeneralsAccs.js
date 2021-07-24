@@ -26,7 +26,7 @@ export default function GeneralsAccs(props) {
     <>
       <div className={`AcSelect ${type}`}>
         {title}
-        <input type="checkbox" checked />
+        <input type="checkbox" checked readOnly />
         {type === 'groupAG' && (
           <button type="button" onClick={() => setOpened(!opened)} className="btn openAccount smallBut">
             { opened ? '-' : '+' }

@@ -49,10 +49,7 @@ export default function General() {
   const incomes = registers.filter(item => allIncomes.includes(item.whatAccountId));
   let totalIncomes = 0;
   if (incomes.length > 0) {
-    totalIncomes = incomes.reduce((a, b, i) => {
-      if (i === 1) return a.value + b.value;
-      return a + b.value;
-    });
+    totalIncomes = incomes.reduce((acc, curr) => acc + curr.value, 0);
   }
 
   const allExpenses = accounts.filter(item => item.parents.includes(defaultAccounts.expense))
@@ -60,10 +57,7 @@ export default function General() {
   const expenses = registers.filter(item => allExpenses.includes(item.whatAccountId));
   let totalExpenses = 0;
   if (expenses.length > 0) {
-    totalExpenses = expenses.reduce((a, b, i) => {
-      if (i === 1) return a.value + b.value;
-      return a + b.value;
-    });
+    totalExpenses = expenses.reduce((acc, curr) => acc + curr.value, 0);
   }
 
   function handleDateChange(when, date) {
@@ -117,7 +111,7 @@ export default function General() {
         <p>
           Profit:
           {' '}
-          {helper.currencyFormatter(locale, (totalIncomes - totalExpenses))}
+          {helper.currencyFormatter(locale, (totalIncomes + totalExpenses))}
         </p>
       </div>
     </div>
