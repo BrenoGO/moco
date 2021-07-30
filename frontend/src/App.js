@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 
 import './App.css';
+import 'antd/dist/antd.css';
 
 import auth from './services/Auth';
 
