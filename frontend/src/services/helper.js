@@ -1,7 +1,7 @@
 const helpers = {
   getChildren: (accounts, id) => {
     const children = accounts.filter(
-      ac => (ac.parents[ac.parents.length - 1] === id)
+      (ac) => (ac.parents[ac.parents.length - 1] === id),
     ).sort((a, b) => {
       if (a.allowValue && !b.allowValue) return -1;
       if (b.allowValue && !a.allowValue) return 1;
@@ -39,7 +39,7 @@ const helpers = {
     const formatter = new Intl.NumberFormat(locale, {
       style: 'currency',
       currency,
-      minimumFractionDigits: 2
+      minimumFractionDigits: 2,
     });
 
     let sign = '';
@@ -64,7 +64,7 @@ const helpers = {
       hour: 'numeric',
       minute: 'numeric',
       second: 'numeric',
-      hour12: false
+      hour12: false,
     };
     return new Intl.DateTimeFormat(locale, options).format(date);
   },
@@ -104,7 +104,7 @@ const helpers = {
       return changeValueFunc(helpers.currencyFormatter(locale, strValue.substring(1)));
     }
     return changeValueFunc(helpers.currencyFormatter(locale, `-${strValue}`));
-  }
+  },
 };
 
 export default helpers;

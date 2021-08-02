@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import moment from 'moment';
 import { useSelector } from 'react-redux';
 
 import Select from '../Select';
@@ -7,7 +8,7 @@ import Spinner from '../Spinner';
 import { RepMsgs } from '../../services/Messages';
 import helper from '../../services/helper';
 import { RegistersService } from '../../services/RegistersService';
-
+import ModalEditRegister from '../Registers/ModalEditRegister';
 import editBut from '../../imgs/editBut.png';
 
 export default function AcStatements() {
@@ -22,6 +23,8 @@ export default function AcStatements() {
   const [finalDate, setFinalDate] = useState(new Date());
   const [registers, setRegisters] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [registerEditing, setRegisterEditing] = useState(null);
 
   useEffect(() => {
     setLoading(true);
@@ -55,6 +58,11 @@ export default function AcStatements() {
   function getBalance(accountId) {
     const { balance } = balances.find(item => item.accountId === accountId);
     return helper.currencyFormatter(locale, balance);
+  }
+
+  function handleEditClick(reg) {
+    setEditModalVisible(true);
+    setRegisterEditing({ ...reg, emitDate: moment(reg.emitDate) });
   }
 
   return (
@@ -108,21 +116,7 @@ export default function AcStatements() {
           </thead>
           <tbody>
             {registers.map((reg) => {
-              const whatAc = accounts.filter(item => item.id === reg.whatAccountId)[0];
-              let desc = reg.description;
-              if (!desc) desc = whatAc ? whatAc.name : '';
-              if (!desc) {
-                switch (reg.opType) {
-                  case 'transference':
-                    desc = RepMsgs[locale].transference;
-                    break;
-                  case 'payment':
-                    desc = RepMsgs[locale].payment;
-                    break;
-                  default:
-                    break;
-                }
-              }
+              const desc = RegistersService.getRegDescToShow(reg);
               const emitDate = helper.formatDateAndTime(locale, new Date(reg.emitDate));
               const { value, whereAccountBalance: balance } = reg;
               return (
@@ -131,12 +125,17 @@ export default function AcStatements() {
                   <td>{desc}</td>
                   <td className={`text-nowrap ${value < 0 ? 'red' : ''}`}>{helper.currencyFormatter(locale, value)}</td>
                   <td className={`text-nowrap ${balance < 0 ? 'red' : ''}`}>{helper.currencyFormatter(locale, balance || 0)}</td>
-                  <td><img src={editBut} width="10px" alt="editBut" /></td>
+                  <td><img onClick={() => handleEditClick(reg)} src={editBut} width="10px" alt="editBut" /></td>
                 </tr>
               );
             })}
           </tbody>
         </table>
+        <ModalEditRegister
+          registerInitData={registerEditing}
+          editModalVisible={editModalVisible}
+          setEditModalVisible={setEditModalVisible}
+        />
       </div>
     </div>
   );
