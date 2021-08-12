@@ -6,8 +6,8 @@ import store from '../reducers/store';
 const endpoint = 'registers';
 
 export const RegistersService = {
-  store: register => ApiService.post(endpoint, register),
-  search: data => ApiService.post(`${endpoint}/search`, data),
+  store: (register) => ApiService.post(endpoint, register),
+  search: (data) => ApiService.post(`${endpoint}/search`, data),
   getRegDescToShow: (reg) => {
     const whatAc = AccountsService.getAccount(reg.whatAccountId);
     let desc = reg.description;
@@ -26,5 +26,6 @@ export const RegistersService = {
       }
     }
     return desc;
-  }
+  },
+  update: (register) => ApiService.put(endpoint, register._id, register),
 };

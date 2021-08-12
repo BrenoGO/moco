@@ -25,6 +25,7 @@ const helpers = {
     return (orgAc);
   },
   currencyFormatter: (locale, value) => {
+    if (!value) return '';
     let currency = '';
     switch (locale) {
       case 'en-US':

@@ -90,8 +90,13 @@ module.exports = {
     res.json(sumReg);
   },
   update: async (req, res) => {
+    console.log('\n\n entrou no update');
+    console.log('req.body');
+    console.log(req.body);
     const { id } = req.params;
     const register = await registerModel.findByIdAndUpdate(id, req.body, { new: true });
+    console.log('register');
+    console.log(register);
     return res.json(register);
   },
   removeById: (req, res) => {

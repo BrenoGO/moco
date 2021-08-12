@@ -12,8 +12,8 @@ import ModalEditRegister from '../Registers/ModalEditRegister';
 import editBut from '../../imgs/editBut.png';
 
 export default function AcStatements() {
-  const accounts = useSelector(state => state.AccountsReducer.accounts);
-  const { defaultAccounts, locale, balances } = useSelector(state => state.DefaultsReducer);
+  const accounts = useSelector((state) => state.AccountsReducer.accounts);
+  const { defaultAccounts, locale, balances } = useSelector((state) => state.DefaultsReducer);
   const curAccounts = helper.organizedAccounts(accounts, defaultAccounts.currentAccounts);
 
   const [acId, setAcId] = useState(defaultAccounts.whereAccounts.AtSight);
@@ -33,8 +33,8 @@ export default function AcStatements() {
       whereAccountId: acId,
       emitDate: {
         $gt: initDate,
-        $lt: finalDate
-      }
+        $lt: finalDate,
+      },
     }).then((regs) => {
       setLoading(false);
       if (mounted) setRegisters(regs);
@@ -56,7 +56,7 @@ export default function AcStatements() {
   }
 
   function getBalance(accountId) {
-    const { balance } = balances.find(item => item.accountId === accountId);
+    const { balance } = balances.find((item) => item.accountId === accountId);
     return helper.currencyFormatter(locale, balance);
   }
 
@@ -73,10 +73,10 @@ export default function AcStatements() {
         <Select
           value={acId}
           onChange={setAcId}
-          options={curAccounts.map(account => ({
+          options={curAccounts.map((account) => ({
             value: account.id,
             disabled: !account.allowValue,
-            label: account.name
+            label: account.name,
           }))}
         />
         <div>
@@ -84,7 +84,7 @@ export default function AcStatements() {
           <input
             type="date"
             value={helper.dateToInput(initDate)}
-            onChange={e => handleDateChange('init', e.target.value)}
+            onChange={(e) => handleDateChange('init', e.target.value)}
           />
         </div>
         <div>
@@ -92,7 +92,7 @@ export default function AcStatements() {
           <input
             type="date"
             value={helper.dateToInput(finalDate)}
-            onChange={e => handleDateChange('final', e.target.value)}
+            onChange={(e) => handleDateChange('final', e.target.value)}
           />
         </div>
       </div>
@@ -135,6 +135,8 @@ export default function AcStatements() {
           registerInitData={registerEditing}
           editModalVisible={editModalVisible}
           setEditModalVisible={setEditModalVisible}
+          registers={registers}
+          setRegisters={setRegisters}
         />
       </div>
     </div>
