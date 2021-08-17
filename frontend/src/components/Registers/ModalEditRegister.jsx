@@ -45,6 +45,7 @@ export default function ModalEditRegister({
           ...registers.slice(index + 1),
         ]);
         message.success('Registro alterado com sucesso');
+        window.location.reload();
       }
     } catch (e) {
       message.error('Error ao atualizar registro');

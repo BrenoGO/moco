@@ -1,11 +1,12 @@
 const registerModel = require('../models/registerModel');
+const registerService = require('../services/register');
 
 module.exports = {
   index: async (req, res) => {
     const registers = await registerModel.find(
       { userId: req.user._id },
       null,
-      { sort: { emitDate: 1 } }
+      { sort: { emitDate: 1 } },
     );
     return res.json(registers);
   },
@@ -18,29 +19,29 @@ module.exports = {
           {
             userId: req.user._id,
             emitDate: { $gt: req.body.emitDate },
-            whereAccountId: req.body.whereAccountId
+            whereAccountId: req.body.whereAccountId,
           },
           null,
-          { sort: { emitDate: 1 } }
+          { sort: { emitDate: 1 } },
         );
         if (postRegs.length > 0) {
           // has post regs
           req.body.whereAccountBalance = Number(
-            (postRegs[0].whereAccountBalance - postRegs[0].value + req.body.value).toFixed(2)
+            (postRegs[0].whereAccountBalance - postRegs[0].value + req.body.value).toFixed(2),
           );
           for (const i in postRegs) {
             if (i === '0') {
               postRegs[i].whereAccountBalance = Number(
-                (req.body.whereAccountBalance + postRegs[i].value).toFixed(2)
+                (req.body.whereAccountBalance + postRegs[i].value).toFixed(2),
               );
             } else {
               postRegs[i].whereAccountBalance = Number(
-                (postRegs[i - 1].whereAccountBalance + postRegs[i].value).toFixed(2)
+                (postRegs[i - 1].whereAccountBalance + postRegs[i].value).toFixed(2),
               );
             }
             await registerModel.findByIdAndUpdate(
               postRegs[i]._id,
-              { whereAccountBalance: postRegs[i].whereAccountBalance }
+              { whereAccountBalance: postRegs[i].whereAccountBalance },
             );
           }
         }
@@ -71,7 +72,7 @@ module.exports = {
     const registers = await registerModel.find(
       objSearch,
       null,
-      { sort: { emitDate: -1, updatedAt: -1 } }
+      { sort: { emitDate: -1, updatedAt: -1 } },
     );
     res.json(registers);
   },
@@ -79,7 +80,7 @@ module.exports = {
     const { accountId, inicialDate, finalDate } = req.body;
     const registers = await registerModel.find({
       'whatAccount.accountId': accountId,
-      emitDate: { $gt: inicialDate, $lt: finalDate }
+      emitDate: { $gt: inicialDate, $lt: finalDate },
     }, { 'whatAccount.value': true, _id: false });
     const sumReg = registers.reduce((sum, reg, index) => {
       if (index === 1) {
@@ -90,14 +91,18 @@ module.exports = {
     res.json(sumReg);
   },
   update: async (req, res) => {
-    console.log('\n\n entrou no update');
-    console.log('req.body');
-    console.log(req.body);
-    const { id } = req.params;
-    const register = await registerModel.findByIdAndUpdate(id, req.body, { new: true });
-    console.log('register');
-    console.log(register);
-    return res.json(register);
+    try {
+      const { id } = req.params;
+      const register = await registerModel.findById(id);
+      if (register.value !== req.body.value) {
+        req.body.whereAccountBalance = register.whereAccountBalance - register.value + req.body.value;
+        await registerService.updatePostRegistersOfAccount(req);
+      }
+      await register.update(req.body);
+      return res.json(register);
+    } catch (e) {
+      return res.status(400).json({ error: e.message });
+    }
   },
   removeById: (req, res) => {
     const { id } = req.params;
@@ -113,10 +118,10 @@ module.exports = {
       if (err) {
         return res.send({
           notOk: 'not deleted',
-          err
+          err,
         });
       }
       return res.send({ ok: 'All Clear' });
     });
-  }
+  },
 };
