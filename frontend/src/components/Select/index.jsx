@@ -13,7 +13,7 @@ const defaultStyle = {
   fontSize: '16px',
   borderRadius: '4px',
   lineHeight: '1.5',
-  color: '#FFF'
+  color: '#FFF',
 };
 const defaultSelectedFieldStyle = {
   display: 'grid',
@@ -29,7 +29,7 @@ const defaultOptContainerStyle = {
   padding: '5px',
   border: '1px solid #FFF',
   borderRadius: '5px',
-  backgroundColor: '#FFF'
+  backgroundColor: '#FFF',
 };
 const defaultOptStyle = {
   backgroundColor: '#FAFAFA',
@@ -39,21 +39,21 @@ const defaultOptStyle = {
   alignItems: 'center',
   paddingRight: '5px',
   paddingLeft: '5px',
-  color: '#000'
+  color: '#000',
 };
 const defautOptDisabledStyle = {
   backgroundColor: '#0202FF',
   fontWeight: 200,
   borderRadius: '3px',
-  color: '#FAFAFA'
+  color: '#FAFAFA',
 };
 const defaultMouseEnterOptionStyle = {
   backgroundColor: 'rgba(180,180,230,0.95)',
-  color: '#FFF'
+  color: '#FFF',
 };
 const defaultMouseLeaveOptionStyle = {
   backgroundColor: '#FFF',
-  color: '#000'
+  color: '#000',
 };
 
 export default function Select(props) {
@@ -61,7 +61,7 @@ export default function Select(props) {
     options = [],
     value = 0,
     onChange,
-    id
+    id,
   } = props;
   let {
     style = defaultStyle,
@@ -70,7 +70,7 @@ export default function Select(props) {
     optionDisabledStyle = defautOptDisabledStyle,
     optionsContainerStyle = defaultOptContainerStyle,
     mouseEnterOptionStyle = defaultMouseEnterOptionStyle,
-    mouseLeaveOptionStyle = defaultMouseLeaveOptionStyle
+    mouseLeaveOptionStyle = defaultMouseLeaveOptionStyle,
   } = props;
 
   style = { ...defaultStyle, ...style };

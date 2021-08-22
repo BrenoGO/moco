@@ -6,16 +6,15 @@ import helper from '../../services/helper';
 
 import './Bill.css';
 
-
 export default function Bill(props) {
   const { bill, handlePayClick, where } = props;
 
-  const accounts = useSelector(state => state.AccountsReducer.accounts);
-  const { locale } = useSelector(state => state.DefaultsReducer);
+  const accounts = useSelector((state) => state.AccountsReducer.accounts);
+  const { locale } = useSelector((state) => state.DefaultsReducer);
 
   const whereAccount = bill.group
-    ? accounts.filter(item => item.id === bill.bills[0].whereAccount)
-    : accounts.filter(item => item.id === bill.whereAccount);
+    ? accounts.filter((item) => item.id === bill.bills[0].whereAccount)
+    : accounts.filter((item) => item.id === bill.whereAccount);
 
   const [detailed, setDetailed] = useState(false);
 
@@ -30,7 +29,7 @@ export default function Bill(props) {
 
   if (detailed) {
     return (
-      bill.bills.map(item => (
+      bill.bills.map((item) => (
         <Bill bill={item} key={item._id} handlePayClick={handlePayClick} where="list" />
       ))
     );
@@ -65,8 +64,7 @@ export default function Bill(props) {
               Detail bills
             </span>
           </div>
-        )
-      }
+        )}
 
       {where === 'list' && (
         <>
@@ -74,8 +72,7 @@ export default function Bill(props) {
           <span className="payBut actionBut" onClick={() => handlePayClick(bill)}>
             {bill.type === 'ToPay'
               ? OperMsgs[locale].payA
-              : OperMsgs[locale].receiveA
-            }
+              : OperMsgs[locale].receiveA}
           </span>
         </>
       )}

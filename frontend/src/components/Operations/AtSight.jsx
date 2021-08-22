@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Form, DatePicker } from 'antd';
+import {
+  Form, DatePicker, Select, message,
+} from 'antd';
 import moment from 'moment';
 
 import './operations.css';
@@ -11,7 +13,7 @@ import { RegistersService } from '../../services/RegistersService';
 
 import { resetBalance } from '../../actions/DefaultsActions';
 
-import Select from '../Select';
+import SelectAccount from '../Select';
 import Spinner from '../Spinner';
 
 export default function AtSight() {
@@ -54,7 +56,7 @@ export default function AtSight() {
     let value = helper.toNumber(opValue);
 
     if (value === 0) {
-      alert(`.${process.env.PUBLIC_URL}.valor é 0!`);
+      message.error('Valor é 0!');
       return setLoading(false);
     }
     if (whatAccounts.name === 'expense') value = -value;
@@ -86,21 +88,24 @@ export default function AtSight() {
     <Form>
       {loading && <Spinner />}
       <div id="divSelectExpenseOrIncome">
-        <label htmlFor="selectExpenseOrIncome">
-          {OperMsgs[locale].expOrInc}
-          <select
-            id="selectExpenseOrIncome"
+        <Form.Item
+          label={OperMsgs[locale].expOrInc}
+          name="expenseOrIncome"
+          initialValue={whatAccounts.name}
+        >
+          <Select
             value={whatAccounts.name}
-            onChange={(e) => handleWhatAccountsChange(e.target.value)}
+            onChange={handleWhatAccountsChange}
           >
-            <option value="expense">{OperMsgs[locale].expense}</option>
-            <option value="income">{OperMsgs[locale].income}</option>
-          </select>
-        </label>
+            <Select.Option value="expense">{OperMsgs[locale].expense}</Select.Option>
+            <Select.Option value="income">{OperMsgs[locale].income}</Select.Option>
+          </Select>
+        </Form.Item>
       </div>
       <Form.Item
         label={OperMsgs[locale].emitDate}
         name="emitDate"
+        initialValue={moment()}
         rules={[{ required: true, message: 'Data de emissão é obrigatório!' }]}
       >
         <DatePicker
@@ -108,12 +113,11 @@ export default function AtSight() {
           value={emitDate}
           format="DD/MM/YYYY HH:mm:ss"
           showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }}
-          defaultValue={moment()}
         />
       </Form.Item>
       <div id="selectWhereAccount" className="selectAccount">
         <div id="whereAccountsSelectorLabel">{OperMsgs[locale].currAc}</div>
-        <Select
+        <SelectAccount
           id="whereAccountsSelector"
           value={whereAccountId}
           onChange={setWhereAccountId}
@@ -126,7 +130,7 @@ export default function AtSight() {
       </div>
       <div id="selectWhatAccount" className="selectAccount">
         <div id="whatAccountSelectorLabel">{OperMsgs[locale].whatAc}</div>
-        <Select
+        <SelectAccount
           id="whatAccountSelector"
           value={whatAccountId}
           onChange={setWhatAccountId}
