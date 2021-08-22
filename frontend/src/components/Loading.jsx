@@ -3,7 +3,7 @@ import React from 'react';
 const style = {
   position: 'fixed',
   top: '50%',
-  left: '50%'
+  left: '50%',
 };
 
 export default function Loading() {

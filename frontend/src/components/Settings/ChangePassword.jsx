@@ -5,7 +5,7 @@ import { UsersService } from '../../services/UsersService';
 import { SettingsMsgs } from '../../services/Messages';
 
 export default function ChangePassword() {
-  const { locale } = useSelector(state => state.DefaultsReducer);
+  const { locale } = useSelector((state) => state.DefaultsReducer);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
@@ -27,11 +27,11 @@ export default function ChangePassword() {
       <div className="setContent flex-column">
         <label htmlFor="newPass">
           {SettingsMsgs[locale].newPW}
-          <input type="password" id="newPass" value={newPassword} onChange={e => setNewPassword(e.target.value)} />
+          <input type="password" id="newPass" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
         </label>
         <label htmlFor="confirmPass">
           {SettingsMsgs[locale].confirmNewPW}
-          <input type="password" id="confirmPass" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
+          <input type="password" id="confirmPass" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
         </label>
         {newPassword && confirmPassword && (
           <div className="setButton">

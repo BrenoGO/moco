@@ -106,8 +106,8 @@ export default function Select(props) {
   }, []);
 
   useEffect(() => {
-    setSelectedIndex(options.findIndex(item => item.value === value) > 0
-      ? options.findIndex(item => item.value === value)
+    setSelectedIndex(options.findIndex((item) => item.value === value) > 0
+      ? options.findIndex((item) => item.value === value)
       : 0);
   }, [value, options]);
 
@@ -144,8 +144,7 @@ export default function Select(props) {
               onClick={handleOptionClick}
               style={!option.disabled
                 ? optionStyle
-                : { ...optionStyle, ...optionDisabledStyle }
-              }
+                : { ...optionStyle, ...optionDisabledStyle }}
               mouseEnterStyle={mouseEnterOptionStyle}
               mouseLeaveStyle={mouseLeaveOptionStyle}
               label={option.label}

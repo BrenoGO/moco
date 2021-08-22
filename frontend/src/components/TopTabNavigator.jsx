@@ -6,7 +6,7 @@ import { NavBarMsgs } from '../services/Messages';
 import './TopTabNavigator.css';
 
 export default function TopTabNavigator() {
-  const { locale } = useSelector(state => state.DefaultsReducer);
+  const { locale } = useSelector((state) => state.DefaultsReducer);
 
   return (
     <nav id="topTabNav">

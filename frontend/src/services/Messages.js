@@ -10,7 +10,7 @@ export const NavBarMsgs = {
     acc: 'Contas',
     reports: 'Relatórios',
     settings: 'Configurações',
-  }
+  },
 };
 export const LoginMsgs = {
   'en-US': {
@@ -28,7 +28,7 @@ export const LoginMsgs = {
     signUp: 'Cadastre-se',
     name: 'Nome: ',
     cpw: 'Confirme a senha: ',
-  }
+  },
 };
 export const SettingsMsgs = {
   'en-US': {
@@ -160,7 +160,7 @@ export const OperMsgs = {
     toPayOrToReceive: 'A Pagar ou A Receber:',
     transFromAc: 'Conta de Origem:',
     transToAc: 'Conta de Destino:',
-  }
+  },
 };
 export const AccMsgs = {
   'en-US': {
@@ -178,7 +178,7 @@ export const AccMsgs = {
     delete: 'Delete',
     cancel: 'Cancel',
     acceptVal: 'Accept Value',
-    name: 'Name'
+    name: 'Name',
   },
   'pt-BR': {
     title: 'Contas',
@@ -195,8 +195,8 @@ export const AccMsgs = {
     delete: 'Excluir',
     cancel: 'Cancelar',
     acceptVal: 'Aceitar Valor',
-    name: 'Nome'
-  }
+    name: 'Nome',
+  },
 };
 export const RepMsgs = {
   'en-US': {
@@ -222,7 +222,7 @@ export const RepMsgs = {
     where: 'Where',
     due: 'Due',
     transference: 'Transference',
-    payment: 'Payment'
+    payment: 'Payment',
   },
   'pt-BR': {
     title: 'Relatórios',
@@ -247,6 +247,6 @@ export const RepMsgs = {
     where: 'Onde',
     due: 'Vence',
     transference: 'Transferência',
-    payment: 'Pagamento'
-  }
+    payment: 'Pagamento',
+  },
 };

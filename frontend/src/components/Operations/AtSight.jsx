@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { Form, DatePicker } from 'antd';
+import moment from 'moment';
 
 import './operations.css';
 
@@ -13,8 +15,8 @@ import Select from '../Select';
 import Spinner from '../Spinner';
 
 export default function AtSight() {
-  const accounts = useSelector(state => state.AccountsReducer.accounts);
-  const { defaultAccounts, balances, locale } = useSelector(state => (state.DefaultsReducer));
+  const accounts = useSelector((state) => state.AccountsReducer.accounts);
+  const { defaultAccounts, balances, locale } = useSelector((state) => (state.DefaultsReducer));
   const initialValue = locale !== 'pt-BR' ? '$ 0.00' : 'R$ 0,00';
   const dispatch = useDispatch();
 
@@ -23,10 +25,10 @@ export default function AtSight() {
   const [opNotes, setOpNotes] = useState('');
   const [whatAccountId, setWhatAccountId] = useState(defaultAccounts.whatAccounts.expense);
   const [whereAccountId, setWhereAccountId] = useState(
-    defaultAccounts.whereAccounts.AtSight
+    defaultAccounts.whereAccounts.AtSight,
   );
   const [whatAccounts, setWhatAccounts] = useState({ id: defaultAccounts.expense, name: 'expense' });
-  const [emitDate, setEmitDate] = useState(new Date());
+  const [emitDate, setEmitDate] = useState(moment());
   const [loading, setLoading] = useState(false);
 
   const currentAccounts = helper.organizedAccounts(accounts, defaultAccounts.currentAccounts);
@@ -44,7 +46,7 @@ export default function AtSight() {
     setWhatAccountId(defaultAccounts.whatAccounts.expense);
     setWhereAccountId(defaultAccounts.whereAccounts.AtSight);
     setWhatAccounts({ id: defaultAccounts.expense, name: 'expense' });
-    setEmitDate(new Date());
+    setEmitDate(moment());
   }
 
   function submit() {
@@ -58,7 +60,7 @@ export default function AtSight() {
     if (whatAccounts.name === 'expense') value = -value;
 
     const lastWhereBalance = balances.filter(
-      item => item.accountId === whereAccountId
+      (item) => item.accountId === whereAccountId,
     )[0].balance;
 
     const whereAccountBalance = Number((lastWhereBalance + value).toFixed(2));
@@ -70,7 +72,7 @@ export default function AtSight() {
       whatAccountId,
       whereAccountBalance,
       value,
-      emitDate
+      emitDate,
     };
     reSetState();
 
@@ -81,39 +83,44 @@ export default function AtSight() {
   }
 
   return (
-    <>
+    <Form>
       {loading && <Spinner />}
       <div id="divSelectExpenseOrIncome">
-        <div>
-          {OperMsgs[locale].emitDate}
-          <input
-            type="date"
-            value={helper.dateToInput(emitDate)}
-            onChange={e => setEmitDate(helper.inputDateToNewDate(e.target.value))}
-          />
-        </div>
         <label htmlFor="selectExpenseOrIncome">
           {OperMsgs[locale].expOrInc}
           <select
             id="selectExpenseOrIncome"
             value={whatAccounts.name}
-            onChange={e => handleWhatAccountsChange(e.target.value)}
+            onChange={(e) => handleWhatAccountsChange(e.target.value)}
           >
             <option value="expense">{OperMsgs[locale].expense}</option>
             <option value="income">{OperMsgs[locale].income}</option>
           </select>
         </label>
       </div>
+      <Form.Item
+        label={OperMsgs[locale].emitDate}
+        name="emitDate"
+        rules={[{ required: true, message: 'Data de emissão é obrigatório!' }]}
+      >
+        <DatePicker
+          onChange={setEmitDate}
+          value={emitDate}
+          format="DD/MM/YYYY HH:mm:ss"
+          showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }}
+          defaultValue={moment()}
+        />
+      </Form.Item>
       <div id="selectWhereAccount" className="selectAccount">
         <div id="whereAccountsSelectorLabel">{OperMsgs[locale].currAc}</div>
         <Select
           id="whereAccountsSelector"
           value={whereAccountId}
           onChange={setWhereAccountId}
-          options={currentAccounts.map(account => ({
+          options={currentAccounts.map((account) => ({
             value: account.id,
             disabled: !account.allowValue,
-            label: account.name
+            label: account.name,
           }))}
         />
       </div>
@@ -123,10 +130,10 @@ export default function AtSight() {
           id="whatAccountSelector"
           value={whatAccountId}
           onChange={setWhatAccountId}
-          options={whatAccountsToSelect.map(account => ({
+          options={whatAccountsToSelect.map((account) => ({
             value: account.id,
             disabled: !account.allowValue,
-            label: account.name
+            label: account.name,
           }))}
         />
       </div>
@@ -138,7 +145,7 @@ export default function AtSight() {
             id="opValue"
             className="inValue"
             value={opValue}
-            onChange={e => setOpValue(helper.currencyFormatter(locale, e.target.value))}
+            onChange={(e) => setOpValue(helper.currencyFormatter(locale, e.target.value))}
             inputMode="numeric"
           />
           <button
@@ -146,7 +153,7 @@ export default function AtSight() {
             onClick={() => setOpValue(
               opValue.substring(0, 1) === '-'
                 ? helper.currencyFormatter(locale, opValue.substring(1))
-                : helper.currencyFormatter(locale, `-${opValue}`)
+                : helper.currencyFormatter(locale, `-${opValue}`),
             )}
           >
             {opValue.substring(0, 1) === '-' ? '+' : '-'}
@@ -156,13 +163,13 @@ export default function AtSight() {
       <div id="divDescription">
         <label htmlFor="opDesc">
           {OperMsgs[locale].desc}
-          <input type="text" id="opDesc" value={opDesc} onChange={e => setOpDesc(e.target.value)} />
+          <input type="text" id="opDesc" value={opDesc} onChange={(e) => setOpDesc(e.target.value)} />
         </label>
       </div>
       <div id="divNotes">
         <label htmlFor="opNotes">
           {OperMsgs[locale].notes}
-          <input type="text" id="opNotes" value={opNotes} onChange={e => setOpNotes(e.target.value)} />
+          <input type="text" id="opNotes" value={opNotes} onChange={(e) => setOpNotes(e.target.value)} />
         </label>
       </div>
       <div id="divButRegister">
@@ -170,6 +177,6 @@ export default function AtSight() {
           {OperMsgs[locale].regBut}
         </button>
       </div>
-    </>
+    </Form>
   );
 }
