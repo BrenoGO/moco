@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Form, Select } from 'antd';
+import { Select } from 'antd';
 
 import './views.css';
 
@@ -48,23 +48,17 @@ export default function Operations() {
     <div className="view">
       <div id="operationView">
         <div id="header"><h1>{OperMsgs[locale].title}</h1></div>
-        <div id="divOpTypeSelect">
-          <Form.Item
-            label={OperMsgs[locale].operType}
-            initialValue="atSight"
-          >
-            <Select
-              value={opType}
-              onChange={setOpType}
-            >
-              <Select.Option value="atSight">{OperMsgs[locale].optAtSight}</Select.Option>
-              <Select.Option value="future">{OperMsgs[locale].optFuture}</Select.Option>
-              <Select.Option value="complex">{OperMsgs[locale].optComp}</Select.Option>
-              <Select.Option value="payOrReceiveBill">{OperMsgs[locale].optPayRecBill}</Select.Option>
-              <Select.Option value="transference">{OperMsgs[locale].optTransf}</Select.Option>
-            </Select>
-          </Form.Item>
-        </div>
+        <Select
+          value={opType}
+          onChange={setOpType}
+          className="divOpTypeSelect"
+        >
+          <Select.Option value="atSight">{OperMsgs[locale].optAtSight}</Select.Option>
+          <Select.Option value="future">{OperMsgs[locale].optFuture}</Select.Option>
+          <Select.Option value="complex">{OperMsgs[locale].optComp}</Select.Option>
+          <Select.Option value="payOrReceiveBill">{OperMsgs[locale].optPayRecBill}</Select.Option>
+          <Select.Option value="transference">{OperMsgs[locale].optTransf}</Select.Option>
+        </Select>
         {typeComponent()}
       </div>
     </div>

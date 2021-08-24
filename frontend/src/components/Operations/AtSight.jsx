@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
-  Form, DatePicker, Select, message,
+  Form, DatePicker, Select, message, Row, Col, Input,
 } from 'antd';
 import moment from 'moment';
 
@@ -15,6 +15,7 @@ import { resetBalance } from '../../actions/DefaultsActions';
 
 import SelectAccount from '../Select';
 import Spinner from '../Spinner';
+import InputValue from '../InputValue';
 
 export default function AtSight() {
   const accounts = useSelector((state) => state.AccountsReducer.accounts);
@@ -53,7 +54,7 @@ export default function AtSight() {
 
   function submit() {
     setLoading(true);
-    let value = helper.toNumber(opValue);
+    let value = opValue;
 
     if (value === 0) {
       message.error('Valor é 0!');
@@ -84,98 +85,103 @@ export default function AtSight() {
     return RegistersService.store(Obj);
   }
 
+  console.log('opValue:', opValue);
   return (
-    <Form>
+    <Form
+      layout="vertical"
+    >
       {loading && <Spinner />}
-      <div id="divSelectExpenseOrIncome">
-        <Form.Item
-          label={OperMsgs[locale].expOrInc}
-          name="expenseOrIncome"
-          initialValue={whatAccounts.name}
-        >
-          <Select
-            value={whatAccounts.name}
-            onChange={handleWhatAccountsChange}
+      <Row gutter={16}>
+        <Col xs={24} sm={24} md={12} lg={12}>
+          <Form.Item
+            label={OperMsgs[locale].expOrInc}
+            name="expenseOrIncome"
+            initialValue={whatAccounts.name}
           >
-            <Select.Option value="expense">{OperMsgs[locale].expense}</Select.Option>
-            <Select.Option value="income">{OperMsgs[locale].income}</Select.Option>
-          </Select>
-        </Form.Item>
-      </div>
-      <Form.Item
-        label={OperMsgs[locale].emitDate}
-        name="emitDate"
-        initialValue={moment()}
-        rules={[{ required: true, message: 'Data de emissão é obrigatório!' }]}
-      >
-        <DatePicker
-          onChange={setEmitDate}
-          value={emitDate}
-          format="DD/MM/YYYY HH:mm:ss"
-          showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }}
-        />
-      </Form.Item>
-      <div id="selectWhereAccount" className="selectAccount">
-        <div id="whereAccountsSelectorLabel">{OperMsgs[locale].currAc}</div>
-        <SelectAccount
-          id="whereAccountsSelector"
-          value={whereAccountId}
-          onChange={setWhereAccountId}
-          options={currentAccounts.map((account) => ({
-            value: account.id,
-            disabled: !account.allowValue,
-            label: account.name,
-          }))}
-        />
-      </div>
-      <div id="selectWhatAccount" className="selectAccount">
-        <div id="whatAccountSelectorLabel">{OperMsgs[locale].whatAc}</div>
-        <SelectAccount
-          id="whatAccountSelector"
-          value={whatAccountId}
-          onChange={setWhatAccountId}
-          options={whatAccountsToSelect.map((account) => ({
-            value: account.id,
-            disabled: !account.allowValue,
-            label: account.name,
-          }))}
-        />
-      </div>
-      <div id="divValue">
-        <label htmlFor="opValue">
-          {OperMsgs[locale].value}
-          <input
-            type="text"
-            id="opValue"
-            className="inValue"
+            <Select
+              value={whatAccounts.name}
+              onChange={handleWhatAccountsChange}
+            >
+              <Select.Option value="expense">{OperMsgs[locale].expense}</Select.Option>
+              <Select.Option value="income">{OperMsgs[locale].income}</Select.Option>
+            </Select>
+          </Form.Item>
+        </Col>
+        <Col xs={24} sm={24} md={12} lg={12}>
+          <Form.Item
+            label={OperMsgs[locale].emitDate}
+            name="emitDate"
+            initialValue={moment()}
+            rules={[{ required: true, message: 'Data de emissão é obrigatório!' }]}
+          >
+            <DatePicker
+              onChange={setEmitDate}
+              value={emitDate}
+              format="DD/MM/YYYY HH:mm:ss"
+              showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }}
+            />
+          </Form.Item>
+        </Col>
+        <Col xs={24} sm={24} md={12} lg={12}>
+          <Form.Item
+            label={OperMsgs[locale].currAc}
+          >
+            <SelectAccount
+              id="whereAccountsSelector"
+              value={whereAccountId}
+              onChange={setWhereAccountId}
+              options={currentAccounts.map((account) => ({
+                value: account.id,
+                disabled: !account.allowValue,
+                label: account.name,
+              }))}
+            />
+          </Form.Item>
+        </Col>
+        <Col xs={24} sm={24} md={12} lg={12}>
+          <Form.Item
+            label={OperMsgs[locale].whatAc}
+          >
+            <SelectAccount
+              id="whatAccountSelector"
+              value={whatAccountId}
+              onChange={setWhatAccountId}
+              options={whatAccountsToSelect.map((account) => ({
+                value: account.id,
+                disabled: !account.allowValue,
+                label: account.name,
+              }))}
+            />
+          </Form.Item>
+        </Col>
+        <Col xs={24} sm={24} md={12} lg={12}>
+          <InputValue
+            label={OperMsgs[locale].value}
             value={opValue}
-            onChange={(e) => setOpValue(helper.currencyFormatter(locale, e.target.value))}
-            inputMode="numeric"
+            onChange={setOpValue}
           />
-          <button
-            type="button"
-            onClick={() => setOpValue(
-              opValue.substring(0, 1) === '-'
-                ? helper.currencyFormatter(locale, opValue.substring(1))
-                : helper.currencyFormatter(locale, `-${opValue}`),
-            )}
+        </Col>
+        <Col xs={24} sm={24} md={12} lg={12}>
+          <Form.Item
+            label={OperMsgs[locale].desc}
           >
-            {opValue.substring(0, 1) === '-' ? '+' : '-'}
-          </button>
-        </label>
-      </div>
-      <div id="divDescription">
-        <label htmlFor="opDesc">
-          {OperMsgs[locale].desc}
-          <input type="text" id="opDesc" value={opDesc} onChange={(e) => setOpDesc(e.target.value)} />
-        </label>
-      </div>
-      <div id="divNotes">
-        <label htmlFor="opNotes">
-          {OperMsgs[locale].notes}
-          <input type="text" id="opNotes" value={opNotes} onChange={(e) => setOpNotes(e.target.value)} />
-        </label>
-      </div>
+            <Input
+              value={opDesc}
+              onChange={(e) => setOpDesc(e.target.value)}
+            />
+          </Form.Item>
+        </Col>
+        <Col xs={24} sm={24} md={12} lg={12}>
+          <Form.Item
+            label={OperMsgs[locale].notes}
+          >
+            <Input
+              value={opNotes}
+              onChange={(e) => setOpNotes(e.target.value)}
+            />
+          </Form.Item>
+        </Col>
+      </Row>
       <div id="divButRegister">
         <button type="button" className="btn btn-primary" onClick={submit}>
           {OperMsgs[locale].regBut}

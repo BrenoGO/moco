@@ -19,6 +19,9 @@
   line-height: 14px;
   font-size: 14px;
 }
+.ant-picker {
+  width: 100%;
+}
 /* .flex-column{
   display: flex;
   flex-direction: column;

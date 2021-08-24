@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import {
   Form, Modal, Input, DatePicker, Spin, message,
 } from 'antd';
 import moment from 'moment';
 import Select from '../Select';
+import InputValue from '../InputValue';
 import { OperMsgs } from '../../services/Messages';
 import helper from '../../services/helper';
 import { RegistersService } from '../../services/RegistersService';
@@ -95,15 +95,10 @@ export default function ModalEditRegister({
                 value={register?.description}
               />
             </Form.Item>
-            <Form.Item
-              label="Valor"
-              rules={[{ required: true, message: 'É obrigatório' }]}
-            >
-              <Input
-                value={helper.currencyFormatter(locale, register?.value)}
-                onChange={(e) => changeFormValue('value', helper.toNumber(e.target.value))}
-              />
-            </Form.Item>
+            <InputValue
+              value={register?.value || 0}
+              onChange={(v) => changeFormValue('value', v)}
+            />
             <Form.Item
               label="Data emissão"
               rules={[{ required: true, message: 'É obrigatório' }]}

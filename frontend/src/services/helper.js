@@ -25,7 +25,6 @@ const helpers = {
     return (orgAc);
   },
   currencyFormatter: (locale, value) => {
-    if (!value) return '';
     let currency = '';
     switch (locale) {
       case 'en-US':
@@ -44,7 +43,7 @@ const helpers = {
     });
 
     let sign = '';
-    let newValue = value;
+    let newValue = value || 0;
 
     if (typeof newValue === 'number') newValue = newValue.toFixed(2);
     if (newValue[0] === '-') sign = '-';
@@ -70,6 +69,7 @@ const helpers = {
     return new Intl.DateTimeFormat(locale, options).format(date);
   },
   toNumber(str) {
+    console.log('str:', str);
     if (typeof str === 'number') return str;
     let value = str;
     let sign = '';

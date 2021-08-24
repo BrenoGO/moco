@@ -7,7 +7,7 @@ import arrows from './arrows.svg';
 const defaultStyle = {
   backgroundColor: '#007bff',
   margin: '5px',
-  width: '150px',
+  width: '100%',
   height: '30px',
   cursor: 'pointer',
   fontSize: '16px',
@@ -43,9 +43,10 @@ const defaultOptStyle = {
 };
 const defautOptDisabledStyle = {
   backgroundColor: '#0202FF',
-  fontWeight: 200,
+  fontWeight: 600,
   borderRadius: '3px',
-  color: '#FAFAFA',
+  color: '#FFF',
+  cursor: 'default',
 };
 const defaultMouseEnterOptionStyle = {
   backgroundColor: 'rgba(180,180,230,0.95)',
