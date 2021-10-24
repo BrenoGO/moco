@@ -11,7 +11,6 @@ import { updateDefault } from '../actions/DefaultsActions';
 import brazilFlag from '../imgs/brazil.svg';
 import usFlag from '../imgs/united-states.svg';
 
-
 export default function Flags() {
   const dispatch = useDispatch();
   async function setLocale(locale) {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-
+import { useSelector } from 'react-redux';
 
 import TopTabNavigator from './components/TopTabNavigator';
 import PrivateRoute from './components/PrivateRoute';
@@ -13,14 +13,14 @@ import Accounts from './views/Accounts';
 import Reports from './views/Reports';
 import Settings from './views/Settings';
 
-
-export default function Routes({ logged }) {
+export default function Routes() {
+  const logged = useSelector((state) => state.LoginReducer.logged);
   if (logged === undefined) return <Loading />;
 
   return (
     <div className="App">
       <Router>
-        <TopTabNavigator />
+        {logged && <TopTabNavigator />}
         <Switch>
           <Route
             path={`${process.env.PUBLIC_URL}/`}

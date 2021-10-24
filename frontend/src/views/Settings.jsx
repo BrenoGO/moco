@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
-import { Redirect } from 'react-router-dom';
+import React from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 import './views.css';
 import './Settings.css';
+
+import { setLogged } from '../actions/LoginActions';
 
 import auth from '../services/Auth';
 import { SettingsMsgs } from '../services/Messages';
@@ -14,17 +16,18 @@ import TransferenceAccounts from '../components/Settings/TransferenceAccounts';
 import ChangePassword from '../components/Settings/ChangePassword';
 
 export default function Settings() {
-  const [logOut, setLogOut] = useState(false);
-  const { locale } = useSelector(state => state.DefaultsReducer);
+  const { locale } = useSelector((state) => state.DefaultsReducer);
+  const dispatch = useDispatch();
+  const history = useHistory();
 
   function handleLogOut() {
     auth.logout(() => {
       localStorage.removeItem('token');
-      setLogOut(true);
+      history.push(`${process.env.PUBLIC_URL}/login`);
+      dispatch(setLogged(false));
     });
   }
 
-  if (logOut) return <Redirect to={`${process.env.PUBLIC_URL}/login`} />;
   return (
     <div className="view">
       <h1>{SettingsMsgs[locale].title}</h1>

@@ -16,14 +16,14 @@ export default function AccountsReducer(state = INICIAL_STATE, action) {
     case ADD_ACCOUNT:
       return { ...state, accounts: [...state.accounts, action.account] };
     case DELETE_ACCOUNTS:
-      return { ...state, accounts: state.accounts.filter(item => !action.ids.includes(item.id)) };
+      return { ...state, accounts: state.accounts.filter((item) => !action.ids.includes(item.id)) };
     case UPDATE_ACCOUNT:
       return {
         ...state,
         accounts: state.accounts.map((ac) => {
           if (ac.id !== action.id) return ac;
           return { ...ac, name: action.name };
-        })
+        }),
       };
     default:
       return state;

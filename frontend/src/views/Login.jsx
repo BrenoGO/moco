@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Redirect } from 'react-router-dom';
+import {
+  message, Form, Row, Col, Input, Button,
+} from 'antd';
+import { EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 
 import './Login.css';
 
@@ -10,6 +14,7 @@ import { LoginMsgs } from '../services/Messages';
 
 import { setAccounts } from '../actions/AccountsActions';
 import { setDefaults } from '../actions/DefaultsActions';
+import { setLogged } from '../actions/LoginActions';
 
 import Flags from '../components/Flags';
 import Loading from '../components/Loading';
@@ -38,11 +43,13 @@ export default function Login() {
 
     if (resp.error) {
       auth.logout(() => setRedirect({ bool: false, to: `${process.env.PUBLIC_URL}/` }));
-      alert(resp.error);
+      message.error(resp.error?.message || 'Unknown Error');
+      dispatch(setLogged(false));
       setLoading(false);
     } else {
       await localStorage.setItem('token', resp.token);
       auth.login((accounts, defaults) => {
+        dispatch(setLogged(true));
         dispatch(setAccounts(accounts));
         dispatch(setDefaults(defaults));
         setRedirect({ bool: true, to: `${process.env.PUBLIC_URL}/Operations` });
@@ -51,23 +58,24 @@ export default function Login() {
     }
   }
   async function handleSignUp() {
-    if (passwordSU !== confirmPasswordSU) return alert('Confirming password different from password');
+    if (passwordSU !== confirmPasswordSU) return message.error('Confirming password different from password');
     setLoading(true);
     const resp = await UsersService.signUp({ name, email: emailSU, password: passwordSU });
     if (resp.error) {
-      if (resp.error.code === 11000) alert('E-mail already exists');
-      else alert(resp.error.message);
+      if (resp.error.code === 11000) message.error('E-mail already exists');
+      else message.error(resp.error.message);
+      dispatch(setLogged(false));
       return setLoading(false);
     }
     if (resp.token) {
       await localStorage.setItem('token', resp.token);
+      dispatch(setLogged(true));
       dispatch(setAccounts(resp.accounts));
       dispatch(setDefaults(resp.defaults));
       setRedirect({ bool: true, to: `${process.env.PUBLIC_URL}/Settings` });
       return setLoading(false);
     }
-    console.log('error in signing up, resp:', resp);
-    return alert('error Signing Up');
+    return message.error('error Signing Up');
   }
 
   if (loading) return <Loading />;
@@ -78,49 +86,96 @@ export default function Login() {
       <div id="loginDiv" className="flex-column">
         <img src={Logo} alt="logo" width="15%" />
         <h1>{LoginMsgs[locale].login}</h1>
-        <label htmlFor="email">
-          {LoginMsgs[locale].email}
-          <input type="email" name="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        </label>
-        <label htmlFor="password">
-          {LoginMsgs[locale].pw}
-          <input type="password" name="password" id="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        </label>
-        <button
-          id="loginSubmit"
-          className="but-primary-neutral"
-          type="button"
+        <Row gutter={16}>
+          <Col xs={24} sm={24} md={12} lg={12}>
+            <Form.Item
+              label={LoginMsgs[locale].email}
+              required
+            >
+              <Input
+                value={email}
+                type="email"
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </Form.Item>
+          </Col>
+          <Col xs={24} sm={24} md={12} lg={12}>
+            <Form.Item
+              label={LoginMsgs[locale].pw}
+              required
+            >
+              <Input.Password
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Button
+          type="primary"
           onClick={handleLogin}
         >
           {LoginMsgs[locale].login}
-        </button>
+        </Button>
       </div>
       <div id="signUpDiv" className="flex-column">
         <h1>{LoginMsgs[locale].signUp}</h1>
-        <label htmlFor="name">
-          {LoginMsgs[locale].name}
-          <input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)} />
-        </label>
-        <label htmlFor="emailSU">
-          {LoginMsgs[locale].email}
-          <input type="email" id="emailSU" value={emailSU} onChange={(e) => setEmailSU(e.target.value)} />
-        </label>
-        <label htmlFor="passwordSU">
-          {LoginMsgs[locale].pw}
-          <input type="password" id="passwordSU" value={passwordSU} onChange={(e) => setPasswordSU(e.target.value)} />
-        </label>
-        <label htmlFor="confirmPasswordSU">
-          {LoginMsgs[locale].cpw}
-          <input type="password" id="confirmPasswordSU" value={confirmPasswordSU} onChange={(e) => setConfirmPasswordSU(e.target.value)} />
-        </label>
-        <button
-          id="loginSubmit"
-          className="but-primary-neutral"
-          type="button"
+        <Row gutter={16}>
+          <Col xs={24} sm={24} md={12} lg={12}>
+            <Form.Item
+              label={LoginMsgs[locale].name}
+              required
+            >
+              <Input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </Form.Item>
+          </Col>
+          <Col xs={24} sm={24} md={12} lg={12}>
+            <Form.Item
+              label={LoginMsgs[locale].email}
+              required
+            >
+              <Input
+                value={emailSU}
+                type="email"
+                onChange={(e) => setEmailSU(e.target.value)}
+              />
+            </Form.Item>
+          </Col>
+          <Col xs={24} sm={24} md={24} lg={24}>
+            <Form.Item
+              label={LoginMsgs[locale].pw}
+              required
+            >
+              <Input.Password
+                value={passwordSU}
+                onChange={(e) => setPasswordSU(e.target.value)}
+                iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
+              />
+            </Form.Item>
+          </Col>
+          <Col xs={24} sm={24} md={24} lg={24}>
+            <Form.Item
+              label={LoginMsgs[locale].cpw}
+              required
+            >
+              <Input.Password
+                value={confirmPasswordSU}
+                onChange={(e) => setConfirmPasswordSU(e.target.value)}
+                iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Button
+          type="primary"
           onClick={handleSignUp}
         >
           {LoginMsgs[locale].signUp}
-        </button>
+        </Button>
       </div>
     </div>
   );

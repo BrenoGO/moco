@@ -22,7 +22,7 @@ export const LoginMsgs = {
     cpw: 'Confirm Password: ',
   },
   'pt-BR': {
-    login: 'Login',
+    login: 'Entrar',
     email: 'E-mail: ',
     pw: 'Senha:',
     signUp: 'Cadastre-se',

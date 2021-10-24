@@ -1,13 +1,13 @@
 import {
   SET_DEFAULTS,
   UPDATE_DEFAULT,
-  RESET_BALANCE
+  RESET_BALANCE,
 } from '../actions/DefaultsActions';
 
 const INICIAL_STATE = {
   defaultAccounts: {},
   balances: [],
-  locale: localStorage.getItem('locale') || 'en-US'
+  locale: localStorage.getItem('locale') || 'en-US',
 };
 
 export default function SettingsReducer(state = INICIAL_STATE, action) {
@@ -26,7 +26,7 @@ export default function SettingsReducer(state = INICIAL_STATE, action) {
         balances: state.balances.map((ac) => {
           if (ac.accountId !== action.ac.accountId) return ac;
           return action.ac;
-        })
+        }),
       };
     default:
       return state;

@@ -20,15 +20,14 @@ import InputValue from '../InputValue';
 export default function AtSight() {
   const accounts = useSelector((state) => state.AccountsReducer.accounts);
   const { defaultAccounts, balances, locale } = useSelector((state) => (state.DefaultsReducer));
-  const initialValue = locale !== 'pt-BR' ? '$ 0.00' : 'R$ 0,00';
   const dispatch = useDispatch();
 
-  const [opValue, setOpValue] = useState(initialValue);
+  const [opValue, setOpValue] = useState(0);
   const [opDesc, setOpDesc] = useState('');
   const [opNotes, setOpNotes] = useState('');
-  const [whatAccountId, setWhatAccountId] = useState(defaultAccounts.whatAccounts.expense);
+  const [whatAccountId, setWhatAccountId] = useState(defaultAccounts.whatAccounts?.expense);
   const [whereAccountId, setWhereAccountId] = useState(
-    defaultAccounts.whereAccounts.AtSight,
+    defaultAccounts.whereAccounts?.AtSight,
   );
   const [whatAccounts, setWhatAccounts] = useState({ id: defaultAccounts.expense, name: 'expense' });
   const [emitDate, setEmitDate] = useState(moment());
@@ -43,7 +42,7 @@ export default function AtSight() {
   }
 
   function reSetState() {
-    setOpValue(initialValue);
+    setOpValue(0);
     setOpDesc('');
     setOpNotes('');
     setWhatAccountId(defaultAccounts.whatAccounts.expense);
@@ -85,7 +84,6 @@ export default function AtSight() {
     return RegistersService.store(Obj);
   }
 
-  console.log('opValue:', opValue);
   return (
     <Form
       layout="vertical"

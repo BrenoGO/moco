@@ -1,6 +1,6 @@
+import { message } from 'antd';
 import { AccountsService } from './AccountsService';
 import { SettingsService } from './SettingsService';
-
 
 class Auth {
   constructor() {
@@ -11,9 +11,9 @@ class Auth {
     const resp = await method();
     if (resp.error) {
       if (String(resp.error).match(/not authorized/i)) {
-        alert('not authorized');
+        message.warning('not authorized');
       } else {
-        alert('error getting data:', resp.error);
+        message.error('error getting data:', resp.error);
       }
       this.authenticated = false;
       localStorage.removeItem('token');
