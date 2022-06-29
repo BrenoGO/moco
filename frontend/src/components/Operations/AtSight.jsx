@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   Form, DatePicker, Select, message, Row, Col, Input,
@@ -40,6 +40,13 @@ export default function AtSight() {
     setWhatAccounts({ id: defaultAccounts[type], name: type });
     setWhatAccountId(defaultAccounts.whatAccounts[type]);
   }
+
+  useEffect(() => {
+    if (defaultAccounts?.whatAccounts && whatAccounts?.name) {
+      handleWhatAccountsChange(whatAccounts.name);
+      setWhereAccountId(defaultAccounts.whereAccounts?.AtSight);
+    }
+  }, [defaultAccounts]);
 
   function reSetState() {
     setOpValue(0);
