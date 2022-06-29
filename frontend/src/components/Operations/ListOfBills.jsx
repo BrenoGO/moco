@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 
 import helper from '../../services/helper';
 import { BillsService } from '../../services/BillsService';
@@ -9,6 +10,11 @@ import Bill from './Bill';
 import Spinner from '../Spinner';
 
 export default function ListOfBills(props) {
+  ListOfBills.propTypes = {
+    type: PropTypes.string.isRequired,
+    setAction: PropTypes.func.isRequired,
+  };
+
   const { type, setAction } = props; // 'ToPay' or 'ToReceive'
 
   const [bills, setBills] = useState([]);
@@ -31,26 +37,38 @@ export default function ListOfBills(props) {
     const newBills = [];
     bills.forEach((bill, index) => {
       if (index === 0) {
-        return newBills.push(bill);
+        newBills.push(bill);
+        return;
       }
-      const dueA = helper.dateToInput(helper.dbDateToNewDate(bills[index - 1].dueDate));
-      const dueB = helper.dateToInput(helper.dbDateToNewDate(bills[index].dueDate));
 
-      if (dueA === dueB && bills[index - 1].whereAccount === bill.whereAccount) {
-        //  same date and payment option
-        if (!newBills[newBills.length - 1].group) {
-          newBills[newBills.length - 1] = {
-            type: bill.type,
-            group: true,
-            _id: bills[index - 1]._id,
-            bills: [bills[index - 1], bill],
-          };
-          return newBills;
-        }
-        return newBills[newBills.length - 1].bills.push(bill);
+      const dueCurrent = helper.dateToInput(helper.dbDateToNewDate(bills[index].dueDate));
+
+      const sameGroupIndex = newBills.findIndex((b) => {
+        const dueFinding = helper.dateToInput(helper.dbDateToNewDate(b.dueDate));
+        if (dueFinding === dueCurrent && bill.whereAccount === b.whereAccount) return true;
+        return false;
+      });
+
+      if (sameGroupIndex === -1) {
+        newBills.push(bill);
+        return;
       }
-      return newBills.push(bill);
+
+      if (newBills[sameGroupIndex].group) {
+        newBills[sameGroupIndex].bills.push(bill);
+        return;
+      }
+
+      newBills[sameGroupIndex] = {
+        type: bill.type,
+        group: true,
+        _id: newBills[sameGroupIndex]._id,
+        bills: [newBills[sameGroupIndex], bill],
+        dueDate: bill.dueDate,
+        whereAccount: bill.whereAccount,
+      };
     });
+
     return newBills;
   }
 
@@ -58,7 +76,7 @@ export default function ListOfBills(props) {
     <>
       {loading && <Spinner />}
       <div id="listOfBills">
-        {billGroups().map(bill => (
+        {billGroups().map((bill) => (
           <Bill
             bill={bill}
             key={bill._id}
@@ -70,7 +88,3 @@ export default function ListOfBills(props) {
     </>
   );
 }
-
-// {bills.map(bill => (
-//   <Bill bill={bill} key={bill._id} handlePayClick={handlePayClick} where="list" />
-// ))}
