@@ -17,6 +17,8 @@ import SelectAccount from '../Select';
 import Spinner from '../Spinner';
 import InputValue from '../InputValue';
 
+const INIT_TYPE = 'expense';
+
 export default function AtSight() {
   const accounts = useSelector((state) => state.AccountsReducer.accounts);
   const { defaultAccounts, balances, locale } = useSelector((state) => (state.DefaultsReducer));
@@ -29,7 +31,9 @@ export default function AtSight() {
   const [whereAccountId, setWhereAccountId] = useState(
     defaultAccounts.whereAccounts?.AtSight,
   );
-  const [whatAccounts, setWhatAccounts] = useState({ id: defaultAccounts.expense, name: 'expense' });
+  const [whatAccounts, setWhatAccounts] = useState({
+    id: defaultAccounts.expense, name: INIT_TYPE,
+  });
   const [emitDate, setEmitDate] = useState(moment());
   const [loading, setLoading] = useState(false);
 
@@ -42,8 +46,9 @@ export default function AtSight() {
   }
 
   useEffect(() => {
-    if (defaultAccounts?.whatAccounts && whatAccounts?.name) {
-      handleWhatAccountsChange(whatAccounts.name);
+    if (defaultAccounts?.whatAccounts) {
+      setWhatAccounts({ id: defaultAccounts[INIT_TYPE], name: INIT_TYPE });
+      setWhatAccountId(defaultAccounts.whatAccounts[INIT_TYPE]);
       setWhereAccountId(defaultAccounts.whereAccounts?.AtSight);
     }
   }, [defaultAccounts]);
@@ -54,7 +59,7 @@ export default function AtSight() {
     setOpNotes('');
     setWhatAccountId(defaultAccounts.whatAccounts.expense);
     setWhereAccountId(defaultAccounts.whereAccounts.AtSight);
-    setWhatAccounts({ id: defaultAccounts.expense, name: 'expense' });
+    setWhatAccounts({ id: defaultAccounts.expense, name: INIT_TYPE });
     setEmitDate(moment());
   }
 

@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import {
   Form, Modal, Input, DatePicker, Spin, message,
 } from 'antd';
+import PropTypes from 'prop-types';
 import moment from 'moment';
 import Select from '../Select';
 import InputValue from '../InputValue';
@@ -13,6 +14,14 @@ import { RegistersService } from '../../services/RegistersService';
 export default function ModalEditRegister({
   editModalVisible, setEditModalVisible, registerInitData, registers, setRegisters,
 }) {
+  ModalEditRegister.propTypes = {
+    editModalVisible: PropTypes.func.isRequired,
+    setEditModalVisible: PropTypes.func.isRequired,
+    registerInitData: PropTypes.func.isRequired,
+    registers: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+    setRegisters: PropTypes.func.isRequired,
+  };
+
   const [register, setRegister] = useState({});
   const [loading, setLoading] = useState(false);
   const { locale, defaultAccounts } = useSelector((state) => state.DefaultsReducer);
@@ -28,7 +37,6 @@ export default function ModalEditRegister({
   }, [registerInitData]);
 
   function cancelEditReg() {
-    console.log('canceled...');
     setEditModalVisible(false);
   }
 
@@ -36,7 +44,6 @@ export default function ModalEditRegister({
     setLoading(true);
     try {
       const resp = await RegistersService.update(register);
-      console.log(resp);
       if (resp) {
         const index = registers.findIndex((r) => r._id === register._id);
         setRegisters([
@@ -49,7 +56,6 @@ export default function ModalEditRegister({
       }
     } catch (e) {
       message.error('Error ao atualizar registro');
-      console.log(e);
     } finally {
       setLoading(false);
       setEditModalVisible(false);
@@ -61,15 +67,12 @@ export default function ModalEditRegister({
   }
 
   function changeFormValue(prop, value) {
-    console.log('value in changeFormValue::');
-    console.log(value);
     setRegister({
       ...register,
       [prop]: value,
     });
   }
 
-  console.log('register:', register);
   return (
     <Modal
       visible={editModalVisible}

@@ -16,7 +16,7 @@ export default function AcStatements() {
   const { defaultAccounts, locale, balances } = useSelector((state) => state.DefaultsReducer);
   const curAccounts = helper.organizedAccounts(accounts, defaultAccounts.currentAccounts);
 
-  const [acId, setAcId] = useState(defaultAccounts.whereAccounts.AtSight);
+  const [acId, setAcId] = useState(defaultAccounts?.whereAccounts?.AtSight);
   const initialDate = new Date();
   initialDate.setDate(initialDate.getDate() - 30);
   const [initDate, setInitDate] = useState(new Date(initialDate));
@@ -25,6 +25,12 @@ export default function AcStatements() {
   const [loading, setLoading] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [registerEditing, setRegisterEditing] = useState(null);
+
+  useEffect(() => {
+    if (defaultAccounts?.whereAccounts?.AtSight) {
+      setAcId(defaultAccounts?.whereAccounts?.AtSight);
+    }
+  }, [defaultAccounts]);
 
   useEffect(() => {
     setLoading(true);
@@ -56,6 +62,7 @@ export default function AcStatements() {
   }
 
   function getBalance(accountId) {
+    if (!accountId) return 0;
     const { balance } = balances.find((item) => item.accountId === accountId);
     return helper.currencyFormatter(locale, balance);
   }
