@@ -69,7 +69,6 @@ const helpers = {
     return new Intl.DateTimeFormat(locale, options).format(date);
   },
   toNumber(str) {
-    console.log('str:', str);
     if (typeof str === 'number') return str;
     let value = str;
     let sign = '';

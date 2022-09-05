@@ -40,6 +40,8 @@ export default function AtSight() {
   const currentAccounts = helper.organizedAccounts(accounts, defaultAccounts.currentAccounts);
   const whatAccountsToSelect = helper.organizedAccounts(accounts, whatAccounts.id);
 
+  const [form] = Form.useForm();
+
   function handleWhatAccountsChange(type) {
     setWhatAccounts({ id: defaultAccounts[type], name: type });
     setWhatAccountId(defaultAccounts.whatAccounts[type]);
@@ -59,7 +61,8 @@ export default function AtSight() {
     setOpNotes('');
     setWhatAccountId(defaultAccounts.whatAccounts.expense);
     setWhereAccountId(defaultAccounts.whereAccounts.AtSight);
-    setWhatAccounts({ id: defaultAccounts.expense, name: INIT_TYPE });
+    setWhatAccounts({ id: defaultAccounts[INIT_TYPE], name: INIT_TYPE });
+    form.setFieldsValue({ expenseOrIncome: INIT_TYPE });
     setEmitDate(moment());
   }
 
@@ -99,6 +102,7 @@ export default function AtSight() {
   return (
     <Form
       layout="vertical"
+      form={form}
     >
       {loading && <Spinner />}
       <Row gutter={16}>

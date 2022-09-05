@@ -37,10 +37,10 @@ module.exports = {
       if (err) {
         return res.send({
           naoOk: 'nao foi removido',
-          err
+          err,
         });
       }
       return res.send({ ok: 'All Clear' });
     });
-  }
+  },
 };

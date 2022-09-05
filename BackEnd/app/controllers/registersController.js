@@ -11,45 +11,38 @@ module.exports = {
     return res.json(registers);
   },
   store: async (req, res) => {
-    req.body.userId = req.user._id;
+    const newRegisterData = {
+      ...req.body,
+      userId: req.user._id,
+    };
 
     try {
-      if (req.body.whereAccountBalance) {
+      if (newRegisterData.whereAccountBalance) {
         const postRegs = await registerModel.find(
           {
-            userId: req.user._id,
-            emitDate: { $gt: req.body.emitDate },
-            whereAccountId: req.body.whereAccountId,
+            userId: newRegisterData.userId,
+            emitDate: { $gt: newRegisterData.emitDate },
+            whereAccountId: newRegisterData.whereAccountId,
           },
           null,
           { sort: { emitDate: 1 } },
         );
-        if (postRegs.length > 0) {
-          // has post regs
-          req.body.whereAccountBalance = Number(
-            (postRegs[0].whereAccountBalance - postRegs[0].value + req.body.value).toFixed(2),
+        if (postRegs && postRegs.length) {
+          newRegisterData.whereAccountBalance = Number(
+            (postRegs[0].whereAccountBalance - postRegs[0].value + newRegisterData.value).toFixed(2),
           );
-          for (const i in postRegs) {
-            if (i === '0') {
-              postRegs[i].whereAccountBalance = Number(
-                (req.body.whereAccountBalance + postRegs[i].value).toFixed(2),
-              );
-            } else {
-              postRegs[i].whereAccountBalance = Number(
-                (postRegs[i - 1].whereAccountBalance + postRegs[i].value).toFixed(2),
-              );
-            }
-            await registerModel.findByIdAndUpdate(
-              postRegs[i]._id,
-              { whereAccountBalance: postRegs[i].whereAccountBalance },
-            );
-          }
+          await registerService.updatePostRegistersOfAccount({
+            userId: newRegisterData.userId,
+            whereAccountId: newRegisterData.whereAccountId,
+            initialAccountBalance: newRegisterData.whereAccountBalance,
+            emitDate: newRegisterData.emitDate,
+            postRegs,
+          });
         }
       }
-      const register = await registerModel.create(req.body);
+      const register = await registerModel.create(newRegisterData);
       return res.json(register);
     } catch (error) {
-      console.log(error);
       return res.json(error);
     }
   },
@@ -93,15 +86,46 @@ module.exports = {
   update: async (req, res) => {
     try {
       const { id } = req.params;
+      const { updateOnly, ...restRegisterData } = req.body;
       const register = await registerModel.findById(id);
-      if (register.value !== req.body.value) {
-        req.body.whereAccountBalance = register.whereAccountBalance - register.value + req.body.value;
-        await registerService.updatePostRegistersOfAccount(req);
+
+      if (updateOnly) {
+        await register.update(restRegisterData);
+        return res.json(register);
       }
-      await register.update(req.body);
+
+      const updatedRegister = {
+        ...restRegisterData,
+        whereAccountBalance: register.whereAccountBalance - register.value + req.body.value,
+      };
+
+      if (register.whereAccountId !== updatedRegister.whereAccountId) {
+        const registerBeforeUpdatedRegister = await registerService.getPreviousRegisterOfAccount({
+          userId: updatedRegister.userId,
+          whereAccountId: updatedRegister.whereAccountId,
+          emitDate: updatedRegister.emitDate,
+        });
+
+        updatedRegister.whereAccountBalance = registerBeforeUpdatedRegister.whereAccountBalance + updatedRegister.value;
+
+        await registerService.updatePostRegistersOfAccount({
+          userId: register.userId,
+          whereAccountId: register.whereAccountId,
+          initialAccountBalance: register.whereAccountBalance - register.value,
+          emitDate: register.emitDate,
+        });
+      }
+      await registerService.updatePostRegistersOfAccount({
+        userId: updatedRegister.userId,
+        whereAccountId: updatedRegister.whereAccountId,
+        initialAccountBalance: updatedRegister.whereAccountBalance,
+        emitDate: updatedRegister.emitDate,
+      });
+
+      await register.updateOne(updatedRegister);
       return res.json(register);
-    } catch (e) {
-      return res.status(400).json({ error: e.message });
+    } catch (err) {
+      return res.status(400).json({ error: err.message });
     }
   },
   removeById: (req, res) => {
