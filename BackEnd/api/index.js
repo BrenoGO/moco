@@ -1,4 +1,4 @@
-const app = require('../app.js');
+const app = require('../server.js');
 
 app.get('/api', (req, res) => {
   const path = '/api/item/1234';
