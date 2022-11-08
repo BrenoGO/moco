@@ -5,4 +5,4 @@ const PORT = app.get('port');
 
 require('./config/db')(process.env.DB_URL);
 
-app.listen(PORT, () => { console.log(`Server listening to port ${PORT}`); });
+app.listen(PORT, () => { console.log(`Server listening to port ${PORT}!`); });
