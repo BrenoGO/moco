@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import moment from 'moment';
 import { useSelector, useDispatch } from 'react-redux';
 
 import './operations.css';
@@ -18,9 +19,9 @@ import ImgChecked from '../../imgs/checked.png';
 import Select from '../Select';
 import Spinner from '../Spinner';
 
-export default function FutureOper() {
-  const accounts = useSelector(state => state.AccountsReducer.accounts);
-  const { defaultAccounts, balances, locale } = useSelector(state => (state.DefaultsReducer));
+export default function Complex() {
+  const accounts = useSelector((state) => state.AccountsReducer.accounts);
+  const { defaultAccounts, balances, locale } = useSelector((state) => (state.DefaultsReducer));
 
   const initialValue = locale !== 'pt-BR' ? '$ 0.00' : 'R$ 0,00';
 
@@ -33,15 +34,15 @@ export default function FutureOper() {
       id: defaultAccounts.whatAccounts.expense,
       value: initialValue,
       description: '',
-      notes: ''
-    }]
+      notes: '',
+    }],
   );
   const [whereAccounts, setWhereAccounts] = useState(
     [{
       id: defaultAccounts.whereAccounts.AtSight,
       value: initialValue,
       type: 'AtSight',
-    }]
+    }],
   );
   const [whatAccountToSelect, setWhatAccountToSelect] = useState({ id: defaultAccounts.expense, name: 'expense' });
   const [emitDate, setEmitDate] = useState(today);
@@ -201,7 +202,7 @@ export default function FutureOper() {
         setWhereAccounts([
           {
             ...whereAccounts[0],
-            value: helper.currencyFormatter(locale, sum)
+            value: helper.currencyFormatter(locale, sum),
           }
         ]);
       }
@@ -230,8 +231,8 @@ export default function FutureOper() {
         id: defaultAccounts.whatAccounts.expense,
         value: initialValue,
         description: '',
-        notes: ''
-      }]
+        notes: '',
+      }],
     );
   }
 
@@ -239,8 +240,8 @@ export default function FutureOper() {
     setWhatAccounts(
       [
         ...whatAccounts.slice(0, index),
-        ...whatAccounts.slice(index + 1, whatAccounts.length)
-      ]
+        ...whatAccounts.slice(index + 1, whatAccounts.length),
+      ],
     );
   }
 
@@ -250,7 +251,7 @@ export default function FutureOper() {
       const newObj = {
         ...item,
         type,
-        id: defaultAccounts.whereAccounts[type]
+        id: defaultAccounts.whereAccounts[type],
       };
       if (type === 'AtSight') newObj.bills = null;
       else newObj.bills = [{ date: todayPlus30, value: item.value }];
@@ -290,9 +291,9 @@ export default function FutureOper() {
         {
           id: defaultAccounts.whereAccounts.AtSight,
           value: initialValue,
-          type: 'AtSight'
-        }
-      ]
+          type: 'AtSight',
+        },
+      ],
     );
   }
 
@@ -300,8 +301,8 @@ export default function FutureOper() {
     setWhereAccounts(
       [
         ...whereAccounts.slice(0, index),
-        ...whereAccounts.slice(index + 1, whereAccounts.length)
-      ]
+        ...whereAccounts.slice(index + 1, whereAccounts.length),
+      ],
     );
   }
 
@@ -313,6 +314,7 @@ export default function FutureOper() {
         date.setDate(date.getDate() + 30);
         newBills = [...whereAccounts[index].bills, { date, value: initialValue }];
       } else {
+        // eslint-disable-next-line no-plusplus
         for (let i = 0; i < installments; i++) {
           if (i === 0) {
             newBills.push({ date: todayPlus30, value: initialValue });
@@ -334,9 +336,8 @@ export default function FutureOper() {
 
   function calcNewBalance(accId, value) {
     const lastWhereAccountBalance = balances.filter(
-      item => item.accountId === accId
+      (item) => item.accountId === accId,
     )[0].balance;
-    console.log('lastWhereAccountBalance', lastWhereAccountBalance);
     return Number((lastWhereAccountBalance + value).toFixed(2));
   }
 
@@ -345,7 +346,7 @@ export default function FutureOper() {
     if (sumWhatAccounts === 0) return alert('value is 0!');
     if (sumWhatAccounts.toFixed(2) !== sumWhereAccounts.toFixed(2)) {
       return alert(
-        'The sum of what accounts have to be iqual the sum of where accounts'
+        'The sum of what accounts have to be iqual the sum of where accounts',
       );
     }
 
@@ -361,7 +362,7 @@ export default function FutureOper() {
             dueDate: bill.date,
             emitDate,
             installment: `${index + 1}/${whereAccount.bills.length}`,
-            whereAccount: whereAccount.id
+            whereAccount: whereAccount.id,
           });
         });
       }
@@ -370,13 +371,12 @@ export default function FutureOper() {
     const billsResp = await BillsService.store(allBills);
     let billsIds = [];
     if (Array.isArray(billsResp)) {
-      billsIds = billsResp.map(bill => bill._id);
+      billsIds = billsResp.map((bill) => bill._id);
     }
 
     let boolDispBal = false;
     let balance = 0;
-    const allRegs = whatAccounts.map((whatAccount) => {
-      let i = 0;
+    const allRegs = whatAccounts.map((whatAccount, i) => {
       let signal = 1;
       if (whatAccountToSelect.name === 'expense') {
         signal = -1;
@@ -386,7 +386,7 @@ export default function FutureOper() {
         opType: 'complex',
         emitDate,
         whatAccountId: whatAccount.id,
-        value
+        value,
       };
       if (whatAccount.description) newObj.description = whatAccount.description;
       if (whatAccount.notes) newObj.notes = whatAccount.notes;
@@ -397,19 +397,17 @@ export default function FutureOper() {
         if (whereAccounts[0].type === 'AtSight') {
           boolDispBal = true;
           if (i === 0) {
-            balance = calcNewBalance(whereAccounts[0].id, signal * value);
-            console.log('1:', balance);
+            balance = calcNewBalance(whereAccounts[0].id, value);
           } else {
-            balance += value * signal;
-            console.log('p2:', balance);
+            balance += value;
           }
           balance = Number(balance.toFixed(2));
 
+          newObj.emitDate = moment(emitDate).add(i, 'milliseconds').toDate();
           newObj.whereAccountBalance = balance;
-          i++;
         }
       } else {
-        const distinctTypes = [...new Set(whereAccounts.map(item => item.type))];
+        const distinctTypes = [...new Set(whereAccounts.map((item) => item.type))];
         if (distinctTypes.length === 1) {
           newObj.opType = `${whatAccountToSelect.name}${whereAccounts[0].type}`;
         }
@@ -429,7 +427,7 @@ export default function FutureOper() {
             opType: `${whatAccountToSelect.name}${whereAccount.type}`,
             emitDate,
             whereAccountId: whereAccount.id,
-            value
+            value,
           };
           if (whatAccountToSelect.name === 'expense') {
             value = -value;
@@ -442,7 +440,7 @@ export default function FutureOper() {
       });
     }
     const regIds = [];
-    for (const reg of allRegs) { //  guaranteed syncronism
+    for (const reg of allRegs) { //  ensure syncronism
       const resp = await RegistersService.store(reg);
       regIds.push(resp._id);
     }
@@ -499,11 +497,11 @@ export default function FutureOper() {
                 <Select
                   id={`whatAccountSelector-${index}`}
                   value={whatAccount.id}
-                  onChange={id => handleWhatAccountsIdChange(index, id)}
-                  options={whatAccountsToSelect.map(account => ({
+                  onChange={(id) => handleWhatAccountsIdChange(index, id)}
+                  options={whatAccountsToSelect.map((account) => ({
                     value: account.id,
                     disabled: !account.allowValue,
-                    label: account.name
+                    label: account.name,
                   }))}
                 />
               </div>
@@ -516,7 +514,7 @@ export default function FutureOper() {
                     inputMode="numeric"
                     id={`whatValue-${index}`}
                     value={whatAccount.value}
-                    onChange={e => handleWhatAccountsValueChange(index, e.target.value)}
+                    onChange={(e) => handleWhatAccountsValueChange(index, e.target.value)}
                   />
                   <button
                     type="button"
@@ -538,7 +536,7 @@ export default function FutureOper() {
                     id={`whatDesc-${index}`}
                     type="text"
                     value={whatAccount.description}
-                    onChange={e => handleWhatDescChange(e.target.value, index)}
+                    onChange={(e) => handleWhatDescChange(e.target.value, index)}
                   />
                 </label>
               </div>
@@ -549,14 +547,14 @@ export default function FutureOper() {
                     id={`whatNotes-${index}`}
                     type="text"
                     value={whatAccount.notes}
-                    onChange={e => handleWhatNotesChange(e.target.value, index)}
+                    onChange={(e) => handleWhatNotesChange(e.target.value, index)}
                   />
                 </label>
               </div>
             </div>
             <div className="closeWhatAccount">
               <button className="smallBut" type="button" onClick={() => handleCloseWhatAccount(index)}>
-              X
+                X
               </button>
             </div>
           </div>
@@ -597,7 +595,7 @@ export default function FutureOper() {
               <div className="whereAccountContent">
                 <select
                   value={whereAccount.type}
-                  onChange={e => handleWhereTypeChange(e.target.value, index)}
+                  onChange={(e) => handleWhereTypeChange(e.target.value, index)}
                 >
                   <option value="AtSight">
                     {OperMsgs[locale].optAtSight}
@@ -616,11 +614,11 @@ export default function FutureOper() {
                   <Select
                     id={`whatAccountSelector-${index}`}
                     value={whereAccount.id}
-                    onChange={id => handleWhereAccountsIdChange(index, id)}
-                    options={whereAccountToSelect.map(account => ({
+                    onChange={(id) => handleWhereAccountsIdChange(index, id)}
+                    options={whereAccountToSelect.map((account) => ({
                       value: account.id,
                       disabled: !account.allowValue,
-                      label: account.name
+                      label: account.name,
                     }))}
                   />
                 </div>
@@ -632,7 +630,7 @@ export default function FutureOper() {
                     className="inValue"
                     inputMode="numeric"
                     value={whereAccount.value}
-                    onChange={e => handleWhereValueChange(e.target.value, index, whereAccount.type)}
+                    onChange={(e) => handleWhereValueChange(e.target.value, index, whereAccount.type)}
                   />
                   <button
                     type="button"
@@ -641,7 +639,7 @@ export default function FutureOper() {
                         ? whereAccount.value.substring(1)
                         : `-${whereAccount.value}`,
                       index,
-                      whereAccount.type
+                      whereAccount.type,
                     )}
                   >
                     {whereAccount.value.substring(0, 1) === '-' ? '+' : '-'}
@@ -668,10 +666,10 @@ export default function FutureOper() {
                             <input
                               type="date"
                               value={helper.dateToInput(bill.date)}
-                              onChange={e => editBillDate(
+                              onChange={(e) => editBillDate(
                                 index,
                                 billI,
-                                helper.inputDateToNewDate(e.target.value)
+                                helper.inputDateToNewDate(e.target.value),
                               )}
                             />
                           </div>
@@ -706,7 +704,7 @@ export default function FutureOper() {
               </div>
               <div className="closeWhereAccount">
                 <button type="button" className="smallBut" onClick={() => handleCloseWhereAccount(index)}>
-                X
+                  X
                 </button>
               </div>
             </div>
