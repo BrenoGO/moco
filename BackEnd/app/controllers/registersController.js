@@ -94,9 +94,19 @@ module.exports = {
         return res.json(register);
       }
 
+      let whereAccountBalance = register.whereAccountBalance - register.value + req.body.value;
+      if (register.emitDate !== restRegisterData.emitDate) {
+        const registerBeforeUpdatedRegister = await registerService.getPreviousRegisterOfAccount({
+          userId: restRegisterData.userId,
+          whereAccountId: restRegisterData.whereAccountId,
+          emitDate: restRegisterData.emitDate,
+        });
+        whereAccountBalance = registerBeforeUpdatedRegister.whereAccountBalance + req.body.value;
+      }
+
       const updatedRegister = {
         ...restRegisterData,
-        whereAccountBalance: register.whereAccountBalance - register.value + req.body.value,
+        whereAccountBalance,
       };
 
       if (register.whereAccountId !== updatedRegister.whereAccountId) {
@@ -115,6 +125,7 @@ module.exports = {
           emitDate: register.emitDate,
         });
       }
+
       await registerService.updatePostRegistersOfAccount({
         userId: updatedRegister.userId,
         whereAccountId: updatedRegister.whereAccountId,
