@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spin } from 'antd';
 
 const style = {
   position: 'fixed',
@@ -9,7 +10,7 @@ const style = {
 export default function Loading() {
   return (
     <div style={style}>
-      <span>Loading....</span>
+      <Spin size="large" />
     </div>
   );
 }
