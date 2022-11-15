@@ -28,6 +28,7 @@ export default function InputValue({
       rules={[{ required, message: requiredMessage }]}
     >
       <Input
+        inputMode="numeric"
         value={helper.currencyFormatter(locale, value)}
         onChange={(e) => onChange(helper.toNumber(e.target.value))}
         suffix={(
