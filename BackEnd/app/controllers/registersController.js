@@ -101,7 +101,9 @@ module.exports = {
           whereAccountId: restRegisterData.whereAccountId,
           emitDate: restRegisterData.emitDate,
         });
-        whereAccountBalance = registerBeforeUpdatedRegister.whereAccountBalance + req.body.value;
+        whereAccountBalance = registerBeforeUpdatedRegister
+          ? registerBeforeUpdatedRegister.whereAccountBalance + req.body.value
+          : req.body.value;
       }
 
       const updatedRegister = {
