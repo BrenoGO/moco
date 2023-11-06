@@ -1,5 +1,6 @@
+/* eslint-disable no-nested-ternary */
 import React, { useState, useEffect } from 'react';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { useSelector, useDispatch } from 'react-redux';
 
 import './operations.css';
@@ -16,328 +17,281 @@ import { resetBalance } from '../../actions/DefaultsActions';
 import ImgX from '../../imgs/Button_X.png';
 import ImgChecked from '../../imgs/checked.png';
 
+import InputValue from '../InputValue';
 import Select from '../Select';
 import Spinner from '../Spinner';
+import MultipleWhatAcc from './MultipleWhatAccs';
 
 export default function Complex() {
   const accounts = useSelector((state) => state.AccountsReducer.accounts);
-  const { defaultAccounts, balances, locale } = useSelector((state) => (state.DefaultsReducer));
-
-  const initialValue = locale !== 'pt-BR' ? '$ 0.00' : 'R$ 0,00';
+  const { defaultAccounts, balances, locale } = useSelector((state) => state.DefaultsReducer);
 
   const today = new Date();
   const todayPlus30 = new Date();
   todayPlus30.setDate(todayPlus30.getDate() + 30);
 
-  const [whatAccounts, setWhatAccounts] = useState(
-    [{
-      id: defaultAccounts.whatAccounts.expense,
-      value: initialValue,
+  const [whatAccounts, setWhatAccounts] = useState([
+    {
+      id: defaultAccounts?.whatAccounts?.expense || 'temp',
+      value: 0,
       description: '',
       notes: '',
-    }],
-  );
-  const [whereAccounts, setWhereAccounts] = useState(
-    [{
-      id: defaultAccounts.whereAccounts.AtSight,
-      value: initialValue,
+    },
+  ]);
+  const [whereAccounts, setWhereAccounts] = useState([
+    {
+      id: defaultAccounts?.whereAccounts?.AtSight || 'temp',
+      value: 0,
       type: 'AtSight',
-    }],
-  );
-  const [whatAccountToSelect, setWhatAccountToSelect] = useState({ id: defaultAccounts.expense, name: 'expense' });
+    },
+  ]);
+  const [whatAccountToSelect, setWhatAccountToSelect] = useState({
+    id: defaultAccounts?.expense,
+    name: 'expense',
+  });
+
+  useEffect(() => {
+    if (defaultAccounts?.whatAccounts) {
+      setWhatAccounts([
+        {
+          id: defaultAccounts.whatAccounts.expense,
+          value: 0,
+          description: '',
+          notes: '',
+        },
+      ]);
+      setWhereAccounts([
+        {
+          id: defaultAccounts.whereAccounts.AtSight,
+          value: 0,
+          type: 'AtSight',
+        },
+      ]);
+      setWhatAccountToSelect({
+        id: defaultAccounts.expense,
+        name: 'expense',
+      });
+    }
+  }, [defaultAccounts]);
+
   const [emitDate, setEmitDate] = useState(today);
   const [loading, setLoading] = useState(false);
 
-  const whatAccountsToSelect = helper.organizedAccounts(accounts, whatAccountToSelect.id);
   const currentAccounts = helper.organizedAccounts(accounts, defaultAccounts.currentAccounts);
   const ToReceiveAccounts = helper.organizedAccounts(accounts, defaultAccounts.ToReceive);
   const ToPayAccounts = helper.organizedAccounts(accounts, defaultAccounts.ToPay);
-  const sumWhatAccounts = whatAccounts.length > 1
-    ? whatAccounts.reduce((ac, current, index) => {
-      if (index === 1) {
-        return helper.toNumber(ac.value) + helper.toNumber(current.value);
-      }
-      return ac + helper.toNumber(current.value);
-    })
-    : whatAccounts[0]
-      ? helper.toNumber(whatAccounts[0].value)
-      : 0;
-  const sumWhereAccounts = whereAccounts.length > 1
-    ? whereAccounts.reduce((ac, current, index) => {
-      if (index === 1) {
-        return helper.toNumber(ac.value) + helper.toNumber(current.value);
-      }
-      return ac + helper.toNumber(current.value);
-    })
-    : whereAccounts[0]
-      ? helper.toNumber(whereAccounts[0].value)
-      : 0;
+  const sumWhatAccounts = whatAccounts.reduce((ac, current) => ac + current.value, 0);
+  const sumWhereAccounts = whereAccounts.reduce((ac, current) => ac + current.value, 0);
 
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    if (defaultAccounts.whatAccounts.expense) {
-      setWhatAccounts(
-        [{
-          id: defaultAccounts.whatAccounts.expense,
-          value: initialValue,
-          description: '',
-          notes: ''
-        }]
-      );
-    }
-  }, [defaultAccounts, initialValue]);
 
   function setAccounts(type) {
     if (type === 'expense') {
       setWhatAccountToSelect({ id: defaultAccounts[type], name: 'expense' });
-      setWhereAccounts(whereAccounts.map((item) => {
-        if (item.type === 'ToPay' || item.type === 'AtSight') return item;
-        return { ...item, type: 'ToPay' };
-      }));
+      setWhereAccounts(
+        whereAccounts.map((item) => {
+          if (item.type === 'ToPay' || item.type === 'AtSight') return item;
+          return { ...item, type: 'ToPay' };
+        }),
+      );
     } else {
       setWhatAccountToSelect({ id: defaultAccounts[type], name: 'income' });
-      setWhereAccounts(whereAccounts.map((item) => {
-        if (item.type === 'ToReceive' || item.type === 'AtSight') return item;
-        return { ...item, type: 'ToReceive' };
-      }));
+      setWhereAccounts(
+        whereAccounts.map((item) => {
+          if (item.type === 'ToReceive' || item.type === 'AtSight') return item;
+          return { ...item, type: 'ToReceive' };
+        }),
+      );
     }
   }
 
   function editBillValue(index, billI, value) {
-    setWhereAccounts(whereAccounts.map((whereAccount, i1) => {
-      if (index !== i1) return whereAccount;
-      return {
-        ...whereAccount,
-        bills: whereAccount.bills.map((bill, i2) => {
-          if (billI !== i2) return bill;
-          return { ...bill, value: helper.currencyFormatter(locale, value) };
-        })
-      };
-    }));
+    setWhereAccounts(
+      whereAccounts.map((whereAccount, i1) => {
+        if (index !== i1) return whereAccount;
+        return {
+          ...whereAccount,
+          bills: whereAccount.bills.map((bill, i2) => {
+            if (billI !== i2) return bill;
+            return { ...bill, value };
+          }),
+        };
+      }),
+    );
   }
 
   function editBillDate(index, billI, value) {
-    setWhereAccounts(whereAccounts.map((whereAccount, i1) => {
-      if (index !== i1) return whereAccount;
-      return {
-        ...whereAccount,
-        bills: whereAccount.bills.map((bill, i2) => {
-          if (billI !== i2) return bill;
-          return { ...bill, date: value };
-        })
-      };
-    }));
+    setWhereAccounts(
+      whereAccounts.map((whereAccount, i1) => {
+        if (index !== i1) return whereAccount;
+        return {
+          ...whereAccount,
+          bills: whereAccount.bills.map((bill, i2) => {
+            if (billI !== i2) return bill;
+            return { ...bill, date: value };
+          }),
+        };
+      }),
+    );
   }
 
   function editOnBlur(index) {
     const sum = whereAccounts[index].bills.reduce((a, b, i) => {
       if (i === 1) {
-        return helper.toNumber(a.value) + helper.toNumber(b.value);
+        return a.value + b.value;
       }
-      return a + helper.toNumber(b.value);
+      return a + b.value;
     });
 
-    setWhereAccounts(whereAccounts.map((item, i) => {
-      if (index !== i) return item;
-      return { ...item, value: helper.currencyFormatter(locale, sum) };
-    }));
+    setWhereAccounts(
+      whereAccounts.map((item, i) => {
+        if (index !== i) return item;
+        return { ...item, value: sum };
+      }),
+    );
   }
 
-  function distributeValue(strValue, tempBills) {
+  function distributeValue(value, tempBills) {
     const installments = tempBills.length;
-    const value = helper.toNumber(strValue);
+
     const instVal = Number((value / installments).toFixed(2));
-    return (tempBills.map((bill, index) => {
+    return tempBills.map((bill, index) => {
       if (index === 0) {
         if (value !== instVal * installments) {
           const dif = value - instVal * installments;
           const newValue = instVal + dif;
-          return { ...bill, value: helper.currencyFormatter(locale, newValue) };
+          return { ...bill, value: newValue };
         }
       }
-      return { ...bill, value: helper.currencyFormatter(locale, instVal) };
-    }));
+      return { ...bill, value: instVal };
+    });
+  }
+
+  function runExtraValueChangedActions(_index, _value, sum) {
+    setWhereAccounts([
+      {
+        ...whereAccounts[0],
+        value: sum,
+      },
+    ]);
   }
 
   function reSetState() {
-    setWhatAccounts([{
-      id: defaultAccounts.whatAccounts.expense,
-      value: initialValue,
-      description: '',
-      notes: ''
-    }]);
-    setWhereAccounts([{
-      id: defaultAccounts.whereAccounts.AtSight,
-      value: initialValue,
-      type: 'AtSight',
-    }]);
+    setWhatAccounts([
+      {
+        id: defaultAccounts.whatAccounts.expense,
+        value: 0,
+        description: '',
+        notes: '',
+      },
+    ]);
+    setWhereAccounts([
+      {
+        id: defaultAccounts.whereAccounts.AtSight,
+        value: 0,
+        type: 'AtSight',
+      },
+    ]);
     setWhatAccountToSelect({ id: defaultAccounts.expense, name: 'expense' });
     setEmitDate(new Date());
   }
 
-  function handleWhatAccountsIdChange(index, id) {
-    setWhatAccounts(whatAccounts.map((item, i) => {
-      if (index !== i) return item;
-      return { ...item, id };
-    }));
-  }
-
-  function handleWhatAccountsValueChange(index, value) {
-    const strValue = helper.currencyFormatter(locale, value);
-
-    const newWhatAccounts = whatAccounts.map((item, i) => {
-      if (index !== i) return item;
-      return { ...item, value: strValue };
-    });
-
-    if (whereAccounts.length === 1) {
-      if (whatAccounts.length === 1) {
-        setWhereAccounts([{ ...whereAccounts[0], value: strValue }]);
-      } else {
-        const sum = newWhatAccounts.reduce((a, b, i) => {
-          if (i === 1) return helper.toNumber(a.value) + helper.toNumber(b.value);
-          return a + helper.toNumber(b.value);
-        });
-        setWhereAccounts([
-          {
-            ...whereAccounts[0],
-            value: helper.currencyFormatter(locale, sum),
-          }
-        ]);
-      }
-    }
-
-    setWhatAccounts(newWhatAccounts);
-  }
-
-  function handleWhatDescChange(description, index) {
-    setWhatAccounts(whatAccounts.map((item, i) => {
-      if (index !== i) return item;
-      return { ...item, description };
-    }));
-  }
-
-  function handleWhatNotesChange(notes, index) {
-    setWhatAccounts(whatAccounts.map((item, i) => {
-      if (index !== i) return item;
-      return { ...item, notes };
-    }));
-  }
-
-  function handleAddWhatAccount() {
-    setWhatAccounts(
-      [...whatAccounts, {
-        id: defaultAccounts.whatAccounts.expense,
-        value: initialValue,
-        description: '',
-        notes: '',
-      }],
-    );
-  }
-
-  function handleCloseWhatAccount(index) {
-    setWhatAccounts(
-      [
-        ...whatAccounts.slice(0, index),
-        ...whatAccounts.slice(index + 1, whatAccounts.length),
-      ],
-    );
-  }
-
   function handleWhereTypeChange(type, index) {
-    setWhereAccounts(whereAccounts.map((item, i) => {
-      if (i !== index) return item;
-      const newObj = {
-        ...item,
-        type,
-        id: defaultAccounts.whereAccounts[type],
-      };
-      if (type === 'AtSight') newObj.bills = null;
-      else newObj.bills = [{ date: todayPlus30, value: item.value }];
+    setWhereAccounts(
+      whereAccounts.map((item, i) => {
+        if (i !== index) return item;
+        const newObj = {
+          ...item,
+          type,
+          id: defaultAccounts.whereAccounts[type],
+        };
+        if (type === 'AtSight') newObj.bills = null;
+        else newObj.bills = [{ date: todayPlus30, value: item.value }];
 
-      return newObj;
-    }));
+        return newObj;
+      }),
+    );
   }
 
   function handleWhereAccountsIdChange(index, id) {
-    setWhereAccounts(whereAccounts.map((item, i) => {
-      if (index !== i) return item;
-      return { ...item, id };
-    }));
+    setWhereAccounts(
+      whereAccounts.map((item, i) => {
+        if (index !== i) return item;
+        return { ...item, id };
+      }),
+    );
   }
 
-  function handleWhereValueChange(strValue, index, type) {
-    const value = helper.currencyFormatter(locale, strValue);
-
+  function handleWhereValueChange(value, index, type) {
     if (type === 'ToPay' || type === 'ToReceive') {
       const newBills = distributeValue(value, whereAccounts[index].bills);
-      setWhereAccounts(whereAccounts.map((item, i) => {
-        if (i !== index) return item;
-        return { ...item, value, bills: newBills };
-      }));
+      setWhereAccounts(
+        whereAccounts.map((item, i) => {
+          if (i !== index) return item;
+          return { ...item, value, bills: newBills };
+        }),
+      );
     } else {
-      setWhereAccounts(whereAccounts.map((item, i) => {
-        if (i !== index) return item;
-        return { ...item, value };
-      }));
+      setWhereAccounts(
+        whereAccounts.map((item, i) => {
+          if (i !== index) return item;
+          return { ...item, value };
+        }),
+      );
     }
   }
 
   function handleAddWhereAccount() {
-    setWhereAccounts(
-      [
-        ...whereAccounts,
-        {
-          id: defaultAccounts.whereAccounts.AtSight,
-          value: initialValue,
-          type: 'AtSight',
-        },
-      ],
-    );
+    setWhereAccounts([
+      ...whereAccounts,
+      {
+        id: defaultAccounts.whereAccounts.AtSight,
+        value: 0,
+        type: 'AtSight',
+      },
+    ]);
   }
 
   function handleCloseWhereAccount(index) {
-    setWhereAccounts(
-      [
-        ...whereAccounts.slice(0, index),
-        ...whereAccounts.slice(index + 1, whereAccounts.length),
-      ],
-    );
+    setWhereAccounts([
+      ...whereAccounts.slice(0, index),
+      ...whereAccounts.slice(index + 1, whereAccounts.length),
+    ]);
   }
 
   function handleInstallmentsChange(index, installments) {
     let newBills = [];
-    if (installments > whereAccounts[index].bills.length) { // aumentou parcela
+    if (installments > whereAccounts[index].bills.length) {
+      // aumentou parcela
       if (installments - whereAccounts[index].bills.length === 1) {
         const date = new Date(whereAccounts[index].bills[installments - 2].date);
         date.setDate(date.getDate() + 30);
-        newBills = [...whereAccounts[index].bills, { date, value: initialValue }];
+        newBills = [...whereAccounts[index].bills, { date, value: 0 }];
       } else {
         // eslint-disable-next-line no-plusplus
         for (let i = 0; i < installments; i++) {
           if (i === 0) {
-            newBills.push({ date: todayPlus30, value: initialValue });
+            newBills.push({ date: todayPlus30, value: 0 });
           } else {
             const date = new Date(newBills[i - 1].date);
             date.setDate(date.getDate() + 30);
-            newBills.push({ date, value: initialValue });
+            newBills.push({ date, value: 0 });
           }
         }
       }
     } else if (installments > 1) newBills = whereAccounts[index].bills.slice(0, installments);
     else newBills = whereAccounts[index].bills.slice(0, 1);
     newBills = distributeValue(whereAccounts[index].value, newBills);
-    setWhereAccounts(whereAccounts.map((item, i) => {
-      if (i !== index) return item;
-      return { ...item, bills: newBills };
-    }));
+    setWhereAccounts(
+      whereAccounts.map((item, i) => {
+        if (i !== index) return item;
+        return { ...item, bills: newBills };
+      }),
+    );
   }
 
   function calcNewBalance(accId, value) {
-    const lastWhereAccountBalance = balances.filter(
-      (item) => item.accountId === accId,
-    )[0].balance;
+    const lastWhereAccountBalance = balances.filter((item) => item.accountId === accId)[0].balance;
     return Number((lastWhereAccountBalance + value).toFixed(2));
   }
 
@@ -345,9 +299,7 @@ export default function Complex() {
     setLoading(true);
     if (sumWhatAccounts === 0) return alert('value is 0!');
     if (sumWhatAccounts.toFixed(2) !== sumWhereAccounts.toFixed(2)) {
-      return alert(
-        'The sum of what accounts have to be iqual the sum of where accounts',
-      );
+      return alert('The sum of what accounts have to be iqual the sum of where accounts');
     }
 
     const allBills = [];
@@ -358,7 +310,7 @@ export default function Complex() {
           if (whatAccountToSelect.name === 'income') type = 'ToReceive';
           allBills.push({
             type,
-            value: helper.toNumber(bill.value),
+            value: bill.value,
             dueDate: bill.date,
             emitDate,
             installment: `${index + 1}/${whereAccount.bills.length}`,
@@ -381,7 +333,7 @@ export default function Complex() {
       if (whatAccountToSelect.name === 'expense') {
         signal = -1;
       }
-      const value = helper.toNumber(whatAccount.value) * signal;
+      const value = whatAccount.value * signal;
       const newObj = {
         opType: 'complex',
         emitDate,
@@ -403,7 +355,7 @@ export default function Complex() {
           }
           balance = Number(balance.toFixed(2));
 
-          newObj.emitDate = moment(emitDate).add(i, 'milliseconds').toDate();
+          newObj.emitDate = dayjs(emitDate).add(i, 'milliseconds').toDate();
           newObj.whereAccountBalance = balance;
         }
       } else {
@@ -422,7 +374,7 @@ export default function Complex() {
     if (whereAccounts.length > 1) {
       whereAccounts.forEach((whereAccount) => {
         if (whereAccount.type === 'AtSight') {
-          let value = helper.toNumber(whereAccount.value);
+          let { value } = whereAccount;
           const newObj = {
             opType: `${whatAccountToSelect.name}${whereAccount.type}`,
             emitDate,
@@ -440,7 +392,10 @@ export default function Complex() {
       });
     }
     const regIds = [];
-    for (const reg of allRegs) { //  ensure syncronism
+    // eslint-disable-next-line no-restricted-syntax
+    for (const reg of allRegs) {
+      //  ensure syncronism
+      // eslint-disable-next-line no-await-in-loop
       const resp = await RegistersService.store(reg);
       regIds.push(resp._id);
     }
@@ -465,7 +420,7 @@ export default function Complex() {
           <input
             type="date"
             value={helper.dateToInput(emitDate)}
-            onChange={e => setEmitDate(helper.inputDateToNewDate(e.target.value))}
+            onChange={(e) => setEmitDate(helper.inputDateToNewDate(e.target.value))}
           />
         </div>
         <label htmlFor="selectExpenseOrIncome">
@@ -473,104 +428,19 @@ export default function Complex() {
           <select
             id="selectExpenseOrIncome"
             value={whatAccountToSelect.name}
-            onChange={e => setAccounts(e.target.value)}
+            onChange={(e) => setAccounts(e.target.value)}
           >
             <option value="expense">{OperMsgs[locale].expense}</option>
             <option value="income">{OperMsgs[locale].income}</option>
           </select>
         </label>
       </div>
-      <div id="whatAccountsRegisters">
-        <div className="titleOfWhatAcRegs">
-          <h3>
-            {whatAccountToSelect.name === 'expense'
-              ? OperMsgs[locale].expenses
-              : OperMsgs[locale].incomes
-            }
-          </h3>
-        </div>
-        {whatAccounts.map((whatAccount, index) => (
-          <div key={index} className="whatAccountReg">
-            <div className="whatAccountContent">
-              <div id={`selectWhatAccount-${index}`} className="selectAccount">
-                <div id={`whatAccountSelectorLabel-${index}`}>{OperMsgs[locale].whatAc}</div>
-                <Select
-                  id={`whatAccountSelector-${index}`}
-                  value={whatAccount.id}
-                  onChange={(id) => handleWhatAccountsIdChange(index, id)}
-                  options={whatAccountsToSelect.map((account) => ({
-                    value: account.id,
-                    disabled: !account.allowValue,
-                    label: account.name,
-                  }))}
-                />
-              </div>
-              <div className="whatAccountValue">
-                <label htmlFor={`whatValue-${index}`}>
-                  {OperMsgs[locale].value}
-                  <input
-                    type="text"
-                    className="inValue"
-                    inputMode="numeric"
-                    id={`whatValue-${index}`}
-                    value={whatAccount.value}
-                    onChange={(e) => handleWhatAccountsValueChange(index, e.target.value)}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleWhatAccountsValueChange(
-                      index,
-                      whatAccount.value.substring(0, 1) === '-'
-                        ? whatAccount.value.substring(1)
-                        : `-${whatAccount.value}`,
-                    )}
-                  >
-                    {whatAccount.value.substring(0, 1) === '-' ? '+' : '-'}
-                  </button>
-                </label>
-              </div>
-              <div className="divWhatDescription">
-                <label htmlFor={`whatDesc-${index}`}>
-                  {OperMsgs[locale].desc}
-                  <input
-                    id={`whatDesc-${index}`}
-                    type="text"
-                    value={whatAccount.description}
-                    onChange={(e) => handleWhatDescChange(e.target.value, index)}
-                  />
-                </label>
-              </div>
-              <div className="divWhatNotes">
-                <label htmlFor={`whatNotes-${index}`}>
-                  {OperMsgs[locale].notes}
-                  <input
-                    id={`whatNotes-${index}`}
-                    type="text"
-                    value={whatAccount.notes}
-                    onChange={(e) => handleWhatNotesChange(e.target.value, index)}
-                  />
-                </label>
-              </div>
-            </div>
-            <div className="closeWhatAccount">
-              <button className="smallBut" type="button" onClick={() => handleCloseWhatAccount(index)}>
-                X
-              </button>
-            </div>
-          </div>
-        ))}
-        <div id="divAddWhatAccount">
-          <button type="button" id="butAddWhatAccount" onClick={handleAddWhatAccount}>
-            {OperMsgs[locale].addAcBut}
-          </button>
-        </div>
-        <div id="TotalWhatAccount">
-          <span>
-            {OperMsgs[locale].total}
-            { helper.currencyFormatter(locale, sumWhatAccounts) }
-          </span>
-        </div>
-      </div>
+      <MultipleWhatAcc
+        setWhatAccounts={setWhatAccounts}
+        whatAccounts={whatAccounts}
+        runExtraValueChangedActions={runExtraValueChangedActions}
+        whatAccountToSelect={whatAccountToSelect}
+      />
       <div id="whereAccountsRegisters">
         <div id="titleWhereAccountsRegisters">
           <h3>{OperMsgs[locale].howPaym}</h3>
@@ -597,16 +467,11 @@ export default function Complex() {
                   value={whereAccount.type}
                   onChange={(e) => handleWhereTypeChange(e.target.value, index)}
                 >
-                  <option value="AtSight">
-                    {OperMsgs[locale].optAtSight}
-                  </option>
-                  <option
-                    value={whatAccountToSelect.name === 'expense' ? 'ToPay' : 'ToReceive'}
-                  >
+                  <option value="AtSight">{OperMsgs[locale].optAtSight}</option>
+                  <option value={whatAccountToSelect.name === 'expense' ? 'ToPay' : 'ToReceive'}>
                     {whatAccountToSelect.name === 'expense'
                       ? OperMsgs[locale].optToPay
-                      : OperMsgs[locale].optToRec
-                    }
+                      : OperMsgs[locale].optToRec}
                   </option>
                 </select>
                 <div id={`selectWhereAccount-${index}`} className="selectAccount">
@@ -623,38 +488,26 @@ export default function Complex() {
                   />
                 </div>
 
-                <div className="WhereValueDiv">
-                  {OperMsgs[locale].value}
-                  <input
-                    type="text"
-                    className="inValue"
-                    inputMode="numeric"
-                    value={whereAccount.value}
-                    onChange={(e) => handleWhereValueChange(e.target.value, index, whereAccount.type)}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleWhereValueChange(
-                      whereAccount.value.substring(0, 1) === '-'
-                        ? whereAccount.value.substring(1)
-                        : `-${whereAccount.value}`,
-                      index,
-                      whereAccount.type,
-                    )}
-                  >
-                    {whereAccount.value.substring(0, 1) === '-' ? '+' : '-'}
-                  </button>
-                </div>
+                <InputValue
+                  label={OperMsgs[locale].value}
+                  value={whereAccount.value}
+                  onChange={(v) => handleWhereValueChange(v, index, whereAccount.type)}
+                />
                 {whereAccount.bills && (
                   <div className="whereBillsDiv">
                     <div className="divPaymentInstallments">
                       <label htmlFor="paymentInstallments">
                         {OperMsgs[locale].installments}
-                        <select id="paymentInstallments" value={whereAccount.bills.length} onChange={e => handleInstallmentsChange(index, e.target.value)}>
-                          {
-                            [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-                              .map(i => (<option key={i} value={i}>{i}</option>))
-                          }
+                        <select
+                          id="paymentInstallments"
+                          value={whereAccount.bills.length}
+                          onChange={(e) => handleInstallmentsChange(index, e.target.value)}
+                        >
+                          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((i) => (
+                            <option key={i} value={i}>
+                              {i}
+                            </option>
+                          ))}
                         </select>
                       </label>
                     </div>
@@ -666,11 +519,7 @@ export default function Complex() {
                             <input
                               type="date"
                               value={helper.dateToInput(bill.date)}
-                              onChange={(e) => editBillDate(
-                                index,
-                                billI,
-                                helper.inputDateToNewDate(e.target.value),
-                              )}
+                              onChange={(e) => editBillDate(index, billI, helper.inputDateToNewDate(e.target.value))}
                             />
                           </div>
                           <div className="installmentValue">
@@ -680,7 +529,7 @@ export default function Complex() {
                               className="inValue"
                               inputMode="numeric"
                               value={bill.value}
-                              onChange={e => editBillValue(index, billI, e.target.value)}
+                              onChange={(e) => editBillValue(index, billI, e.target.value)}
                               onBlur={() => editOnBlur(index)}
                             />
                             <button
@@ -718,18 +567,16 @@ export default function Complex() {
         <div id="TotalWhereAccount">
           <span>
             {OperMsgs[locale].total}
-            { helper.currencyFormatter(locale, sumWhereAccounts) }
-            {
-              sumWhatAccounts.toFixed(2) === sumWhereAccounts.toFixed(2)
-                ? <img src={ImgChecked} width="20px" alt="checked" className="ifCheckedImg" />
-                : (
-                  <span>
-                    <img src={ImgX} width="20px" alt="not checked" className="ifCheckedImg" />
-                    {OperMsgs[locale].diff}
-                    {(sumWhatAccounts - sumWhereAccounts).toFixed(2)}
-                  </span>
-                )
-            }
+            {helper.currencyFormatter(locale, sumWhereAccounts)}
+            {sumWhatAccounts.toFixed(2) === sumWhereAccounts.toFixed(2) ? (
+              <img src={ImgChecked} width="20px" alt="checked" className="ifCheckedImg" />
+            ) : (
+              <span>
+                <img src={ImgX} width="20px" alt="not checked" className="ifCheckedImg" />
+                {OperMsgs[locale].diff}
+                {(sumWhatAccounts - sumWhereAccounts).toFixed(2)}
+              </span>
+            )}
           </span>
         </div>
       </div>

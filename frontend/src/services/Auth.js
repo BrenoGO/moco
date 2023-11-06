@@ -8,28 +8,41 @@ class Auth {
   }
 
   async getData(method) {
-    const resp = await method();
-    if (resp.error) {
-      if (String(resp.error).match(/not authorized/i)) {
+    try {
+      const resp = await method();
+
+      return resp;
+    } catch (err) {
+      console.log('err getting data...');
+      console.log(err);
+      if (err.error === 401) {
         message.warning('not authorized');
       } else {
-        message.error('error getting data:', resp.error);
+        message.error('error getting data:', err);
       }
       this.authenticated = false;
       localStorage.removeItem('token');
       window.location.href = process.env.PUBLIC_URL;
       return false;
     }
-    return resp;
   }
 
   async login(cb) {
-    const accounts = await this.getData(AccountsService.listAll);
-    if (accounts) {
-      const defaults = await this.getData(SettingsService.getDefaults);
-      if (defaults) {
-        this.authenticated = true;
-        cb(accounts, defaults);
+    try {
+      const accounts = await this.getData(AccountsService.listAll);
+      if (accounts) {
+        const defaults = await this.getData(SettingsService.getDefaults);
+        if (defaults) {
+          this.authenticated = true;
+          cb(accounts, defaults);
+        }
+      }
+    } catch (err) {
+      console.log('err login in..');
+      console.log(err);
+      if (err.status === 401) {
+        console.log('status 401, loggin out....');
+        this.authenticated = false;
       }
     }
   }

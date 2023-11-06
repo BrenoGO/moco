@@ -11,34 +11,27 @@ import FutureOper from '../components/Operations/FutureOper';
 import Complex from '../components/Operations/Complex';
 import PayOrReceiveBill from '../components/Operations/PayOrReceiveBill';
 import Transference from '../components/Operations/Transference';
+import InternationalOper from '../components/Operations/InternationalOper';
 
 export default function Operations() {
-  const { locale } = useSelector(state => state.DefaultsReducer);
+  const { locale } = useSelector((state) => state.DefaultsReducer);
 
   const [opType, setOpType] = useState('atSight');
 
   function typeComponent() {
     switch (opType) {
       case 'atSight':
-        return (
-          <AtSight />
-        );
+        return <AtSight />;
       case 'future':
-        return (
-          <FutureOper />
-        );
+        return <FutureOper />;
       case 'complex':
-        return (
-          <Complex />
-        );
+        return <Complex />;
+      case 'international':
+        return <InternationalOper />;
       case 'payOrReceiveBill':
-        return (
-          <PayOrReceiveBill />
-        );
+        return <PayOrReceiveBill />;
       case 'transference':
-        return (
-          <Transference />
-        );
+        return <Transference />;
       default:
         return false;
     }
@@ -47,15 +40,14 @@ export default function Operations() {
   return (
     <div className="view">
       <div id="operationView">
-        <div id="header"><h1>{OperMsgs[locale].title}</h1></div>
-        <Select
-          value={opType}
-          onChange={setOpType}
-          className="divOpTypeSelect"
-        >
+        <div id="header">
+          <h1>{OperMsgs[locale].title}</h1>
+        </div>
+        <Select value={opType} onChange={setOpType} className="divOpTypeSelect">
           <Select.Option value="atSight">{OperMsgs[locale].optAtSight}</Select.Option>
           <Select.Option value="future">{OperMsgs[locale].optFuture}</Select.Option>
           <Select.Option value="complex">{OperMsgs[locale].optComp}</Select.Option>
+          <Select.Option value="international">{OperMsgs[locale].optInternational}</Select.Option>
           <Select.Option value="payOrReceiveBill">{OperMsgs[locale].optPayRecBill}</Select.Option>
           <Select.Option value="transference">{OperMsgs[locale].optTransf}</Select.Option>
         </Select>

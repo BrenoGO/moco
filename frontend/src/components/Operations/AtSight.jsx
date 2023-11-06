@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import {
   Form, DatePicker, Select, message, Row, Col, Input,
 } from 'antd';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 import './operations.css';
 
@@ -34,7 +34,7 @@ export default function AtSight() {
   const [whatAccounts, setWhatAccounts] = useState({
     id: defaultAccounts.expense, name: INIT_TYPE,
   });
-  const [emitDate, setEmitDate] = useState(moment());
+  const [emitDate, setEmitDate] = useState(dayjs());
   const [loading, setLoading] = useState(false);
 
   const currentAccounts = helper.organizedAccounts(accounts, defaultAccounts.currentAccounts);
@@ -63,7 +63,6 @@ export default function AtSight() {
     setWhereAccountId(defaultAccounts.whereAccounts.AtSight);
     setWhatAccounts({ id: defaultAccounts[INIT_TYPE], name: INIT_TYPE });
     form.setFieldsValue({ expenseOrIncome: INIT_TYPE });
-    setEmitDate(moment());
   }
 
   function submit() {
@@ -125,14 +124,15 @@ export default function AtSight() {
           <Form.Item
             label={OperMsgs[locale].emitDate}
             name="emitDate"
-            initialValue={moment()}
+            initialValue={dayjs()}
             rules={[{ required: true, message: 'Data de emissão é obrigatório!' }]}
           >
             <DatePicker
               onChange={setEmitDate}
               value={emitDate}
               format="DD/MM/YYYY HH:mm:ss"
-              showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }}
+              showTime={{ defaultValue: dayjs('00:00:00', 'HH:mm:ss') }}
+              changeOnBlur
             />
           </Form.Item>
         </Col>

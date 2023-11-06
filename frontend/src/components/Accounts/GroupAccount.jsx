@@ -18,8 +18,8 @@ import Modal from '../Modal';
 export default function GroupAccount(props) {
   const { account } = props;
 
-  const accounts = useSelector(state => state.AccountsReducer.accounts);
-  const { locale, defaultAccounts, balances } = useSelector(state => state.DefaultsReducer);
+  const accounts = useSelector((state) => state.AccountsReducer.accounts);
+  const { locale, defaultAccounts, balances } = useSelector((state) => state.DefaultsReducer);
   const defaultInitialValue = locale !== 'pt-BR' ? 'Initial: $ 0.00' : 'Initial: R$ 0,00';
 
   const [opened, setOpened] = useState(false);
@@ -28,7 +28,7 @@ export default function GroupAccount(props) {
   const [newName, setNewName] = useState('');
   const [addForm, setAddForm] = useState({
     name: '',
-    allowValue: false
+    allowValue: false,
   });
   const [boolWarning, setBoolWarning] = useState(false);
   const [initialValue, setInitialValue] = useState(defaultInitialValue);
@@ -40,7 +40,7 @@ export default function GroupAccount(props) {
   async function addChild() {
     const id = accounts.reduce((ac, atual) => (atual.id > ac.id ? atual : ac)).id + 1;
     const newAccount = await AccountsService.store(
-      { ...addForm, parents: [...account.parents, account.id], id }
+      { ...addForm, parents: [...account.parents, account.id], id },
     );
     if (newAccount[0].parents.includes(3)) {
       const value = helper.toNumber(initialValue);
@@ -49,7 +49,8 @@ export default function GroupAccount(props) {
         whereAccountId: newAccount[0].id,
         whereAccountBalance: value,
         description: 'Initial Balance',
-        value
+        value,
+        emitDate: new Date('2020-01-01T12:00:00.000Z'),
       });
     }
 
@@ -63,10 +64,10 @@ export default function GroupAccount(props) {
     if (deletedIds.ok) {
       setBoolWarning(false);
       deletedIds.ok.forEach(async (id) => {
-        const acc = accounts.find(item => item.id === id);
+        const acc = accounts.find((item) => item.id === id);
         if (acc.parents.includes(defaultAccounts.currentAccounts) && acc.allowValue) {
           // is a final current account
-          const newBalances = balances.filter(item => item.accountId !== account.id);
+          const newBalances = balances.filter((item) => item.accountId !== account.id);
           dispatch(updateDefault('balances', newBalances));
         }
         const newDeAccs = JSON.parse(JSON.stringify(defaultAccounts));
@@ -119,7 +120,7 @@ export default function GroupAccount(props) {
           <div id={account.id} className={`inAction ${account.parents.length === 0 ? 'rootAccount' : 'groupAccount'}`}>
             <label htmlFor={`editing-${account.id}`} className="addingLabel">
               {AccMsgs[locale].editing}
-              <input type="text" id={`editing-${account.id}`} value={newName} onChange={e => setNewName(e.target.value)} />
+              <input type="text" id={`editing-${account.id}`} value={newName} onChange={(e) => setNewName(e.target.value)} />
             </label>
             <button type="button" className="btn smallBut btn-danger" onClick={() => setEditing(!editing)}>
               {AccMsgs[locale].cancel}
@@ -138,19 +139,16 @@ export default function GroupAccount(props) {
               <button type="button" className={`btn smallBut ${adding ? 'btn-danger' : 'groupAcBtn'}`} onClick={() => setAdding(!adding)}>
                 {!adding
                   ? AccMsgs[locale].add
-                  : AccMsgs[locale].cancel
-                }
+                  : AccMsgs[locale].cancel}
               </button>
               {!adding
                 && (
                 <button type="button" className="btn smallBut groupAcBtn" onClick={() => setEditing(!editing)}>
                   {!editing
                     ? AccMsgs[locale].edit
-                    : AccMsgs[locale].cancel
-                  }
+                    : AccMsgs[locale].cancel}
                 </button>
-                )
-              }
+                )}
 
               {account.parents.length > 0 && !adding && (
                 <button
@@ -173,8 +171,7 @@ export default function GroupAccount(props) {
               }
             </div>
           </div>
-        )
-        }
+        )}
       {adding && (
         <div className="inAction">
           <div className="inputingField">
@@ -186,7 +183,7 @@ export default function GroupAccount(props) {
                 placeholder={AccMsgs[locale].name}
                 name="name"
                 value={addForm.name}
-                onChange={e => setAddForm({ ...addForm, name: e.target.value })}
+                onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
               />
             </label>
           </div>
@@ -205,7 +202,7 @@ export default function GroupAccount(props) {
                 type="text"
                 value={initialValue}
                 onChange={
-                  e => setInitialValue(helper.currencyFormatter(locale, e.target.value))
+                  (e) => setInitialValue(helper.currencyFormatter(locale, e.target.value))
                 }
               />
             )}

@@ -5,11 +5,12 @@ import { Form, Input, Button } from 'antd';
 import helper from '../../services/helper';
 
 export default function InputValue({
-  onChange, value, label, required, requiredMessage,
+  onChange, onBlur, value, label, required, requiredMessage,
 }) {
   const { locale } = useSelector((state) => state.DefaultsReducer);
   InputValue.propTypes = {
     onChange: PropTypes.func.isRequired,
+    onBlur: PropTypes.func,
     value: PropTypes.number.isRequired,
     label: PropTypes.string,
     required: PropTypes.bool,
@@ -20,6 +21,7 @@ export default function InputValue({
     label: 'Valor',
     required: true,
     requiredMessage: 'Valor é obrigatório',
+    onBlur: () => {},
   };
 
   return (
@@ -31,6 +33,7 @@ export default function InputValue({
         inputMode="numeric"
         value={helper.currencyFormatter(locale, value)}
         onChange={(e) => onChange(helper.toNumber(e.target.value))}
+        onBlur={(e) => onBlur(helper.toNumber(e.target.value))}
         suffix={(
           <Button
             onClick={() => onChange(value * -1)}

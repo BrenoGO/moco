@@ -6,19 +6,19 @@ export const ApiService = {
     return fetch(`${api}${endpoint}`,
       {
         headers: {
-          Authorization: `JWT ${localStorage.getItem('token')}`
-        }
+          Authorization: `JWT ${localStorage.getItem('token')}`,
+        },
       })
       .then((resp) => {
         if (resp.status === 401) {
-          throw new Error('Not authorized.');
+          console.log('not authorized!');
+          throw resp;
         }
         if (resp.error) {
           throw new Error(resp.error);
         }
         return resp.json();
-      })
-      .catch(error => ({ error }));
+      });
   },
   post(endpoint, data) {
     return fetch(`${api}${endpoint}`,
@@ -27,32 +27,39 @@ export const ApiService = {
         body: JSON.stringify(data),
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `JWT ${localStorage.getItem('token')}`
-        }
+          Authorization: `JWT ${localStorage.getItem('token')}`,
+        },
       })
-      .then((resp) => {
+      .then(async (resp) => {
+        const json = await resp.json();
+        if (resp.status === 500) {
+          console.log('500 Error!!');
+          console.log(resp);
+          console.log(json);
+          throw new Error('Unknown Server Error');
+        }
         if (resp.status === 401) {
-          throw new Error('Not authorized.');
+          console.log('not authorized!');
+          throw resp;
         }
-        return resp.json();
-      })
-      .catch(error => ({ error }));
+        return json;
+      });
   },
   delete(endpoint, id) {
     return fetch(`${api}${endpoint}/${id}`,
       {
         method: 'DELETE',
         headers: {
-          Authorization: `JWT ${localStorage.getItem('token')}`
-        }
+          Authorization: `JWT ${localStorage.getItem('token')}`,
+        },
       })
       .then((resp) => {
         if (resp.status === 401) {
-          throw new Error('Not authorized.');
+          console.log('not authorized!');
+          throw resp;
         }
         return resp.json();
-      })
-      .catch(error => ({ error }));
+      });
   },
   put(endpoint, id, data) {
     return fetch(`${api}${endpoint}/${id}`,
@@ -61,15 +68,15 @@ export const ApiService = {
         body: JSON.stringify(data),
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `JWT ${localStorage.getItem('token')}`
-        }
+          Authorization: `JWT ${localStorage.getItem('token')}`,
+        },
       })
       .then((resp) => {
         if (resp.status === 401) {
-          throw new Error('Not authorized.');
+          console.log('not authorized!');
+          throw resp;
         }
         return resp.json();
-      })
-      .catch(error => ({ error }));
+      });
   },
 };

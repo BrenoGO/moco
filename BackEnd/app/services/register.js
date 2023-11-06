@@ -2,7 +2,7 @@ const registerModel = require('../models/registerModel');
 
 module.exports = {
   updatePostRegistersOfAccount: async ({
-    userId, whereAccountId, initialAccountBalance, emitDate, postRegs: postRegsParam,
+    userId, whereAccountId, initialAccountBalance, emitDate, postRegs: postRegsParam, session,
   }) => {
     const postRegs = postRegsParam || await registerModel.find(
       {
@@ -11,7 +11,7 @@ module.exports = {
         whereAccountId,
       },
       null,
-      { sort: { emitDate: 1 } },
+      { sort: { emitDate: 1 }, session },
     );
     if (!postRegs.length) return;
 
@@ -23,9 +23,11 @@ module.exports = {
       await registerModel.findByIdAndUpdate(
         reg._id,
         { whereAccountBalance: currentBalance },
+        { session },
       );
     }));
   },
+
   getPreviousRegisterOfAccount: async ({
     userId, whereAccountId, emitDate,
   }) => registerModel.findOne(

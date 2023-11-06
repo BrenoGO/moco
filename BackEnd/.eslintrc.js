@@ -4,18 +4,17 @@ module.exports = {
     es6: true,
     node: true,
   },
-  extends: [
-    'airbnb-base',
-  ],
+  extends: ['airbnb-base'],
   globals: {
     Atomics: 'readonly',
     SharedArrayBuffer: 'readonly',
   },
   parserOptions: {
-    ecmaVersion: 2018,
+    ecmaVersion: 2020,
   },
   rules: {
-    "no-underscore-dangle": ["error", { "allow": ["_id"] }],
-    "max-len": ["error", { "code": 120 }],
+    'no-underscore-dangle': ['error', { allow: ['_id'] }],
+    'max-len': ['error', { code: 120 }],
+    'func-names': 0,
   },
 };

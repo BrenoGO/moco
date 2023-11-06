@@ -39,14 +39,8 @@ export default function Login() {
 
   async function handleLogin() {
     setLoading(true);
-    const resp = await UsersService.login({ email, password });
-
-    if (resp.error) {
-      auth.logout(() => setRedirect({ bool: false, to: `${process.env.PUBLIC_URL}/` }));
-      message.error(resp.error?.message || 'Unknown Error');
-      dispatch(setLogged(false));
-      setLoading(false);
-    } else {
+    try {
+      const resp = await UsersService.login({ email, password });
       await localStorage.setItem('token', resp.token);
       auth.login((accounts, defaults) => {
         dispatch(setLogged(true));
@@ -55,6 +49,15 @@ export default function Login() {
         setRedirect({ bool: true, to: `${process.env.PUBLIC_URL}/Operations` });
         setLoading(false);
       });
+    } catch (err) {
+      auth.logout(() => setRedirect({ bool: false, to: `${process.env.PUBLIC_URL}/` }));
+      if (err.status === 401) {
+        message.error('Credenciais inválidas');
+      } else {
+        message.error(err.error?.message || 'Unknown Error');
+      }
+      dispatch(setLogged(false));
+      setLoading(false);
     }
   }
   async function handleSignUp() {

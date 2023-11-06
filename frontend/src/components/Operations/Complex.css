@@ -5,7 +5,6 @@
   margin-bottom: 5px;
 }
 #whatAccountsRegisters{
-  border: 1px solid black;
   margin-bottom: 5px;
 }
 .whereAccountReg{
@@ -13,11 +12,10 @@
   flex-direction: row;
   justify-content: center;
   margin-bottom: 5px;
-  border: solid 1px black;
 }
 #whereAccountsRegisters{
-  border: 1px solid black;
-  margin-bottom: 5px;
+  margin-top: 15px;
+  margin-bottom: 25px;
 }
 .ifCheckedImg{
   margin-left: 8px;

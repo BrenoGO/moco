@@ -22,7 +22,7 @@ module.exports = {
   async update(req, res) {
     const { id } = req.params;
     const account = await accountsModel.findOneAndUpdate(
-      { id, userId: req.user._id }, req.body, { new: true }
+      { id, userId: req.user._id }, req.body, { new: true },
     );
     res.json(account);
   },
@@ -33,13 +33,13 @@ module.exports = {
     toDelete.push({ id: Number(id) });
 
     await accountsModel.deleteMany({
-      $and: [{ userId: req.user._id }, { $or: toDelete }]
+      $and: [{ userId: req.user._id }, { $or: toDelete }],
     });
     const regToDelete = toDelete.map(item => ({
-      $or: [{ whereAccountId: item.id }, { whatAccountId: item.id }]
+      $or: [{ whereAccountId: item.id }, { whatAccountId: item.id }],
     }));
     await registerModel.deleteMany({
-      $and: [{ userId: req.user._id }, { $or: regToDelete }]
+      $and: [{ userId: req.user._id }, { $or: regToDelete }],
     });
 
     res.json({ ok: toDelete.map(item => item.id) });
@@ -54,10 +54,10 @@ module.exports = {
       if (err) {
         return res.send({
           notOk: 'not deleted',
-          err
+          err,
         });
       }
       return res.send({ ok: 'All Clear' });
     });
-  }
+  },
 };

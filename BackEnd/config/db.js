@@ -5,7 +5,7 @@ module.exports = function (url) {
     useNewUrlParser: true,
     useFindAndModify: false,
     useCreateIndex: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
   });
   mongoose.connection.on('connected', () => { console.log('Mongoose connected'); });
   process.on('SIGINT', () => {

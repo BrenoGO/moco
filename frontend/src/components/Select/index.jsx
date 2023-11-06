@@ -18,8 +18,9 @@ const defaultStyle = {
 const defaultSelectedFieldStyle = {
   display: 'grid',
   gridTemplateColumns: '90% 10%',
-  height: '100%',
+  maxHeight: '30px',
   fontWeight: '400',
+  overflowY: 'scroll',
 };
 const defaultOptContainerStyle = {
   zIndex: 9,
@@ -30,6 +31,11 @@ const defaultOptContainerStyle = {
   border: '1px solid #FFF',
   borderRadius: '5px',
   backgroundColor: '#FFF',
+  maxHeight: '200px',
+  display: 'flex',
+  flexDirection: 'column',
+  overflowY: 'scroll',
+  minWidth: '150px',
 };
 const defaultOptStyle = {
   backgroundColor: '#FAFAFA',
@@ -37,6 +43,7 @@ const defaultOptStyle = {
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
+  marginTop: '4px',
   paddingRight: '5px',
   paddingLeft: '5px',
   color: '#000',

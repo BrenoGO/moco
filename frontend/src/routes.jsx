@@ -24,6 +24,7 @@ export default function Routes() {
         <Switch>
           <Route
             path={`${process.env.PUBLIC_URL}/`}
+            logged={logged}
             exact
             component={Root}
           />

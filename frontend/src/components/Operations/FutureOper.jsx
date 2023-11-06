@@ -1,7 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import {
+  Form, DatePicker, Select, Row, Col, Input,
+} from 'antd';
+import dayjs from 'dayjs';
+import InputValue from '../InputValue';
 
 import './operations.css';
+
+import SelectAccount from '../Select';
 
 import { OperMsgs } from '../../services/Messages';
 import helper from '../../services/helper';
@@ -10,16 +17,15 @@ import { RegistersService } from '../../services/RegistersService';
 import { OperationsService } from '../../services/OperationsService';
 
 import Spinner from '../Spinner';
-import Select from '../Select';
+import PaymentInstallments from './PaymentInstallments';
 
+const INIT_TYPE = 'expense';
 
 export default function FutureOper() {
-  const accounts = useSelector(state => state.AccountsReducer.accounts);
-  const { defaultAccounts, locale } = useSelector(state => (state.DefaultsReducer));
+  const accounts = useSelector((state) => state.AccountsReducer.accounts);
+  const { defaultAccounts, locale } = useSelector((state) => (state.DefaultsReducer));
 
-  const initialValue = locale !== 'pt-BR' ? '$ 0.00' : 'R$ 0,00';
-  const initialWhatId = defaultAccounts.whatAccounts.expense;
-  const initialWhereId = defaultAccounts.whereAccounts.ToPay;
+  const initialValue = 0;
   const today = new Date();
   const todayPlus30 = new Date();
   todayPlus30.setDate(todayPlus30.getDate() + 30);
@@ -27,22 +33,43 @@ export default function FutureOper() {
   const [bills, setBills] = useState([
     {
       date: todayPlus30,
-      value: initialValue
-    }
+      value: initialValue,
+    },
   ]);
+
   const [opValue, setOpValue] = useState(initialValue);
   const [opDesc, setOpDesc] = useState('');
   const [opNotes, setOpNotes] = useState('');
-  const [whatAccountId, setWhatAccountId] = useState(initialWhatId);
-  const [whereAccountId, setWhereAccountId] = useState(initialWhereId);
+  const [whatAccountId, setWhatAccountId] = useState(defaultAccounts.whatAccounts?.expense);
+  const [whereAccountId, setWhereAccountId] = useState(defaultAccounts.whereAccounts?.ToPay);
   const [whatAccounts, setWhatAccounts] = useState({ id: defaultAccounts.expense, name: 'expense' });
   const [whereAccounts, setWhereAccounts] = useState({ id: defaultAccounts.ToPay, name: 'ToPay' });
   const [emitDate, setEmitDate] = useState(today);
   const [loading, setLoading] = useState(false);
+  const [form] = Form.useForm();
+  const [whatAccountsToSelect, setWhatAccountsToSelect] = useState([]);
+  const [whereAccountsToSelect, setWhereAccountsToSelect] = useState([]);
 
-  const whatAccountsToSelect = helper.organizedAccounts(accounts, whatAccounts.id);
-  const whereAccountsToSelect = helper.organizedAccounts(accounts, whereAccounts.id);
+  useEffect(() => {
+    if (defaultAccounts?.whatAccounts) {
+      setWhatAccounts({ id: defaultAccounts.expense, name: 'expense' });
+      setWhereAccounts({ id: defaultAccounts.ToPay, name: 'ToPay' });
+      setWhatAccountId(defaultAccounts.whatAccounts.expense);
+      setWhereAccountId(defaultAccounts.whereAccounts.ToPay);
+    }
+  }, [defaultAccounts]);
 
+  useEffect(() => {
+    if (whatAccounts?.id) {
+      setWhatAccountsToSelect(helper.organizedAccounts(accounts, whatAccounts.id));
+    }
+  }, [whatAccounts, accounts]);
+
+  useEffect(() => {
+    if (whereAccounts?.id) {
+      setWhereAccountsToSelect(helper.organizedAccounts(accounts, whereAccounts.id));
+    }
+  }, [whereAccounts, accounts]);
 
   function setAccounts(type) {
     if (type === 'expense') {
@@ -58,43 +85,18 @@ export default function FutureOper() {
     }
   }
 
-  function editBillValue(index, value) {
-    setBills(bills.map((item, i) => {
-      if (index !== i) return item;
-      return { ...item, value: helper.currencyFormatter(locale, value) };
-    }));
-  }
-
-  function editOnBlur() {
-    const sum = bills.reduce((a, b, i) => {
-      if (i === 1) {
-        return helper.toNumber(a.value) + helper.toNumber(b.value);
-      }
-      return a + helper.toNumber(b.value);
-    });
-    setOpValue(helper.currencyFormatter(locale, sum));
-  }
-
-  function editBillDate(index, value) {
-    setBills(bills.map((item, i) => {
-      if (index !== i) return item;
-      return { ...item, date: value };
-    }));
-  }
-
-  function distributeValue(strValue, tempBills) {
+  function distributeValue(value, tempBills) {
     const installments = tempBills.length;
-    const value = helper.toNumber(strValue);
     const instVal = Number((value / installments).toFixed(2));
     return (tempBills.map((bill, index) => {
       if (index === 0) {
         if (value !== instVal * installments) {
           const dif = value - instVal * installments;
           const newValue = instVal + dif;
-          return { ...bill, value: helper.currencyFormatter(locale, newValue) };
+          return { ...bill, value: newValue };
         }
       }
-      return { ...bill, value: helper.currencyFormatter(locale, instVal) };
+      return { ...bill, value: instVal };
     }));
   }
 
@@ -102,26 +104,24 @@ export default function FutureOper() {
     setBills([
       {
         date: todayPlus30,
-        value: initialValue
-      }
+        value: initialValue,
+      },
     ]);
     setOpValue(initialValue);
     setOpDesc('');
     setOpNotes('');
-    setWhatAccountId(initialWhatId);
-    setWhereAccountId(initialWhereId);
+    setWhatAccountId(defaultAccounts.whatAccounts[INIT_TYPE]);
+    setWhereAccountId(defaultAccounts.whereAccounts?.ToPay);
     setWhatAccounts({ id: 2, name: 'expense' });
-    setEmitDate(new Date());
   }
 
   function handleValueChange(value) {
-    setOpValue(helper.currencyFormatter(locale, value));
+    setOpValue(value);
     const newBills = distributeValue(value, bills);
     setBills(newBills);
   }
 
-  function handleInstallmentsChange(e) {
-    const installments = e.target.value;
+  function handleInstallmentsChange(installments) {
     let newBills = [];
     if (installments > bills.length) { // added installment
       if (installments - bills.length === 1) {
@@ -129,6 +129,7 @@ export default function FutureOper() {
         date.setDate(date.getDate() + 30);
         newBills = [...bills, { date, value: initialValue }];
       } else {
+        // eslint-disable-next-line no-plusplus
         for (let i = 0; i < installments; i++) {
           if (i === 0) {
             newBills.push({ date: todayPlus30, value: initialValue });
@@ -158,11 +159,11 @@ export default function FutureOper() {
 
     const billsResp = await BillsService.store(bills.map((bill, index) => ({
       type,
-      value: helper.toNumber(bill.value),
+      value: bill.value,
       dueDate: bill.date,
       emitDate,
       installment: `${index + 1}/${bills.length}`,
-      whereAccount: whereAccountId
+      whereAccount: whereAccountId,
     })));
 
     const regResp = await RegistersService.store({
@@ -171,15 +172,15 @@ export default function FutureOper() {
       emitDate,
       whereAccountId,
       whatAccountId,
-      value
+      value,
     });
 
     const operObj = {
       registers: [regResp._id],
-      bills: billsResp.map(bill => bill._id),
+      bills: billsResp.map((bill) => bill._id),
       emitDate,
       description: opDesc,
-      notes: opNotes
+      notes: opNotes,
     };
     if (opDesc) operObj.description = opDesc;
     if (opNotes) operObj.notes = opNotes;
@@ -192,132 +193,127 @@ export default function FutureOper() {
   }
 
   return (
-    <>
+    <Form
+      layout="vertical"
+      form={form}
+    >
       {loading && <Spinner />}
-      <div id="divSelectExpenseOrIncome">
-        <div>
-          {OperMsgs[locale].emitDate}
-          <input
-            type="date"
-            value={helper.dateToInput(emitDate)}
-            onChange={e => setEmitDate(helper.inputDateToNewDate(e.target.value))}
-          />
-        </div>
-        <label htmlFor="selectExpenseOrIncome">
-          {OperMsgs[locale].expOrInc}
-          <select
-            id="selectExpenseOrIncome"
-            value={whatAccounts.name}
-            onChange={e => setAccounts(e.target.value)}
+      <Row gutter={16}>
+        <Col xs={24} sm={24} md={12} lg={12}>
+          <Form.Item
+            label={OperMsgs[locale].expOrInc}
+            name="expenseOrIncome"
+            initialValue={whatAccounts.name}
           >
-            <option value="expense">{OperMsgs[locale].expense}</option>
-            <option value="income">{OperMsgs[locale].income}</option>
-          </select>
-        </label>
-      </div>
-      <div id="selectWhereAccount" className="selectAccount">
-        <div id="whereAccountsSelectorLabel">{OperMsgs[locale].paymentOptions}</div>
-        <Select
-          id="whereAccountsSelector"
-          value={whereAccountId}
-          onChange={setWhereAccountId}
-          options={whereAccountsToSelect.map(account => ({
-            value: account.id,
-            disabled: !account.allowValue,
-            label: account.name
-          }))}
-        />
-      </div>
-      <div id="selectWhatAccount" className="selectAccount">
-        <div id="whatAccountSelectorLabel">{OperMsgs[locale].whatAc}</div>
-        <Select
-          id="whatAccountSelector"
-          value={whatAccountId}
-          onChange={setWhatAccountId}
-          options={whatAccountsToSelect.map(account => ({
-            value: account.id,
-            disabled: !account.allowValue,
-            label: account.name
-          }))}
-        />
-      </div>
-      <div id="divValue">
-        <label htmlFor="opValue">
-          {OperMsgs[locale].value}
-          <input
-            type="text"
-            className="inValue"
-            inputMode="numeric"
-            id="opValue"
+            <Select
+              value={whatAccounts.name}
+              onChange={setAccounts}
+            >
+              <Select.Option value="expense">{OperMsgs[locale].expense}</Select.Option>
+              <Select.Option value="income">{OperMsgs[locale].income}</Select.Option>
+            </Select>
+          </Form.Item>
+        </Col>
+        <Col xs={24} sm={24} md={12} lg={12}>
+          <Form.Item
+            label={OperMsgs[locale].emitDate}
+            name="emitDate"
+            initialValue={dayjs()}
+            rules={[{ required: true, message: 'Data de emissão é obrigatório!' }]}
+          >
+            <DatePicker
+              onChange={setEmitDate}
+              value={emitDate}
+              format="DD/MM/YYYY HH:mm:ss"
+              showTime
+              showNow
+              changeOnBlur
+            />
+          </Form.Item>
+        </Col>
+        <Col xs={24} sm={24} md={12} lg={12}>
+          <Form.Item
+            label={OperMsgs[locale].paymentOptions}
+          >
+            <SelectAccount
+              id="whereAccountsSelector"
+              value={whereAccountId}
+              onChange={setWhereAccountId}
+              options={whereAccountsToSelect.map((account) => ({
+                value: account.id,
+                disabled: !account.allowValue,
+                label: account.name,
+              }))}
+            />
+          </Form.Item>
+        </Col>
+        <Col xs={24} sm={24} md={12} lg={12}>
+          <Form.Item
+            label={OperMsgs[locale].whatAc}
+          >
+            <SelectAccount
+              id="whatAccountSelector"
+              value={whatAccountId}
+              onChange={setWhatAccountId}
+              options={whatAccountsToSelect.map((account) => ({
+                value: account.id,
+                disabled: !account.allowValue,
+                label: account.name,
+              }))}
+            />
+          </Form.Item>
+        </Col>
+
+        <Col xs={24} sm={24} md={12} lg={12}>
+          <InputValue
+            label={OperMsgs[locale].value}
             value={opValue}
-            onChange={e => handleValueChange(e.target.value)}
+            onChange={handleValueChange}
           />
-          <button
-            type="button"
-            onClick={() => handleValueChange(
-              opValue.substring(0, 1) === '-'
-                ? opValue.substring(1)
-                : `-${opValue}`,
-            )}
+        </Col>
+
+        <Col xs={24} sm={24} md={12} lg={12}>
+          <Form.Item
+            label={OperMsgs[locale].desc}
           >
-            {opValue.substring(0, 1) === '-' ? '+' : '-'}
-          </button>
-        </label>
-      </div>
-      <div id="divDescription">
-        <label htmlFor="opDesc">
-          {OperMsgs[locale].desc}
-          <input type="text" id="opDesc" value={opDesc} onChange={e => setOpDesc(e.target.value)} />
-        </label>
-      </div>
-      <div id="divNotes">
-        <label htmlFor="opNotes">
-          {OperMsgs[locale].notes}
-          <input type="text" id="opNotes" value={opNotes} onChange={e => setOpNotes(e.target.value)} />
-        </label>
-      </div>
-      <div id="bills">
-        <div id="divPaymentInstallments">
-          <label htmlFor="paymentInstallments">
-            {OperMsgs[locale].installments}
-            <select id="paymentInstallments" value={bills.length} onChange={e => handleInstallmentsChange(e)}>
-              {
-                [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-                  .map(i => (<option key={i} value={i}>{i}</option>))
-              }
-            </select>
-          </label>
-          {bills.map((bill, index) => (
-            <div key={index} className="installment">
-              <div className="installmentDate">
-                {OperMsgs[locale].date}
-                <input
-                  type="date"
-                  value={helper.dateToInput(bill.date)}
-                  onChange={e => editBillDate(index, helper.inputDateToNewDate(e.target.value))}
-                />
-              </div>
-              <div className="installmentValue">
-                {OperMsgs[locale].value}
-                <input
-                  type="text"
-                  className="inValue"
-                  inputMode="numeric"
-                  value={bill.value}
-                  onChange={e => editBillValue(index, e.target.value)}
-                  onBlur={e => editOnBlur(index, e.target.value)}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-        {}
-      </div>
+            <Input
+              value={opDesc}
+              onChange={(e) => setOpDesc(e.target.value)}
+            />
+          </Form.Item>
+        </Col>
+        <Col xs={24} sm={24} md={12} lg={12}>
+          <Form.Item
+            label={OperMsgs[locale].notes}
+          >
+            <Input
+              value={opNotes}
+              onChange={(e) => setOpNotes(e.target.value)}
+            />
+          </Form.Item>
+        </Col>
+        <Col xs={24} sm={24} md={12} lg={12}>
+          <Form.Item
+            label={OperMsgs[locale].installments}
+            initialValue={bills.length}
+          >
+            <Select
+              value={bills.length}
+              onChange={handleInstallmentsChange}
+              options={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((n) => ({
+                value: n,
+                label: n,
+              }))}
+            />
+          </Form.Item>
+        </Col>
+      </Row>
+      <PaymentInstallments bills={bills} setBills={setBills} setOpValue={setOpValue} />
       <div id="divButRegister">
         <button type="button" className="btn btn-primary" onClick={submit}>
           {OperMsgs[locale].regBut}
         </button>
       </div>
-    </>
+    </Form>
   );
 }

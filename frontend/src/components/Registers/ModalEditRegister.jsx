@@ -4,7 +4,7 @@ import {
   Form, Modal, Input, DatePicker, Spin, message,
 } from 'antd';
 import PropTypes from 'prop-types';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import Select from '../Select';
 import InputValue from '../InputValue';
 import { OperMsgs } from '../../services/Messages';
@@ -110,7 +110,7 @@ export default function ModalEditRegister({
                 onChange={changeEmitDate}
                 value={register?.emitDate}
                 format="DD/MM/YYYY HH:mm:ss"
-                showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }}
+                showTime={{ defaultValue: dayjs('00:00:00', 'HH:mm:ss') }}
               />
             </Form.Item>
             <div id="selectWhereAccount" className="selectAccount">

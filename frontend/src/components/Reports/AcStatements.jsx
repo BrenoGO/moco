@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { useSelector } from 'react-redux';
 
 import Select from '../Select';
@@ -69,7 +69,7 @@ export default function AcStatements() {
 
   function handleEditClick(reg) {
     setEditModalVisible(true);
-    setRegisterEditing({ ...reg, emitDate: moment(reg.emitDate) });
+    setRegisterEditing({ ...reg, emitDate: dayjs(reg.emitDate) });
   }
 
   return (

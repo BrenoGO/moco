@@ -5,9 +5,9 @@
   "homepage": "https://brenogo.com/moco/",
   "dependencies": {
     "@ant-design/icons": "^4.7.0",
-    "antd": "^4.16.9",
+    "antd": "^5.10.1",
+    "dayjs": "^1.11.10",
     "env-cmd": "^10.1.0",
-    "moment": "^2.29.1",
     "prop-types": "^15.7.2",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",

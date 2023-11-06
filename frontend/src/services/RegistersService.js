@@ -1,3 +1,4 @@
+/* eslint-disable import/prefer-default-export */
 import { ApiService } from './ApiService';
 import { AccountsService } from './AccountsService';
 import { RepMsgs } from './Messages';
@@ -28,4 +29,5 @@ export const RegistersService = {
     return desc;
   },
   update: (register) => ApiService.put(endpoint, register._id, register),
+  storeInternationalOperation: (payload) => ApiService.post('registers/international', payload),
 };
