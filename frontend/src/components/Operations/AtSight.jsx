@@ -65,37 +65,47 @@ export default function AtSight() {
     form.setFieldsValue({ expenseOrIncome: INIT_TYPE });
   }
 
-  function submit() {
+  async function submit() {
     setLoading(true);
-    let value = opValue;
+    try {
+      let value = opValue;
 
-    if (value === 0) {
-      message.error('Valor é 0!');
-      return setLoading(false);
+      if (value === 0) {
+        message.error('Valor é 0!');
+        setLoading(false);
+        return;
+      }
+      if (whatAccounts.name === 'expense') value = -value;
+
+      const lastWhereBalance = balances.filter(
+        (item) => item.accountId === whereAccountId,
+      )[0].balance;
+
+      const whereAccountBalance = Number((lastWhereBalance + value).toFixed(2));
+
+      dispatch(resetBalance({ accountId: whereAccountId, balance: whereAccountBalance }));
+      const Obj = {
+        opType: `${whatAccounts.name}AtSight`,
+        whereAccountId,
+        whatAccountId,
+        whereAccountBalance,
+        value,
+        emitDate,
+      };
+
+      if (opDesc) Obj.description = opDesc;
+      if (opNotes) Obj.notes = opNotes;
+
+      const result = await RegistersService.store(Obj);
+      reSetState();
+      console.log('result:', result);
+    } catch (err) {
+      console.log('error trying to submit');
+      console.log(err);
+      message.error(`Error! ${err.message || 'Unknown Error!'}`);
+    } finally {
+      setLoading(false);
     }
-    if (whatAccounts.name === 'expense') value = -value;
-
-    const lastWhereBalance = balances.filter(
-      (item) => item.accountId === whereAccountId,
-    )[0].balance;
-
-    const whereAccountBalance = Number((lastWhereBalance + value).toFixed(2));
-
-    dispatch(resetBalance({ accountId: whereAccountId, balance: whereAccountBalance }));
-    const Obj = {
-      opType: `${whatAccounts.name}AtSight`,
-      whereAccountId,
-      whatAccountId,
-      whereAccountBalance,
-      value,
-      emitDate,
-    };
-    reSetState();
-
-    if (opDesc) Obj.description = opDesc;
-    if (opNotes) Obj.notes = opNotes;
-    setLoading(false);
-    return RegistersService.store(Obj);
   }
 
   return (

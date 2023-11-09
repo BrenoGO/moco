@@ -9,7 +9,6 @@ import './operations.css';
 
 import { OperMsgs } from '../../services/Messages';
 import helper from '../../services/helper';
-import { RegistersService } from '../../services/RegistersService';
 
 import { resetBalance } from '../../actions/DefaultsActions';
 
@@ -17,6 +16,7 @@ import SelectAccount from '../Select';
 import Spinner from '../Spinner';
 import InputValue from '../InputValue';
 import MultipleWhatAcc from './MultipleWhatAccs';
+import { OperationsService } from '../../services/OperationsService';
 
 const INIT_TYPE = 'expense';
 
@@ -96,7 +96,6 @@ export default function InternationalOper() {
     form.setFieldsValue({ expenseOrIncome: INIT_TYPE });
   }
 
-  // eslint-disable-next-line consistent-return
   async function submit() {
     setLoading(true);
 
@@ -143,7 +142,7 @@ export default function InternationalOper() {
 
       if (opDesc) Obj.description = opDesc;
       if (opNotes) Obj.notes = opNotes;
-      const result = await RegistersService.storeInternationalOperation(Obj);
+      const result = await OperationsService.storeInternationalOperation(Obj);
 
       reSetState();
 

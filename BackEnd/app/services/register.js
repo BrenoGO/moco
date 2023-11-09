@@ -4,6 +4,7 @@ module.exports = {
   updatePostRegistersOfAccount: async ({
     userId, whereAccountId, initialAccountBalance, emitDate, postRegs: postRegsParam, session,
   }) => {
+    console.log('in update,,');
     const postRegs = postRegsParam || await registerModel.find(
       {
         userId,
@@ -13,6 +14,8 @@ module.exports = {
       null,
       { sort: { emitDate: 1 }, session },
     );
+    console.log('postRegs');
+    console.log(postRegs);
     if (!postRegs.length) return;
 
     let currentBalance = initialAccountBalance;

@@ -1,6 +1,7 @@
 const settingModel = require('../models/settingModel');
 const registerModel = require('../models/registerModel');
 const accountModel = require('../models/accountModel');
+const initialSettings = require('../constants/initialSettings');
 
 module.exports = {
   getDefaults: async (req, res) => {
@@ -13,9 +14,9 @@ module.exports = {
       {
         userId: req.user._id,
         parents: response.defaultAccounts.currentAccounts,
-        allowValue: true
+        allowValue: true,
       },
-      { id: true, name: true, _id: false }
+      { id: true, name: true, _id: false },
     );
 
     const currentAccountsBalance = currentAccounts.map(async (ac) => {
@@ -43,13 +44,13 @@ module.exports = {
     const newSetting = JSON.parse(JSON.stringify(setting));
     newSetting.data[name] = req.body.data;
     const newSetting2 = await settingModel.findByIdAndUpdate(
-      setting._id, { data: newSetting.data }, { new: true }
+      setting._id, { data: newSetting.data }, { new: true },
     );
     res.json(newSetting2);
   },
   initialSettings: async (req, res) => {
     const settings = await settingModel.create({
-      data: require('../constants/initialSettings'), userId: req.user._id
+      data: initialSettings, userId: req.user._id,
     });
     return res.json(settings);
   },
@@ -58,10 +59,10 @@ module.exports = {
       if (err) {
         return res.send({
           notOk: 'not deleted',
-          err
+          err,
         });
       }
       return res.send({ ok: 'All Clear' });
     });
-  }
+  },
 };

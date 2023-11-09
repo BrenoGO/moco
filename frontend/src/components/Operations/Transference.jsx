@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
+import { message } from 'antd';
 import { OperMsgs } from '../../services/Messages';
 import helper from '../../services/helper';
-import { RegistersService } from '../../services/RegistersService';
 import { OperationsService } from '../../services/OperationsService';
 
 import { resetBalance } from '../../actions/DefaultsActions';
@@ -12,19 +12,20 @@ import Select from '../Select';
 import Spinner from '../Spinner';
 
 export default function Transference() {
-  const { defaultAccounts, balances, locale } = useSelector(state => state.DefaultsReducer);
-  const { accounts } = useSelector(state => state.AccountsReducer);
+  const { defaultAccounts, balances, locale } = useSelector((state) => state.DefaultsReducer);
+  const { accounts } = useSelector((state) => state.AccountsReducer);
   const initialValue = locale !== 'pt-BR' ? '$ 0.00' : 'R$ 0,00';
 
   const whereAccountsToSelect = helper.organizedAccounts(
     accounts,
-    defaultAccounts.currentAccounts
+    defaultAccounts.currentAccounts,
   );
 
   const [transferenceDate, setTransferenceDate] = useState(new Date());
   const [whereAccountIdTo, setWhereAccountIdTo] = useState(defaultAccounts.transferences.to);
   const [whereAccountIdFrom, setWhereAccountIdFrom] = useState(defaultAccounts.transferences.from);
   const [strValue, setStrValue] = useState(initialValue);
+  const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
 
   const dispatch = useDispatch();
@@ -38,36 +39,33 @@ export default function Transference() {
 
   async function transfer() {
     setLoading(true);
-    const value = helper.toNumber(strValue);
+    try {
+      const value = helper.toNumber(strValue);
 
-    const fromAccountBalance = balances.filter(ac => ac.accountId === whereAccountIdFrom);
-    const newFromBalance = fromAccountBalance[0].balance - value;
-    const RegFrom = await RegistersService.store({
-      opType: 'transference',
-      emitDate: transferenceDate,
-      whereAccountId: whereAccountIdFrom,
-      whereAccountBalance: newFromBalance,
-      value: -value,
-    });
-    dispatch(resetBalance({ accountId: whereAccountIdFrom, balance: newFromBalance }));
+      await OperationsService.storeTransferOperation({
+        fromWhereAccountId: whereAccountIdFrom,
+        toWhereAccountId: whereAccountIdTo,
+        value,
+        description,
+        emitDate: transferenceDate,
+      });
 
-    const toAccountBalance = balances.filter(ac => ac.accountId === whereAccountIdTo);
-    const newToBalance = toAccountBalance[0].balance + value;
-    const RegTo = await RegistersService.store({
-      opType: 'transference',
-      emitDate: transferenceDate,
-      whereAccountId: whereAccountIdTo,
-      whereAccountBalance: newToBalance,
-      value,
-    });
-    dispatch(resetBalance({ accountId: whereAccountIdTo, balance: newToBalance }));
+      const fromAccountBalance = balances.filter((ac) => ac.accountId === whereAccountIdFrom);
+      const newFromBalance = fromAccountBalance[0].balance - value;
 
-    await OperationsService.store({
-      registers: [RegFrom, RegTo],
-      emitDate: transferenceDate
-    });
-    setLoading(false);
-    return reSetState();
+      const toAccountBalance = balances.filter((ac) => ac.accountId === whereAccountIdTo);
+      const newToBalance = toAccountBalance[0].balance + value;
+
+      dispatch(resetBalance({ accountId: whereAccountIdFrom, balance: newFromBalance }));
+      dispatch(resetBalance({ accountId: whereAccountIdTo, balance: newToBalance }));
+      reSetState();
+    } catch (err) {
+      console.log('error trying to execute transfer');
+      console.log(err);
+      message.error(`Error! ${err.message || 'Unknown Error!'}`);
+    } finally {
+      setLoading(false);
+    }
   }
   return (
     <div id="transferenceDiv">
@@ -77,7 +75,7 @@ export default function Transference() {
         <input
           type="date"
           value={helper.dateToInput(transferenceDate)}
-          onChange={e => setTransferenceDate(helper.inputDateToNewDate(e.target.value))}
+          onChange={(e) => setTransferenceDate(helper.inputDateToNewDate(e.target.value))}
         />
       </div>
       <div id="selectFromAccount" className="selectAccount">
@@ -85,10 +83,10 @@ export default function Transference() {
         <Select
           value={whereAccountIdFrom}
           onChange={setWhereAccountIdFrom}
-          options={whereAccountsToSelect.map(account => ({
+          options={whereAccountsToSelect.map((account) => ({
             value: account.id,
             disabled: !account.allowValue,
-            label: account.name
+            label: account.name,
           }))}
         />
       </div>
@@ -97,10 +95,10 @@ export default function Transference() {
         <Select
           value={whereAccountIdTo}
           onChange={setWhereAccountIdTo}
-          options={whereAccountsToSelect.map(account => ({
+          options={whereAccountsToSelect.map((account) => ({
             value: account.id,
             disabled: !account.allowValue,
-            label: account.name
+            label: account.name,
           }))}
         />
       </div>
@@ -111,18 +109,29 @@ export default function Transference() {
           className="inValue"
           inputMode="numeric"
           value={strValue}
-          onChange={e => setStrValue(helper.currencyFormatter(locale, e.target.value))}
+          onChange={(e) => setStrValue(helper.currencyFormatter(locale, e.target.value))}
         />
         <button
           type="button"
           onClick={() => setStrValue(
             strValue.substring(0, 1) === '-'
               ? helper.currencyFormatter(locale, strValue.substring(1))
-              : helper.currencyFormatter(locale, `-${strValue}`)
+              : helper.currencyFormatter(locale, `-${strValue}`),
           )}
         >
           {strValue.substring(0, 1) === '-' ? '+' : '-'}
         </button>
+      </div>
+      <div className="mt-10">
+        <label htmlFor="description">
+          {OperMsgs[locale].desc}
+          <input
+            id="description"
+            type="text"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+        </label>
       </div>
       <div>
         <button type="button" className="btn btn-primary" onClick={transfer}>

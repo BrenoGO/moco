@@ -1,7 +1,5 @@
 const { startSession } = require('mongoose');
-const dayjs = require('dayjs');
 const registerModel = require('../models/registerModel');
-const operationModel = require('../models/operationModel');
 const registerService = require('../services/register');
 
 module.exports = {
@@ -20,33 +18,37 @@ module.exports = {
     };
 
     try {
+      const session = await startSession();
+      session.startTransaction();
+
+      // whereAccountBalance is to decide is it is a current account or future account
       if (newRegisterData.whereAccountBalance) {
-        const postRegs = await registerModel.find(
-          {
-            userId: newRegisterData.userId,
-            emitDate: { $gt: newRegisterData.emitDate },
-            whereAccountId: newRegisterData.whereAccountId,
-          },
-          null,
-          { sort: { emitDate: 1 } },
-        );
-        if (postRegs && postRegs.length) {
-          newRegisterData.whereAccountBalance = Number(
-            (postRegs[0].whereAccountBalance - postRegs[0].value + newRegisterData.value).toFixed(2),
-          );
-          await registerService.updatePostRegistersOfAccount({
-            userId: newRegisterData.userId,
-            whereAccountId: newRegisterData.whereAccountId,
-            initialAccountBalance: newRegisterData.whereAccountBalance,
-            emitDate: newRegisterData.emitDate,
-            postRegs,
-          });
-        }
+        const registerBeforeNewReg = await registerService.getPreviousRegisterOfAccount({
+          userId: newRegisterData.userId,
+          whereAccountId: newRegisterData.whereAccountId,
+          emitDate: newRegisterData.emitDate,
+        });
+        newRegisterData.whereAccountBalance = (registerBeforeNewReg?.whereAccountBalance || 0) + newRegisterData.value;
+
+        const register = await registerModel.create([newRegisterData], { session });
+
+        await registerService.updatePostRegistersOfAccount({
+          userId: newRegisterData.userId,
+          whereAccountId: newRegisterData.whereAccountId,
+          initialAccountBalance: newRegisterData.whereAccountBalance,
+          emitDate: newRegisterData.emitDate,
+          session,
+        });
+
+        await session.commitTransaction();
+        return res.json(register);
       }
-      const register = await registerModel.create(newRegisterData);
+
+      const register = await registerModel.create([newRegisterData], { session });
+      await session.commitTransaction();
       return res.json(register);
     } catch (error) {
-      return res.json(error);
+      return res.status(500).json(error);
     }
   },
   search: async (req, res) => {
@@ -163,114 +165,5 @@ module.exports = {
       }
       return res.send({ ok: 'All Clear' });
     });
-  },
-  international: async (req, res) => {
-    const userId = req.user._id;
-    const {
-      emitDate,
-      internAccountId,
-      dollarValue,
-      whatAccountIdForInter,
-      localAccountId,
-      totalValue,
-      incomeAccountIdForLocal,
-      whatAccounts,
-    } = req.body;
-
-    try {
-      const session = await startSession();
-      session.startTransaction();
-
-      // create international register
-      const registerBeforeNewInterReg = await registerService.getPreviousRegisterOfAccount({
-        userId,
-        whereAccountId: internAccountId,
-        emitDate,
-      });
-
-      const internationalRegisterPayload = {
-        userId,
-        emitDate,
-        opType: 'expenseAtSight',
-        whereAccountId: internAccountId,
-        whereAccountBalance: registerBeforeNewInterReg.whereAccountBalance + dollarValue,
-        whatAccountId: whatAccountIdForInter,
-        value: dollarValue,
-      };
-      const internReg = await registerModel.create([internationalRegisterPayload], { session });
-
-      await registerService.updatePostRegistersOfAccount({
-        userId,
-        whereAccountId: internAccountId,
-        initialAccountBalance: internationalRegisterPayload.whereAccountBalance,
-        emitDate,
-        session,
-      });
-
-      const registerBeforeNewLocalReg = await registerService.getPreviousRegisterOfAccount({
-        userId,
-        whereAccountId: localAccountId,
-        emitDate,
-      });
-
-      let localAccountBalance = (registerBeforeNewLocalReg?.whereAccountBalance || 0)
-        + -totalValue; // totalValue is negative, to income register it will be positive
-
-      const incomeLocalRegPayload = {
-        userId,
-        emitDate,
-        opType: 'incomeAtSight',
-        whereAccountId: localAccountId,
-        whereAccountBalance: localAccountBalance,
-        whatAccountId: incomeAccountIdForLocal,
-        value: -totalValue,
-      };
-      const incomeLocalReg = await registerModel.create([incomeLocalRegPayload], { session });
-
-      const restRegsIds = [internReg[0].id, incomeLocalReg[0].id];
-
-      let newEmitDate = emitDate;
-      // eslint-disable-next-line no-undef, no-restricted-syntax
-      for (const whatAccount of whatAccounts) {
-        localAccountBalance -= whatAccount.value;
-        newEmitDate = dayjs(newEmitDate).add(1, 'ms').toDate();
-        // eslint-disable-next-line no-await-in-loop
-        const newReg = await registerModel.create([{
-          userId,
-          emitDate: newEmitDate,
-          opType: 'expenseAtSight',
-          whereAccountId: localAccountId,
-          whereAccountBalance: localAccountBalance,
-          whatAccountId: whatAccount.id,
-          value: -whatAccount.value,
-          description: whatAccount.description,
-          notes: whatAccount.notes,
-        }], { session });
-
-        restRegsIds.push(newReg[0]._id);
-      }
-
-      await registerService.updatePostRegistersOfAccount({
-        userId,
-        whereAccountId: localAccountId,
-        initialAccountBalance: localAccountBalance,
-        emitDate: dayjs(newEmitDate).add(1, 'ms').toDate(),
-        session,
-      });
-
-      const operationPayload = {
-        userId,
-        registers: restRegsIds,
-        emitDate,
-      };
-
-      const operation = await operationModel.create([operationPayload], { session });
-
-      await session.commitTransaction();
-
-      return res.json({ operation });
-    } catch (error) {
-      return res.status(500).json(error);
-    }
   },
 };

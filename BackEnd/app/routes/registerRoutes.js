@@ -6,7 +6,6 @@ module.exports = function (app) {
   app.post('/registers/search', auth.authenticate, registerController.search);
   app.post('/registers/sum', auth.authenticate, registerController.sumWhatAccount);
   app.post('/registers', auth.authenticate, registerController.store);
-  app.post('/registers/international', auth.authenticate, registerController.international);
   app.put('/registers/:id', auth.authenticate, registerController.update);
   app.delete('/registers/clearAll', auth.authenticate, registerController.clearAll);
   app.delete('/registers/:id', auth.authenticate, registerController.removeById);

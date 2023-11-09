@@ -4,6 +4,8 @@ const accountModel = require('../models/accountModel');
 const userModel = require('../models/userModel');
 const billModel = require('../models/billModel');
 const operationModel = require('../models/operationModel');
+const initialSettingsList = require('../constants/initialSettings');
+const initialAccountsList = require('../constants/initialAccountsPTBR');
 
 const { encrypt } = require('../../config/cryptography');
 const { login, signUp } = require('../../config/auth');
@@ -26,9 +28,9 @@ module.exports = {
           const obj = { error: { code: result.code, message: result.errmsg } };
           return res.status(422).json(obj);
         }
-        const thisObj = { data: require('../constants/initialSettings'), userId: result.userId };
+        const thisObj = { data: initialSettingsList, userId: result.userId };
         const settings = await settingModel.create(thisObj);
-        const initialAccounts = require('../constants/initialAccounts').map(item => ({ ...item, userId: result.userId }));
+        const initialAccounts = initialAccountsList.map(item => ({ ...item, userId: result.userId }));
         const accounts = await accountModel.create(initialAccounts);
         return res.json({ token: result.token, defaults: settings.data, accounts });
       }
@@ -69,10 +71,10 @@ module.exports = {
       if (err) {
         return res.send({
           notOk: 'not deleted',
-          err
+          err,
         });
       }
       return res.send({ ok: 'All Clear' });
     });
-  }
+  },
 };

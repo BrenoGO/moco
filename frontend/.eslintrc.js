@@ -24,5 +24,7 @@ module.exports = {
     'react/no-array-index-key': 0,
     'max-len': ['error', { code: 120 }],
     'no-alert': 0,
+    'import/prefer-default-export': 0,
+    'consistent-return': 0,
   },
 };

@@ -7,7 +7,7 @@ import {
 const INICIAL_STATE = {
   defaultAccounts: {},
   balances: [],
-  locale: localStorage.getItem('locale') || 'en-US',
+  locale: localStorage.getItem('locale') || 'pt-BR',
 };
 
 export default function SettingsReducer(state = INICIAL_STATE, action) {

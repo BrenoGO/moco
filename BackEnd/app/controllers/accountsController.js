@@ -1,5 +1,6 @@
 const accountsModel = require('../models/accountModel');
 const registerModel = require('../models/registerModel');
+const initialAccounts = require('../constants/initialAccountsPTBR');
 
 module.exports = {
   async index(req, res) {
@@ -45,7 +46,7 @@ module.exports = {
     res.json({ ok: toDelete.map(item => item.id) });
   },
   async initialAccounts(req, res) {
-    const initialAccounts = require('../constants/initialAccounts').map(item => ({ ...item, userId: req.user._id }));
+    initialAccounts.map(item => ({ ...item, userId: req.user._id }));
     const accounts = await accountsModel.create(initialAccounts);
     return res.json(accounts);
   },
