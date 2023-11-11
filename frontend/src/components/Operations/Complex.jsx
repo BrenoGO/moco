@@ -523,27 +523,12 @@ export default function Complex() {
                             />
                           </div>
                           <div className="installmentValue">
-                            {OperMsgs[locale].value}
-                            <input
-                              type="text"
-                              className="inValue"
-                              inputMode="numeric"
+                            <InputValue
+                              label={OperMsgs[locale].value}
                               value={bill.value}
                               onChange={(e) => editBillValue(index, billI, e.target.value)}
                               onBlur={() => editOnBlur(index)}
                             />
-                            <button
-                              type="button"
-                              onClick={() => editBillValue(
-                                index,
-                                billI,
-                                bill.value.substring(0, 1) === '-'
-                                  ? bill.value.substring(1)
-                                  : `-${bill.value}`,
-                              )}
-                            >
-                              {bill.value.substring(0, 1) === '-' ? '+' : '-'}
-                            </button>
                           </div>
                         </div>
                       ))}
