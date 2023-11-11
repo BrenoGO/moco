@@ -18,17 +18,17 @@ import './ListOfBills.css';
 export default function ListOfBills(props) {
   const { bill, setAction } = props;
 
-  const { defaultAccounts, balances, locale } = useSelector(state => state.DefaultsReducer);
-  const accounts = useSelector(state => state.AccountsReducer.accounts);
+  const { defaultAccounts, balances, locale } = useSelector((state) => state.DefaultsReducer);
+  const accounts = useSelector((state) => state.AccountsReducer.accounts);
 
   const whereAccountsToSelect = helper.organizedAccounts(
     accounts,
-    defaultAccounts.currentAccounts
+    defaultAccounts.currentAccounts,
   );
 
   const [paymentDate, setPaymentDate] = useState(new Date());
   const [whereAccountId, setWhereAccountId] = useState(
-    defaultAccounts.whereAccounts.AtSight
+    defaultAccounts.whereAccounts.AtSight,
   );
   const [loading, setLoading] = useState(false);
 
@@ -44,7 +44,7 @@ export default function ListOfBills(props) {
       await BillsService.pay(bill._id, { paymentDate });
     }
 
-    const whereAccountBalance = balances.filter(ac => ac.accountId === whereAccountId);
+    const whereAccountBalance = balances.filter((ac) => ac.accountId === whereAccountId);
 
     const newBalance = bill.type === 'ToPay'
       ? Number((whereAccountBalance[0].balance - bill.value).toFixed(2))
@@ -61,10 +61,10 @@ export default function ListOfBills(props) {
         value: bill.type === 'ToPay' ? Number((-bill.value).toFixed(2)) : Number(bill.value.toFixed(2)),
       });
       await OperationsService.store({
-        bills: bill.bills.map(item => item._id),
+        bills: bill.bills.map((item) => item._id),
         registers: [register._id],
         emitDate: paymentDate,
-        description: 'Group Payment'
+        description: 'Group Payment',
       });
     } else {
       await RegistersService.store({
@@ -72,8 +72,8 @@ export default function ListOfBills(props) {
         emitDate: paymentDate,
         whereAccountId,
         whereAccountBalance: newBalance,
-        value: bill.type === 'ToPay' ? (-bill.value).toFixed(2) : (bill.value).toFixed(2),
-        bill: bill._id
+        value: bill.type === 'ToPay' ? -bill.value : bill.value,
+        bill: bill._id,
       });
     }
     setLoading(false);
@@ -88,7 +88,7 @@ export default function ListOfBills(props) {
         <input
           type="date"
           value={helper.dateToInput(paymentDate)}
-          onChange={e => setPaymentDate(helper.inputDateToNewDate(e.target.value))}
+          onChange={(e) => setPaymentDate(helper.inputDateToNewDate(e.target.value))}
         />
         <div id="selectWhereAccount" className="selectAccount">
           <div id="whereAccountsSelectorLabel">{OperMsgs[locale].currAc}</div>
@@ -96,10 +96,10 @@ export default function ListOfBills(props) {
             id="whereAccountsSelector"
             value={whereAccountId}
             onChange={setWhereAccountId}
-            options={whereAccountsToSelect.map(account => ({
+            options={whereAccountsToSelect.map((account) => ({
               value: account.id,
               disabled: !account.allowValue,
-              label: account.name
+              label: account.name,
             }))}
           />
         </div>
