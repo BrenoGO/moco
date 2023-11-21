@@ -70,8 +70,9 @@ module.exports = {
     const registers = await registerModel.find(
       objSearch,
       null,
-      { sort: { emitDate: -1, updatedAt: -1 } },
+      { sort: { emitDate: -1, createdAt: -1 } },
     );
+
     res.json(registers);
   },
   sumWhatAccount: async (req, res) => {
