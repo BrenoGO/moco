@@ -11,7 +11,7 @@ module.exports = {
     const bills = await billModel.find({
       userId: req.user._id,
       type,
-      paymentDate: { $exists: false }
+      paymentDate: { $exists: false },
     }, {}, { sort: { dueDate: 1, emitDate: 1 } });
     res.json(bills);
   },
@@ -28,14 +28,14 @@ module.exports = {
     const bills = await billModel.find(
       objSearch,
       null,
-      { sort: { emitDate: -1, updatedAt: -1 } }
+      { sort: { emitDate: -1, updatedAt: -1 } },
     );
 
     res.json(bills);
   },
   store: async (req, res) => {
     const bills = await billModel.create(
-      req.body.map(bill => ({ ...bill, userId: req.user._id }))
+      req.body.map(bill => ({ ...bill, userId: req.user._id })),
     );
     res.json(bills);
   },
@@ -47,7 +47,6 @@ module.exports = {
   },
   update: async (req, res) => {
     const { id } = req.params;
-    console.log(req.body);
     const bill = await billModel.findByIdAndUpdate(id, req.body, { new: true });
     return res.json(bill);
   },
@@ -61,10 +60,10 @@ module.exports = {
       if (err) {
         return res.send({
           naoOk: 'nao foi removido',
-          err
+          err,
         });
       }
       return res.send({ ok: 'All Clear' });
     });
-  }
+  },
 };

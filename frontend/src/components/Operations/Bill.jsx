@@ -29,9 +29,11 @@ export default function Bill(props) {
 
   if (detailed) {
     return (
-      bill.bills.map((item) => (
-        <Bill bill={item} key={item._id} handlePayClick={handlePayClick} where="list" />
-      ))
+      bill.bills
+        .sort((a, b) => new Date(a.emitDate) - new Date(b.emitDate))
+        .map((item) => (
+          <Bill bill={item} key={item._id} handlePayClick={handlePayClick} where="list" />
+        ))
     );
   }
 
