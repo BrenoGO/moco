@@ -31,7 +31,7 @@ const defaultOptContainerStyle = {
   border: '1px solid #FFF',
   borderRadius: '5px',
   backgroundColor: '#FFF',
-  maxHeight: '200px',
+  maxHeight: '300px',
   display: 'flex',
   flexDirection: 'column',
   overflowY: 'scroll',
