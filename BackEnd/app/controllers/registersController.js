@@ -23,20 +23,8 @@ module.exports = {
 
       // whereAccountBalance is to decide is it is a current account or future account
       if (newRegisterData.whereAccountBalance) {
-        const registerBeforeNewReg = await registerService.getPreviousRegisterOfAccount({
-          userId: newRegisterData.userId,
-          whereAccountId: newRegisterData.whereAccountId,
-          emitDate: newRegisterData.emitDate,
-        });
-        newRegisterData.whereAccountBalance = (registerBeforeNewReg?.whereAccountBalance || 0) + newRegisterData.value;
-
-        const register = await registerModel.create([newRegisterData], { session });
-
-        await registerService.updatePostRegistersOfAccount({
-          userId: newRegisterData.userId,
-          whereAccountId: newRegisterData.whereAccountId,
-          initialAccountBalance: newRegisterData.whereAccountBalance,
-          emitDate: newRegisterData.emitDate,
+        const register = await registerService.insertRegisterInWhereAccountWithValue({
+          register: newRegisterData,
           session,
         });
 
@@ -45,6 +33,7 @@ module.exports = {
       }
 
       const register = await registerModel.create([newRegisterData], { session });
+
       await session.commitTransaction();
       return res.json(register);
     } catch (error) {
@@ -93,57 +82,69 @@ module.exports = {
     try {
       const { id } = req.params;
       const { updateOnly, ...restRegisterData } = req.body;
-      const register = await registerModel.findById(id);
+      const oldRegister = await registerModel.findById(id);
 
       if (updateOnly) {
-        await register.update(restRegisterData);
-        return res.json(register);
+        await oldRegister.update(restRegisterData);
+        return res.json(oldRegister);
       }
 
-      let whereAccountBalance = register.whereAccountBalance - register.value + req.body.value;
-      if (register.emitDate !== restRegisterData.emitDate) {
-        const registerBeforeUpdatedRegister = await registerService.getPreviousRegisterOfAccount({
-          userId: restRegisterData.userId,
-          whereAccountId: restRegisterData.whereAccountId,
-          emitDate: restRegisterData.emitDate,
+      // console.log('....oldRegister.....');
+      // console.log(oldRegister);
+
+      const session = await startSession();
+      session.startTransaction();
+
+      // register udated where account, needs to update the balances for old account
+      if (oldRegister.whereAccountId !== restRegisterData.whereAccountId) {
+        await registerService.updatePostRegistersOfAccount({
+          userId: oldRegister.userId,
+          whereAccountId: oldRegister.whereAccountId,
+          initialAccountBalance: oldRegister.whereAccountBalance - oldRegister.value,
+          emitDate: oldRegister.emitDate,
+          createdAt: oldRegister.createdAt,
+          session,
         });
-        whereAccountBalance = registerBeforeUpdatedRegister
-          ? registerBeforeUpdatedRegister.whereAccountBalance + req.body.value
-          : req.body.value;
       }
+
+      const registerBeforeUpdatedRegister = await registerService.getPreviousRegisterOfAccount({
+        userId: restRegisterData.userId,
+        whereAccountId: restRegisterData.whereAccountId,
+        emitDate: restRegisterData.emitDate,
+        notId: id,
+        createdAt: oldRegister.createdAt,
+      });
+      const whereAccountBalance = registerBeforeUpdatedRegister
+        ? registerBeforeUpdatedRegister.whereAccountBalance + restRegisterData.value
+        : restRegisterData.value;
 
       const updatedRegister = {
         ...restRegisterData,
         whereAccountBalance,
       };
 
-      if (register.whereAccountId !== updatedRegister.whereAccountId) {
-        const registerBeforeUpdatedRegister = await registerService.getPreviousRegisterOfAccount({
-          userId: updatedRegister.userId,
-          whereAccountId: updatedRegister.whereAccountId,
-          emitDate: updatedRegister.emitDate,
-        });
+      // console.log('....updatedRegister.....');
+      // console.log(updatedRegister);
 
-        updatedRegister.whereAccountBalance = registerBeforeUpdatedRegister.whereAccountBalance + updatedRegister.value;
-
-        await registerService.updatePostRegistersOfAccount({
-          userId: register.userId,
-          whereAccountId: register.whereAccountId,
-          initialAccountBalance: register.whereAccountBalance - register.value,
-          emitDate: register.emitDate,
-        });
-      }
+      await oldRegister.update(updatedRegister, { session });
+      // console.log('old Register');
+      // console.log(oldRegister);
 
       await registerService.updatePostRegistersOfAccount({
         userId: updatedRegister.userId,
         whereAccountId: updatedRegister.whereAccountId,
         initialAccountBalance: updatedRegister.whereAccountBalance,
         emitDate: updatedRegister.emitDate,
+        createdAt: updatedRegister.createdAt,
+        session,
       });
 
-      await register.updateOne(updatedRegister);
-      return res.json(register);
+      await session.commitTransaction();
+
+      return res.json(oldRegister);
     } catch (err) {
+      // console.log('err');
+      // console.log(err);
       return res.status(400).json({ error: err.message });
     }
   },

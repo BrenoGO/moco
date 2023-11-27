@@ -68,6 +68,7 @@ module.exports = {
         userId,
         whereAccountId: internAccountId,
         emitDate,
+        createdAt: new Date(),
       });
 
       const internationalRegisterPayload = {
@@ -87,12 +88,15 @@ module.exports = {
         initialAccountBalance: internationalRegisterPayload.whereAccountBalance,
         emitDate,
         session,
+        notId: internReg._id,
+        createdAt: internReg.createdAt,
       });
 
       const registerBeforeNewLocalReg = await registerService.getPreviousRegisterOfAccount({
         userId,
         whereAccountId: localAccountId,
         emitDate,
+        createdAt: new Date(),
       });
 
       let localAccountBalance = (registerBeforeNewLocalReg?.whereAccountBalance || 0)
@@ -138,6 +142,7 @@ module.exports = {
         initialAccountBalance: localAccountBalance,
         emitDate: dayjs(newEmitDate).add(1, 'ms').toDate(),
         session,
+        createdAt: new Date(),
       });
 
       const operationPayload = {
@@ -173,6 +178,7 @@ module.exports = {
         userId,
         whereAccountId: fromWhereAccountId,
         emitDate,
+        createdAt: new Date(), // we will create the new register now
       });
 
       const fromRegisterPayload = {
@@ -192,12 +198,15 @@ module.exports = {
         initialAccountBalance: fromRegisterPayload.whereAccountBalance,
         emitDate,
         session,
+        notId: fromReg._id,
+        createdAt: fromReg.createdAt,
       });
 
       const registerBeforeTo = await registerService.getPreviousRegisterOfAccount({
         userId,
         whereAccountId: toWhereAccountId,
         emitDate,
+        createdAt: new Date(), // we will create the new register now
       });
 
       const toRegisterPayload = {
@@ -217,6 +226,8 @@ module.exports = {
         initialAccountBalance: toRegisterPayload.whereAccountBalance,
         emitDate,
         session,
+        createdAt: toReg.createdAt,
+        notId: toReg._id,
       });
 
       const registers = [fromReg[0].id, toReg[0].id];

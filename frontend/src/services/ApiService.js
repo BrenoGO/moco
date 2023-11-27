@@ -15,7 +15,7 @@ export const ApiService = {
           throw resp;
         }
         if (resp.error) {
-          throw new Error(resp.error);
+          throw resp;
         }
         return resp.json();
       });
@@ -74,6 +74,9 @@ export const ApiService = {
       .then((resp) => {
         if (resp.status === 401) {
           console.log('not authorized!');
+          throw resp;
+        }
+        if (resp.error) {
           throw resp;
         }
         return resp.json();

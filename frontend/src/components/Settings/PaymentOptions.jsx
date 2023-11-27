@@ -10,8 +10,8 @@ import { SettingsService } from '../../services/SettingsService';
 import { updateDefault } from '../../actions/DefaultsActions';
 
 export default function PaymentOptions() {
-  const { defaultAccounts, locale } = useSelector(state => state.DefaultsReducer);
-  const accounts = useSelector(state => state.AccountsReducer.accounts);
+  const { defaultAccounts, locale } = useSelector((state) => state.DefaultsReducer);
+  const accounts = useSelector((state) => state.AccountsReducer.accounts);
 
   const [chosenPayments, setChosenPayments] = useState({
     AtSight: defaultAccounts.whereAccounts.AtSight,
@@ -29,8 +29,8 @@ export default function PaymentOptions() {
           AtSight: chosenPayments.AtSight,
           ToPay: chosenPayments.ToPay,
           ToReceive: chosenPayments.ToReceive,
-        }
-      }
+        },
+      },
     });
     dispatch(updateDefault('defaultAccounts', setting.data.defaultAccounts));
   }
@@ -46,14 +46,15 @@ export default function PaymentOptions() {
           <Select
             id="AtSightAccountSelector"
             value={chosenPayments.AtSight}
-            onChange={id => setChosenPayments({ ...chosenPayments, AtSight: id })}
+            onChange={(id) => setChosenPayments({ ...chosenPayments, AtSight: id })}
             options={
               helpers.organizedAccounts(accounts, defaultAccounts.currentAccounts)
-                .map(account => ({
+                .map((account) => ({
                   value: account.id,
                   disabled: !account.allowValue,
-                  label: `[${account.id}] ${account.name}`
-                }))}
+                  label: `[${account.id}] ${account.name}`,
+                }))
+}
           />
         </div>
         <div id="selectToPay" className="selectAccount">
@@ -61,14 +62,15 @@ export default function PaymentOptions() {
           <Select
             id="ToPayAccountSelector"
             value={chosenPayments.ToPay}
-            onChange={id => setChosenPayments({ ...chosenPayments, ToPay: id })}
+            onChange={(id) => setChosenPayments({ ...chosenPayments, ToPay: id })}
             options={
               helpers.organizedAccounts(accounts, defaultAccounts.ToPay)
-                .map(account => ({
+                .map((account) => ({
                   value: account.id,
                   disabled: !account.allowValue,
-                  label: `[${account.id}] ${account.name}`
-                }))}
+                  label: `[${account.id}] ${account.name}`,
+                }))
+}
           />
         </div>
         <div id="selectToReceive" className="selectAccount">
@@ -76,14 +78,15 @@ export default function PaymentOptions() {
           <Select
             id="ToReceiveAccountSelector"
             value={chosenPayments.ToReceive}
-            onChange={id => setChosenPayments({ ...chosenPayments, ToReceive: id })}
+            onChange={(id) => setChosenPayments({ ...chosenPayments, ToReceive: id })}
             options={
               helpers.organizedAccounts(accounts, defaultAccounts.ToReceive)
-                .map(account => ({
+                .map((account) => ({
                   value: account.id,
                   disabled: !account.allowValue,
-                  label: `[${account.id}] ${account.name}`
-                }))}
+                  label: `[${account.id}] ${account.name}`,
+                }))
+}
           />
         </div>
         {

@@ -124,14 +124,16 @@ export default function AcStatements() {
           <tbody>
             {registers.map((reg) => {
               const desc = RegistersService.getRegDescToShow(reg);
-              const emitDate = helper.formatDateAndTime(locale, new Date(reg.emitDate));
+              const emitDate = helper.formatDate(locale, new Date(reg.emitDate));
               const { value, whereAccountBalance: balance } = reg;
               return (
                 <tr key={reg._id} className="register">
                   <td>{emitDate}</td>
                   <td>{desc}</td>
                   <td className={`text-nowrap ${value < 0 ? 'red' : ''}`}>{helper.currencyFormatter(locale, value)}</td>
-                  <td className={`text-nowrap ${balance < 0 ? 'red' : ''}`}>{helper.currencyFormatter(locale, balance || 0)}</td>
+                  <td className={`text-nowrap ${balance < 0 ? 'red' : ''}`}>
+                    {helper.currencyFormatter(locale, balance || 0)}
+                  </td>
                   <td><img onClick={() => handleEditClick(reg)} src={editBut} width="10px" alt="editBut" /></td>
                 </tr>
               );

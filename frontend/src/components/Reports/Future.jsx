@@ -13,12 +13,12 @@ export default function Future() {
   const initialType = 'ToPay';
   let total = 0;
 
-  const accounts = useSelector(state => state.AccountsReducer.accounts);
-  const { defaultAccounts, locale } = useSelector(state => state.DefaultsReducer);
+  const accounts = useSelector((state) => state.AccountsReducer.accounts);
+  const { defaultAccounts, locale } = useSelector((state) => state.DefaultsReducer);
 
   const Accs = {
     ToPay: helper.organizedAccounts(accounts, defaultAccounts.ToPay),
-    ToReceive: helper.organizedAccounts(accounts, defaultAccounts.ToReceive)
+    ToReceive: helper.organizedAccounts(accounts, defaultAccounts.ToReceive),
   };
 
   const [type, setType] = useState(initialType);
@@ -61,7 +61,7 @@ export default function Future() {
               const dueDate = helper.formatDate(locale, new Date(bill.dueDate));
               const { value } = bill;
               total += value;
-              const { name } = Accs[type].find(item => item.id === bill.whereAccount);
+              const { name } = Accs[type].find((item) => item.id === bill.whereAccount);
               return (
                 <tr key={bill._id} className="register">
                   <td>{emitDate}</td>

@@ -4,7 +4,6 @@ import {
   Form, Modal, Input, DatePicker, Spin, message,
 } from 'antd';
 import PropTypes from 'prop-types';
-import dayjs from 'dayjs';
 import Select from '../Select';
 import InputValue from '../InputValue';
 import { OperMsgs } from '../../services/Messages';
@@ -15,11 +14,14 @@ export default function ModalEditRegister({
   editModalVisible, setEditModalVisible, registerInitData, registers, setRegisters,
 }) {
   ModalEditRegister.propTypes = {
-    editModalVisible: PropTypes.func.isRequired,
+    editModalVisible: PropTypes.bool.isRequired,
     setEditModalVisible: PropTypes.func.isRequired,
-    registerInitData: PropTypes.func.isRequired,
+    registerInitData: PropTypes.shape({}),
     registers: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
     setRegisters: PropTypes.func.isRequired,
+  };
+  ModalEditRegister.defaultProps = {
+    registerInitData: {},
   };
 
   const [register, setRegister] = useState({});
@@ -52,18 +54,19 @@ export default function ModalEditRegister({
           ...registers.slice(index + 1),
         ]);
         message.success('Registro alterado com sucesso');
+        setEditModalVisible(false);
         window.location.reload();
       }
     } catch (e) {
+      console.log(e);
       message.error('Error ao atualizar registro');
     } finally {
       setLoading(false);
-      setEditModalVisible(false);
     }
   }
 
   function changeEmitDate(value) {
-    setRegister({ ...register, emitDate: value });
+    setRegister({ ...register, emitDate: value.startOf('day') });
   }
 
   function changeFormValue(prop, value) {
@@ -75,7 +78,7 @@ export default function ModalEditRegister({
 
   return (
     <Modal
-      visible={editModalVisible}
+      open={editModalVisible}
       title="Edição de registro"
       onCancel={cancelEditReg}
       onOk={handleEditReg}
@@ -109,8 +112,7 @@ export default function ModalEditRegister({
               <DatePicker
                 onChange={changeEmitDate}
                 value={register?.emitDate}
-                format="DD/MM/YYYY HH:mm:ss"
-                showTime={{ defaultValue: dayjs('00:00:00', 'HH:mm:ss') }}
+                format="DD/MM/YYYY"
               />
             </Form.Item>
             <div id="selectWhereAccount" className="selectAccount">

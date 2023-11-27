@@ -9,7 +9,7 @@ module.exports = {
     whereAccounts: {
       AtSight: 12, // 12: wallet,
       ToPay: 22,
-      ToReceive: 24
+      ToReceive: 24,
     },
     whatAccounts: {
       income: 7,
@@ -17,13 +17,13 @@ module.exports = {
     },
     transferences: {
       to: 13,
-      from: 12
-    }
+      from: 12,
+    },
   },
-  locale: 'en-US',
+  locale: 'pt-BR',
   balances: [
     { accountId: 12, balance: 0 },
     { accountId: 13, balance: 0 },
     { accountId: 20, balance: 0 },
-  ]
+  ],
 };

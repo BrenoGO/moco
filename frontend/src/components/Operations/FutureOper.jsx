@@ -218,14 +218,13 @@ export default function FutureOper() {
           <Form.Item
             label={OperMsgs[locale].emitDate}
             name="emitDate"
-            initialValue={dayjs()}
+            initialValue={dayjs().startOf('day')}
             rules={[{ required: true, message: 'Data de emissão é obrigatório!' }]}
           >
             <DatePicker
               onChange={setEmitDate}
               value={emitDate}
-              format="DD/MM/YYYY HH:mm:ss"
-              showTime
+              format="DD/MM/YYYY"
               showNow
               changeOnBlur
             />

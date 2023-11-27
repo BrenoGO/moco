@@ -34,7 +34,7 @@ export default function AtSight() {
   const [whatAccounts, setWhatAccounts] = useState({
     id: defaultAccounts.expense, name: INIT_TYPE,
   });
-  const [emitDate, setEmitDate] = useState(dayjs());
+  const [emitDate, setEmitDate] = useState(dayjs().startOf('day'));
   const [loading, setLoading] = useState(false);
 
   const currentAccounts = helper.organizedAccounts(accounts, defaultAccounts.currentAccounts);
@@ -79,7 +79,7 @@ export default function AtSight() {
 
       const lastWhereBalance = balances.filter(
         (item) => item.accountId === whereAccountId,
-      )[0].balance;
+      )[0]?.balance || 0;
 
       const whereAccountBalance = Number((lastWhereBalance + value).toFixed(2));
 
@@ -102,7 +102,7 @@ export default function AtSight() {
     } catch (err) {
       console.log('error trying to submit');
       console.log(err);
-      message.error(`Error! ${err.message || 'Unknown Error!'}`);
+      message.error(`Error! ${err.message || 'Error desconhecido! Abra o console tira um print e mande para suporte'}`);
     } finally {
       setLoading(false);
     }
@@ -134,14 +134,13 @@ export default function AtSight() {
           <Form.Item
             label={OperMsgs[locale].emitDate}
             name="emitDate"
-            initialValue={dayjs()}
+            initialValue={dayjs().startOf('day')}
             rules={[{ required: true, message: 'Data de emissão é obrigatório!' }]}
           >
             <DatePicker
               onChange={setEmitDate}
               value={emitDate}
-              format="DD/MM/YYYY HH:mm:ss"
-              showTime={{ defaultValue: dayjs('00:00:00', 'HH:mm:ss') }}
+              format="DD/MM/YYYY"
               changeOnBlur
             />
           </Form.Item>

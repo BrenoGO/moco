@@ -15,8 +15,8 @@ export default function Expenses() {
   initialDate.setDate(initialDate.getDate() - 30);
   const initialType = 'expense';
 
-  const accounts = useSelector(state => state.AccountsReducer.accounts);
-  const { defaultAccounts, locale } = useSelector(state => state.DefaultsReducer);
+  const accounts = useSelector((state) => state.AccountsReducer.accounts);
+  const { defaultAccounts, locale } = useSelector((state) => state.DefaultsReducer);
 
   const expenseAccounts = helper.organizedAccounts(accounts, defaultAccounts.expense);
   const incomeAccounts = helper.organizedAccounts(accounts, defaultAccounts.income);
@@ -47,8 +47,8 @@ export default function Expenses() {
       whatAccountId: acId,
       emitDate: {
         $gt: initDate,
-        $lt: finalDate
-      }
+        $lt: finalDate,
+      },
     }).then((regs) => {
       setLoading(false);
       if (mounted)setRegisters(regs);
@@ -78,7 +78,7 @@ export default function Expenses() {
     <div>
       {loading && <Spinner />}
       <div>
-        <select id="typeSelect" value={type} onChange={e => handleTypeChange(e.target.value)}>
+        <select id="typeSelect" value={type} onChange={(e) => handleTypeChange(e.target.value)}>
           <option value="expense">{RepMsgs[locale].expenses}</option>
           <option value="income">{RepMsgs[locale].incomes}</option>
         </select>
@@ -88,24 +88,23 @@ export default function Expenses() {
           value={acId}
           onChange={setAcId}
           options={type === 'expense'
-            ? expenseAccounts.map(account => ({
+            ? expenseAccounts.map((account) => ({
               value: account.id,
               disabled: !account.allowValue,
-              label: account.name
+              label: account.name,
             }))
-            : incomeAccounts.map(account => ({
+            : incomeAccounts.map((account) => ({
               value: account.id,
               disabled: !account.allowValue,
-              label: account.name
-            }))
-          }
+              label: account.name,
+            }))}
         />
         <div>
           {RepMsgs[locale].initial}
           <input
             type="date"
             value={helper.dateToInput(initDate)}
-            onChange={e => handleDateChange('init', e.target.value)}
+            onChange={(e) => handleDateChange('init', e.target.value)}
           />
         </div>
         <div>
@@ -113,7 +112,7 @@ export default function Expenses() {
           <input
             type="date"
             value={helper.dateToInput(finalDate)}
-            onChange={e => handleDateChange('final', e.target.value)}
+            onChange={(e) => handleDateChange('final', e.target.value)}
           />
         </div>
       </div>
@@ -129,11 +128,11 @@ export default function Expenses() {
           </thead>
           <tbody>
             {registers.map((reg, i) => {
-              const emitDate = helper.formatDateAndTime(locale, new Date(reg.emitDate));
+              const emitDate = helper.formatDate(locale, new Date(reg.emitDate));
               let { value } = reg;
               const { opType } = reg;
               if (i > 0) total -= registers[i - 1].value;
-              console.log(total, i);
+              // console.log(total, i);
               if (opType.match(/expense/)) {
                 value = -value;
               }

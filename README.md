@@ -35,3 +35,19 @@ mongo (starting with mongo and analyse if relational would be better)
 + registers
 + bills
 
+### Development
+## mongodb
+- To start replica keeping database: run-rs --keep --mongod
+- To start replica purging database: run-rs --mongod
+- the replica always restart the database, so it will be empty: create new users and accounts as needed to test
+## backend
+- yarn dev
+## frontend
+- yarn dev
+
+### Deployment
+## Backend
+Push to master and vercel integration with Github will trigger deployment
+## Frontend
+localy: yarn build
+insert build folder into brenogo.com/moco with FTP
