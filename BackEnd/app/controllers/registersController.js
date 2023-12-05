@@ -17,10 +17,15 @@ module.exports = {
       userId: req.user._id,
     };
 
+    let session;
     try {
-      const session = await startSession();
+      session = await startSession();
       session.startTransaction();
+    } catch (err) {
+      return res.status(500).json(err);
+    }
 
+    try {
       // whereAccountBalance is to decide is it is a current account or future account
       if (newRegisterData.whereAccountBalance) {
         const register = await registerService.insertRegisterInWhereAccountWithValue({
@@ -37,6 +42,7 @@ module.exports = {
       await session.commitTransaction();
       return res.json(register);
     } catch (error) {
+      await session.abortTransaction();
       return res.status(500).json(error);
     }
   },
@@ -79,6 +85,14 @@ module.exports = {
     res.json(sumReg);
   },
   update: async (req, res) => {
+    let session;
+    try {
+      session = await startSession();
+      session.startTransaction();
+    } catch (err) {
+      return res.status(500).json(err);
+    }
+
     try {
       const { id } = req.params;
       const { updateOnly, ...restRegisterData } = req.body;
@@ -92,8 +106,6 @@ module.exports = {
       // console.log('....oldRegister.....');
       // console.log(oldRegister);
 
-      const session = await startSession();
-      session.startTransaction();
 
       // register udated where account, needs to update the balances for old account
       if (oldRegister.whereAccountId !== restRegisterData.whereAccountId) {
@@ -143,6 +155,7 @@ module.exports = {
 
       return res.json(oldRegister);
     } catch (err) {
+      await session.abortTransaction();
       // console.log('err');
       // console.log(err);
       return res.status(400).json({ error: err.message });

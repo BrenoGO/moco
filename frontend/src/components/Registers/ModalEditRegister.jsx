@@ -76,6 +76,8 @@ export default function ModalEditRegister({
     });
   }
 
+  const opTypesWithNoWhatAccountId = ['payment', 'transference'];
+
   return (
     <Modal
       open={editModalVisible}
@@ -128,19 +130,23 @@ export default function ModalEditRegister({
                 }))}
               />
             </div>
-            <div id="selectWhatAccount" className="selectAccount">
-              <div id="whatAccountSelectorLabel">{OperMsgs[locale].whatAc}</div>
-              <Select
-                id="whatAccountSelector"
-                value={register?.whatAccountId}
-                onChange={(v) => changeFormValue('whatAccountId', v)}
-                options={whatAccountsToSelect.map((account) => ({
-                  value: account.id,
-                  disabled: !account.allowValue,
-                  label: account.name,
-                }))}
-              />
-            </div>
+            {
+              !opTypesWithNoWhatAccountId.includes(register?.opType) && (
+              <div id="selectWhatAccount" className="selectAccount">
+                <div id="whatAccountSelectorLabel">{OperMsgs[locale].whatAc}</div>
+                <Select
+                  id="whatAccountSelector"
+                  value={register?.whatAccountId}
+                  onChange={(v) => changeFormValue('whatAccountId', v)}
+                  options={whatAccountsToSelect.map((account) => ({
+                    value: account.id,
+                    disabled: !account.allowValue,
+                    label: account.name,
+                  }))}
+                />
+              </div>
+              )
+            }
           </Form>
         )}
 

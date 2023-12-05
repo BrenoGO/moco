@@ -59,10 +59,15 @@ module.exports = {
       whatAccounts,
     } = req.body;
 
+    let session;
     try {
-      const session = await startSession();
+      session = await startSession();
       session.startTransaction();
+    } catch (err) {
+      return res.status(500).json(err);
+    }
 
+    try {
       // create international register
       const registerBeforeNewInterReg = await registerService.getPreviousRegisterOfAccount({
         userId,
@@ -157,6 +162,7 @@ module.exports = {
 
       return res.json({ operation });
     } catch (error) {
+      await session.abortTransaction();
       return res.status(500).json(error);
     }
   },
@@ -170,10 +176,15 @@ module.exports = {
       emitDate,
     } = req.body;
 
+    let session;
     try {
-      const session = await startSession();
+      session = await startSession();
       session.startTransaction();
+    } catch (err) {
+      return res.status(500).json(err);
+    }
 
+    try {
       const registerBeforeFrom = await registerService.getPreviousRegisterOfAccount({
         userId,
         whereAccountId: fromWhereAccountId,
@@ -186,7 +197,7 @@ module.exports = {
         emitDate,
         opType: 'transference',
         whereAccountId: fromWhereAccountId,
-        whereAccountBalance: registerBeforeFrom.whereAccountBalance - value,
+        whereAccountBalance: (registerBeforeFrom?.whereAccountBalance || 0) - value,
         description,
         value: -value,
       };
@@ -214,7 +225,7 @@ module.exports = {
         emitDate,
         opType: 'transference',
         whereAccountId: toWhereAccountId,
-        whereAccountBalance: registerBeforeTo.whereAccountBalance + value,
+        whereAccountBalance: (registerBeforeTo?.whereAccountBalance || 0) + value,
         description,
         value,
       };
@@ -245,6 +256,7 @@ module.exports = {
 
       return res.json({ operation });
     } catch (error) {
+      await session.abortTransaction();
       return res.status(500).json(error);
     }
   },
