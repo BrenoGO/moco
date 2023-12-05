@@ -39,4 +39,8 @@
     /* width: 15%; */
     width: 25%;
   }
+  table {
+    position: relative;
+    left: 90px;
+  }
 }
