@@ -13,11 +13,11 @@ import editBut from '../../imgs/editBut.png';
 
 export default function AcStatements() {
   const accounts = useSelector((state) => state.AccountsReducer.accounts);
-  const { defaultAccounts, locale, balances } = useSelector((state) => state.DefaultsReducer);
+  const { defaultAccounts, locale } = useSelector((state) => state.DefaultsReducer);
   const curAccounts = helper.organizedAccounts(accounts, defaultAccounts.currentAccounts);
 
   const [acId, setAcId] = useState(defaultAccounts?.whereAccounts?.AtSight);
-  const initialDate = new Date();
+  const initialDate = dayjs(new Date()).startOf('day').toDate();
   initialDate.setDate(initialDate.getDate() - 30);
   const [initDate, setInitDate] = useState(new Date(initialDate));
   const [finalDate, setFinalDate] = useState(new Date());
@@ -39,7 +39,7 @@ export default function AcStatements() {
       whereAccountId: acId,
       emitDate: {
         $gt: initDate,
-        $lt: finalDate,
+        $lt: dayjs(finalDate).endOf('day').toDate(),
       },
     }).then((regs) => {
       setLoading(false);
@@ -59,12 +59,6 @@ export default function AcStatements() {
       default:
         break;
     }
-  }
-
-  function getBalance(accountId) {
-    if (!accountId) return 0;
-    const { balance } = balances.find((item) => item.accountId === accountId);
-    return helper.currencyFormatter(locale, balance);
   }
 
   function handleEditClick(reg) {
@@ -107,11 +101,11 @@ export default function AcStatements() {
         <h3>
           {RepMsgs[locale].balanceP}
           {' '}
-          {getBalance(acId)}
+          {helper.currencyFormatter(locale, registers[0]?.whereAccountBalance || 0)}
         </h3>
       </div>
       <div id="report" className="table-responsive">
-        <table className="table">
+        <table className="table statement-table">
           <thead>
             <tr>
               <td>{RepMsgs[locale].date}</td>

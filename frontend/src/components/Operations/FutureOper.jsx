@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import {
-  Form, DatePicker, Select, Row, Col, Input,
+  Form, DatePicker, Select, Row, Col, Input, message,
 } from 'antd';
 import dayjs from 'dayjs';
 import InputValue from '../InputValue';
@@ -12,8 +12,6 @@ import SelectAccount from '../Select';
 
 import { OperMsgs } from '../../services/Messages';
 import helper from '../../services/helper';
-import { BillsService } from '../../services/BillsService';
-import { RegistersService } from '../../services/RegistersService';
 import { OperationsService } from '../../services/OperationsService';
 
 import Spinner from '../Spinner';
@@ -148,48 +146,51 @@ export default function FutureOper() {
 
   async function submit() {
     setLoading(true);
-    let value = helper.toNumber(opValue);
-    if (value === 0) return alert('value is 0!');
 
-    let type = 'ToReceive';
-    if (whatAccounts.name === 'expense') {
-      type = 'ToPay';
-      value = -value;
+    try {
+      let value = helper.toNumber(opValue);
+      if (value === 0) return alert('value is 0!');
+
+      let type = 'ToReceive';
+      if (whatAccounts.name === 'expense') {
+        type = 'ToPay';
+        value = -value;
+      }
+      const billsModel = bills.map((bill, index) => ({
+        type,
+        value: bill.value,
+        dueDate: bill.date,
+        emitDate,
+        installment: `${index + 1}/${bills.length}`,
+        whereAccount: whereAccountId,
+      }));
+
+      const reg = {
+        opType: `${whatAccounts.name}${whereAccounts.name}`,
+        description: opDesc,
+        emitDate,
+        whereAccountId,
+        whatAccountId,
+        value,
+      };
+
+      const resp = await OperationsService.storeFutureOperation({
+        registers: [reg],
+        bills: billsModel,
+        emitDate,
+        description: opDesc,
+        notes: opNotes,
+      });
+      console.log('resp:', resp);
+
+      reSetState();
+    } catch (err) {
+      console.log('error trying to submit');
+      console.log(err);
+      message.error(`Error! ${err.message || 'Error desconhecido! Abra o console tira um print e mande para suporte'}`);
+    } finally {
+      setLoading(false);
     }
-
-    const billsResp = await BillsService.store(bills.map((bill, index) => ({
-      type,
-      value: bill.value,
-      dueDate: bill.date,
-      emitDate,
-      installment: `${index + 1}/${bills.length}`,
-      whereAccount: whereAccountId,
-    })));
-
-    const regResp = await RegistersService.store({
-      opType: `${whatAccounts.name}${whereAccounts.name}`,
-      description: opDesc,
-      emitDate,
-      whereAccountId,
-      whatAccountId,
-      value,
-    });
-
-    const operObj = {
-      registers: [regResp._id],
-      bills: billsResp.map((bill) => bill._id),
-      emitDate,
-      description: opDesc,
-      notes: opNotes,
-    };
-    if (opDesc) operObj.description = opDesc;
-    if (opNotes) operObj.notes = opNotes;
-
-    await OperationsService.store(operObj);
-
-    setLoading(false);
-
-    return reSetState();
   }
 
   return (

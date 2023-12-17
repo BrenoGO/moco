@@ -4,6 +4,7 @@ const operationModel = require('../models/operationModel');
 const billModel = require('../models/billModel');
 const registerModel = require('../models/registerModel');
 const registerService = require('../services/register');
+const OperationServices = require('../services/operation');
 
 module.exports = {
   index: async (req, res) => {
@@ -15,6 +16,25 @@ module.exports = {
     const operations = await operationModel.find();
     res.json(operations);
   },
+  search: async (req, res) => {
+    const keys = Object.keys(req.body);
+    const objSearch = { userId: req.user._id };
+    keys.forEach((key) => {
+      objSearch[key] = req.body[key];
+    });
+    const operations = await operationModel.find(
+      objSearch,
+      null,
+      { sort: { emitDate: -1, createdAt: -1 } },
+    );
+
+    res.json(operations);
+  },
+  /**
+   *
+   * @deprecated: use custom routes for each operation type. There is a bug, register is not saving operation id
+   *
+   */
   store: async (req, res) => {
     req.body.userId = req.user._id;
     const operation = await operationModel.create(req.body);
@@ -258,6 +278,84 @@ module.exports = {
     } catch (error) {
       await session.abortTransaction();
       return res.status(500).json(error);
+    }
+  },
+  future: async (req, res) => {
+    let session;
+    try {
+      session = await startSession();
+      session.startTransaction();
+    } catch (err) {
+      console.log('error starting transaction...');
+      console.log(err);
+      return res.status(500).json(err);
+    }
+
+    try {
+      await OperationServices.storeOperation({
+        userId: req.user._id,
+        emitDate: req.body.emitDate,
+        description: req.body.description,
+        notes: req.body.notes,
+        registers: req.body.registers,
+        bills: req.body.bills,
+        session,
+      });
+
+      await session.commitTransaction();
+
+      return res.json({ success: 'future operation stored' });
+    } catch (err) {
+      console.log('error trying to store future operation...');
+      console.log(err);
+      await session.abortTransaction();
+      return res.status(500).json(err);
+    }
+  },
+  removeOperation: async (req, res) => {
+    const { id } = req.params;
+
+    let session;
+    try {
+      session = await startSession();
+      session.startTransaction();
+    } catch (err) {
+      console.log('error starting transaction...');
+      console.log(err);
+      return res.status(500).json(err);
+    }
+
+    try {
+      const operationRegisters = await registerModel.find({
+        operation: id,
+      });
+
+      const operationBills = await billModel.find({
+        operation: id,
+      });
+
+      if (operationRegisters) {
+        await Promise.all(operationRegisters.map(async (reg) => {
+          await registerModel.findByIdAndDelete(reg._id, { session });
+        }));
+      }
+
+      if (operationBills) {
+        await Promise.all(operationBills.map(async (bill) => {
+          await billModel.findByIdAndDelete(bill._id, { session });
+        }));
+      }
+
+      await operationModel.findByIdAndDelete(id, { session });
+
+      await session.commitTransaction();
+
+      return res.json({ success: 'Removed operation' });
+    } catch (err) {
+      console.log('error trying to delete...');
+      console.log(err);
+      await session.abortTransaction();
+      return res.status(500).json(err);
     }
   },
 };

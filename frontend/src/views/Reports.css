@@ -39,8 +39,14 @@
     /* width: 15%; */
     width: 25%;
   }
-  table {
+  .statement-table {
     position: relative;
+    left: 40px;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .statement-table {
     left: 90px;
   }
 }

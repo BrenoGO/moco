@@ -303,13 +303,13 @@ export default function Complex() {
     }
 
     const allBills = [];
+    let billType = 'ToPay';
+    if (whatAccountToSelect.name === 'income') billType = 'ToReceive';
     whereAccounts.forEach((whereAccount) => {
       if (whereAccount.bills) {
         whereAccount.bills.forEach((bill, index) => {
-          let type = 'ToPay';
-          if (whatAccountToSelect.name === 'income') type = 'ToReceive';
           allBills.push({
-            type,
+            type: billType,
             value: bill.value,
             dueDate: bill.date,
             emitDate,

@@ -8,4 +8,5 @@ export const OperationsService = {
   delete: (id) => ApiService.delete(endpoint, id),
   storeInternationalOperation: (payload) => ApiService.post('operations/international', payload),
   storeTransferOperation: (payload) => ApiService.post('operations/transfer', payload),
+  storeFutureOperation: (payload) => ApiService.post('operations/future', payload),
 };

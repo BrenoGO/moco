@@ -11,9 +11,8 @@ import IncomesExpenses from '../components/Reports/IncomesExpenses';
 import Future from '../components/Reports/Future';
 import General from '../components/Reports/General';
 
-
 export default function Reports() {
-  const { locale } = useSelector(state => state.DefaultsReducer);
+  const { locale } = useSelector((state) => state.DefaultsReducer);
   const [chosen, setChosen] = useState('acStat');
 
   return (
