@@ -62,6 +62,35 @@ module.exports = {
       }
       return true;
     });
+
+    const registers = await registerModel.find(
+      objSearch,
+      null,
+      { sort: { emitDate: -1, createdAt: -1 } },
+    );
+
+    res.json(registers);
+  },
+  incomeOrExpenseReport: async (req, res) => {
+    const {
+      opTypePrefix, whatAccountId, emitDate, searchDesc,
+    } = req.body;
+    const objSearch = {
+      userId: req.user._id, whatAccountId, emitDate, opType: { $regex: opTypePrefix },
+    };
+
+    if (!objSearch.whatAccountId) {
+      // sempre precisa de uma whatAccountId para relatório de despesa ou receita
+      objSearch.whatAccountId = {
+        $ne: null,
+      };
+    }
+    if (searchDesc) {
+      objSearch.description = {
+        $regex: searchDesc, $options: 'i',
+      };
+    }
+
     const registers = await registerModel.find(
       objSearch,
       null,

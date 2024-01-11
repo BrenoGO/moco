@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import { Form, Input } from 'antd';
 
 import Select from '../Select';
 import Spinner from '../Spinner';
@@ -25,6 +26,7 @@ export default function Expenses() {
   const [acId, setAcId] = useState(defaultAccounts.whatAccounts[initialType]);
   const [initDate, setInitDate] = useState(initialDate);
   const [finalDate, setFinalDate] = useState(new Date());
+  const [searchDesc, setSearchDesc] = useState('');
   const [registers, setRegisters] = useState([]);
   let total = 0;
   if (registers[0]) {
@@ -43,7 +45,9 @@ export default function Expenses() {
   useEffect(() => {
     setLoading(true);
     let mounted = true;
-    RegistersService.search({
+    RegistersService.incomeOrExpenseReport({
+      searchDesc,
+      opTypePrefix: type,
       whatAccountId: acId,
       emitDate: {
         $gt: initDate,
@@ -55,6 +59,10 @@ export default function Expenses() {
     });
     return () => { mounted = false; };
   }, [acId, initDate, finalDate]);
+
+  // useEffect(() => {
+  //   console.log('searchDesc:', searchDesc)
+  // }, [searchDesc]);
 
   function handleTypeChange(newType) {
     setType(newType);
@@ -88,16 +96,16 @@ export default function Expenses() {
           value={acId}
           onChange={setAcId}
           options={type === 'expense'
-            ? expenseAccounts.map((account) => ({
+            ? [{value: undefined, disabled: false, label: 'Vazio'}].concat(expenseAccounts.map((account) => ({
               value: account.id,
               disabled: !account.allowValue,
               label: account.name,
-            }))
-            : incomeAccounts.map((account) => ({
+            })))
+            : [{value: undefined, disabled: false, label: 'Vazio'}].concat(incomeAccounts.map((account) => ({
               value: account.id,
               disabled: !account.allowValue,
               label: account.name,
-            }))}
+            })))}
         />
         <div>
           {RepMsgs[locale].initial}
@@ -115,6 +123,14 @@ export default function Expenses() {
             onChange={(e) => handleDateChange('final', e.target.value)}
           />
         </div>
+        <Form.Item
+            label="Busca na Descrição"
+          >
+            <Input
+              value={searchDesc}
+              onChange={(e) => setSearchDesc(e.target.value)}
+            />
+          </Form.Item>
       </div>
       <div id="report">
         <table className="table">
@@ -136,19 +152,27 @@ export default function Expenses() {
               if (opType.match(/expense/)) {
                 value = -value;
               }
-              let desc = reg.description;
-              if (!desc) {
-                switch (reg.opType) {
-                  case 'transference':
-                    desc = RepMsgs[locale].transference;
-                    break;
-                  case 'payment':
-                    desc = RepMsgs[locale].payment;
-                    break;
-                  default:
-                    break;
+              let desc = '';
+
+              if (!acId || !reg.description) {
+                const account = type === 'expense'
+                  ? expenseAccounts.find((acc) => acc.id === reg.whatAccountId)
+                  : incomeAccounts.find((acc) => acc.id === reg.whatAccountId);
+
+                if (!account) {
+                  console.log('account not found:', reg.whatAccountId);
+                  console.log('reg:', reg);
+                  console.log('expenseAccounts:', expenseAccounts);
+                  console.log('incomeAccounts:', incomeAccounts);
+                } else {
+                  desc = account.name;
                 }
               }
+
+              if (reg.description) {
+                desc = desc ? `${desc} - ${reg.description}` : reg.description;
+              }
+
               return (
                 <tr key={reg._id} className="register">
                   <td>{emitDate}</td>

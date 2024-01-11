@@ -8,6 +8,7 @@ const endpoint = 'registers';
 export const RegistersService = {
   store: (register) => ApiService.post(endpoint, register),
   search: (data) => ApiService.post(`${endpoint}/search`, data),
+  incomeOrExpenseReport: (data) => ApiService.post(`${endpoint}/incomeOrExpenseReport`, data),
   getRegDescToShow: (reg) => {
     const whatAc = AccountsService.getAccount(reg.whatAccountId);
     let desc = reg.description;

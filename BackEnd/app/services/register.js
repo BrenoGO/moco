@@ -109,7 +109,12 @@ const RegisterServices = {
     // console.log('previousRegs:');
     // console.log(previousRegs);
 
-    const filteredPostRegs = previousRegs.filter(reg => dayjs(reg.createdAt).isBefore(dayjs(createdAt)));
+    const filteredPostRegs = previousRegs.filter((reg) => {
+      if (dayjs(reg.emitDate).isBefore(dayjs(emitDate))) {
+        return true;
+      }
+      return dayjs(reg.createdAt).isBefore(dayjs(createdAt));
+    });
     // console.log('filteredPostRegs:');
     // console.log(filteredPostRegs);
     return filteredPostRegs[0];
