@@ -14,6 +14,10 @@ export const ApiService = {
           console.log('not authorized!');
           throw resp;
         }
+        if (resp.status === 404) {
+          console.error('Route Not Found!');
+          throw resp;
+        }
         if (resp.error) {
           throw resp;
         }

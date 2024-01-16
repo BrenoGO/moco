@@ -27,6 +27,10 @@
 .register{
   background-color: #fff;
 }
+.bigger-responsive-table {
+  position: relative;
+  left: 80px;
+}
 
 @media screen and (max-width: 1000px) {
   #internalNav{
@@ -39,14 +43,22 @@
     /* width: 15%; */
     width: 25%;
   }
-  .statement-table {
+  .big-responsive-table {
     position: relative;
     left: 40px;
+  }
+  .bigger-responsive-table {
+    position: relative;
+    left: 180px;
   }
 }
 
 @media screen and (max-width: 900px) {
-  .statement-table {
+  .big-responsive-table {
     left: 90px;
+  }
+  .bigger-responsive-table {
+    position: relative;
+    left: 220px;
   }
 }

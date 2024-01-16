@@ -7,7 +7,7 @@ import Spinner from '../Spinner';
 
 import { RepMsgs } from '../../services/Messages';
 import helper from '../../services/helper';
-import { RegistersService } from '../../services/RegistersService';
+import { ReportsService } from '../../services/ReportsService';
 
 import './IncomesExpenses.css';
 
@@ -43,26 +43,34 @@ export default function Expenses() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    setLoading(true);
     let mounted = true;
-    RegistersService.incomeOrExpenseReport({
-      searchDesc,
-      opTypePrefix: type,
-      whatAccountId: acId,
-      emitDate: {
-        $gt: initDate,
-        $lt: finalDate,
-      },
-    }).then((regs) => {
-      setLoading(false);
-      if (mounted)setRegisters(regs);
-    });
-    return () => { mounted = false; };
-  }, [acId, initDate, finalDate]);
 
-  // useEffect(() => {
-  //   console.log('searchDesc:', searchDesc)
-  // }, [searchDesc]);
+    async function getReportData() {
+      setLoading(true);
+      const regs = await ReportsService.incomeOrExpense({
+        searchDesc,
+        opTypePrefix: type,
+        whatAccountId: acId,
+        emitDate: {
+          $gt: initDate,
+          $lt: finalDate,
+        },
+      });
+
+      if (mounted) {
+        setRegisters(regs);
+        setLoading(false);
+      }
+    }
+
+    if (!searchDesc) {
+      getReportData()
+    } else {
+      helper.debounce(getReportData, 1000)();
+    }
+
+    return () => { mounted = false; };
+  }, [type, acId, initDate, finalDate, searchDesc]);
 
   function handleTypeChange(newType) {
     setType(newType);
@@ -148,7 +156,7 @@ export default function Expenses() {
               let { value } = reg;
               const { opType } = reg;
               if (i > 0) total -= registers[i - 1].value;
-              // console.log(total, i);
+
               if (opType.match(/expense/)) {
                 value = -value;
               }

@@ -10,6 +10,7 @@ import AcStatements from '../components/Reports/AcStatements';
 import IncomesExpenses from '../components/Reports/IncomesExpenses';
 import Future from '../components/Reports/Future';
 import General from '../components/Reports/General';
+import CashFlow from '../components/Reports/CashFlow';
 
 export default function Reports() {
   const { locale } = useSelector((state) => state.DefaultsReducer);
@@ -28,6 +29,9 @@ export default function Reports() {
         <div className={`options ${chosen === 'future' ? 'chosen' : ''}`} onClick={() => setChosen('future')}>
           {RepMsgs[locale].future}
         </div>
+        <div className={`options ${chosen === 'cashFlow' ? 'chosen' : ''}`} onClick={() => setChosen('cashFlow')}>
+          {RepMsgs[locale].cashFlow}
+        </div>
         <div className={`options ${chosen === 'general' ? 'chosen' : ''}`} onClick={() => setChosen('general')}>
           {RepMsgs[locale].general}
         </div>
@@ -35,6 +39,7 @@ export default function Reports() {
       {chosen === 'acStat' && <AcStatements />}
       {chosen === 'incomesExpenses' && <IncomesExpenses />}
       {chosen === 'future' && <Future />}
+      {chosen === 'cashFlow' && <CashFlow />}
       {chosen === 'general' && <General />}
     </div>
   );

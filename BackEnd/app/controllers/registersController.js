@@ -71,34 +71,6 @@ module.exports = {
 
     res.json(registers);
   },
-  incomeOrExpenseReport: async (req, res) => {
-    const {
-      opTypePrefix, whatAccountId, emitDate, searchDesc,
-    } = req.body;
-    const objSearch = {
-      userId: req.user._id, whatAccountId, emitDate, opType: { $regex: opTypePrefix },
-    };
-
-    if (!objSearch.whatAccountId) {
-      // sempre precisa de uma whatAccountId para relatório de despesa ou receita
-      objSearch.whatAccountId = {
-        $ne: null,
-      };
-    }
-    if (searchDesc) {
-      objSearch.description = {
-        $regex: searchDesc, $options: 'i',
-      };
-    }
-
-    const registers = await registerModel.find(
-      objSearch,
-      null,
-      { sort: { emitDate: -1, createdAt: -1 } },
-    );
-
-    res.json(registers);
-  },
   sumWhatAccount: async (req, res) => {
     const { accountId, inicialDate, finalDate } = req.body;
     const registers = await registerModel.find({
@@ -199,15 +171,14 @@ module.exports = {
       return res.send({ ok: 'Register deleted' });
     });
   },
-  clearAll: (req, res) => {
-    registerModel.deleteMany({}, (err) => {
-      if (err) {
-        return res.send({
-          notOk: 'not deleted',
-          err,
-        });
-      }
-      return res.send({ ok: 'All Clear' });
-    });
-  },
+  clearAll: (req, res) => res.send({ ok: 'All Clear' }),
+  // registerModel.deleteMany({}, (err) => {
+  //   if (err) {
+  //     return res.send({
+  //       notOk: 'not deleted',
+  //       err,
+  //     });
+  //   }
+  //   return res.send({ ok: 'All Clear' });
+  // });
 };

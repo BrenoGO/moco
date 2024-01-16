@@ -4,7 +4,6 @@ const { auth } = require('../../config/auth');
 module.exports = function (app) {
   app.get('/registers', auth.authenticate, registerController.index);
   app.post('/registers/search', auth.authenticate, registerController.search);
-  app.post('/registers/incomeOrExpenseReport', auth.authenticate, registerController.incomeOrExpenseReport);
   app.post('/registers/sum', auth.authenticate, registerController.sumWhatAccount);
   app.post('/registers', auth.authenticate, registerController.store);
   app.put('/registers/:id', auth.authenticate, registerController.update);

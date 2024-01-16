@@ -105,7 +105,7 @@ export default function AcStatements() {
         </h3>
       </div>
       <div id="report" className="table-responsive">
-        <table className="table statement-table">
+        <table className="table big-responsive-table">
           <thead>
             <tr>
               <td>{RepMsgs[locale].date}</td>
