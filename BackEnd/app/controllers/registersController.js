@@ -27,7 +27,7 @@ module.exports = {
 
     try {
       // whereAccountBalance is to decide is it is a current account or future account
-      if (newRegisterData.whereAccountBalance) {
+      if (newRegisterData.whereAccountBalance || newRegisterData.whereAccountBalance === 0) {
         const register = await registerService.insertRegisterInWhereAccountWithValue({
           register: newRegisterData,
           session,
