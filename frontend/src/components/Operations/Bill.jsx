@@ -32,6 +32,9 @@ export default function Bill(props) {
   }
 
   const renderBillRegisters = () => {
+    if (!bill.operation?.registers?.[0]) {
+      return null;
+    }
     if (bill.operation.registers?.length === 1) {
       return bill.operation.registers[0].description
     }
