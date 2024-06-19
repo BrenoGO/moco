@@ -12,10 +12,10 @@ module.exports = {
     const operation = await operationModel.findById(id);
     res.json(operation);
   },
-  all: async (req, res) => {
-    const operations = await operationModel.find();
-    res.json(operations);
-  },
+  // all: async (req, res) => {
+  //   const operations = await operationModel.find();
+  //   res.json(operations);
+  // },
   search: async (req, res) => {
     const keys = Object.keys(req.body);
     const objSearch = { userId: req.user._id };
@@ -356,6 +356,126 @@ module.exports = {
       console.log(err);
       await session.abortTransaction();
       return res.status(500).json(err);
+    }
+  },
+  complex: async (req, res) => { // to be implemented, copied from international
+    const userId = req.user._id;
+    const {
+      emitDate,
+      internAccountId,
+      dollarValue,
+      whatAccountIdForInter,
+      localAccountId,
+      totalValue,
+      incomeAccountIdForLocal,
+      whatAccounts,
+    } = req.body;
+
+    let session;
+    try {
+      session = await startSession();
+      session.startTransaction();
+    } catch (err) {
+      return res.status(500).json(err);
+    }
+
+    try {
+      // create international register
+      const registerBeforeNewInterReg = await registerService.getPreviousRegisterOfAccount({
+        userId,
+        whereAccountId: internAccountId,
+        emitDate,
+        createdAt: new Date(),
+      });
+
+      const internationalRegisterPayload = {
+        userId,
+        emitDate,
+        opType: 'expenseAtSight',
+        whereAccountId: internAccountId,
+        whereAccountBalance: registerBeforeNewInterReg.whereAccountBalance + dollarValue,
+        whatAccountId: whatAccountIdForInter,
+        value: dollarValue,
+      };
+      const internReg = await registerModel.create([internationalRegisterPayload], { session });
+
+      await registerService.updatePostRegistersOfAccount({
+        userId,
+        whereAccountId: internAccountId,
+        initialAccountBalance: internationalRegisterPayload.whereAccountBalance,
+        emitDate,
+        session,
+        notId: internReg._id,
+        createdAt: internReg.createdAt,
+      });
+
+      const registerBeforeNewLocalReg = await registerService.getPreviousRegisterOfAccount({
+        userId,
+        whereAccountId: localAccountId,
+        emitDate,
+        createdAt: new Date(),
+      });
+
+      let localAccountBalance = (registerBeforeNewLocalReg?.whereAccountBalance || 0)
+        + -totalValue; // totalValue is negative, to income register it will be positive
+
+      const incomeLocalRegPayload = {
+        userId,
+        emitDate,
+        opType: 'incomeAtSight',
+        whereAccountId: localAccountId,
+        whereAccountBalance: localAccountBalance,
+        whatAccountId: incomeAccountIdForLocal,
+        value: -totalValue,
+      };
+      const incomeLocalReg = await registerModel.create([incomeLocalRegPayload], { session });
+
+      const restRegsIds = [internReg[0].id, incomeLocalReg[0].id];
+
+      let newEmitDate = emitDate;
+      // eslint-disable-next-line no-undef, no-restricted-syntax
+      for (const whatAccount of whatAccounts) {
+        localAccountBalance -= whatAccount.value;
+        newEmitDate = dayjs(newEmitDate).add(1, 'ms').toDate();
+        // eslint-disable-next-line no-await-in-loop
+        const newReg = await registerModel.create([{
+          userId,
+          emitDate: newEmitDate,
+          opType: 'expenseAtSight',
+          whereAccountId: localAccountId,
+          whereAccountBalance: localAccountBalance,
+          whatAccountId: whatAccount.id,
+          value: -whatAccount.value,
+          description: whatAccount.description,
+          notes: whatAccount.notes,
+        }], { session });
+
+        restRegsIds.push(newReg[0]._id);
+      }
+
+      await registerService.updatePostRegistersOfAccount({
+        userId,
+        whereAccountId: localAccountId,
+        initialAccountBalance: localAccountBalance,
+        emitDate: dayjs(newEmitDate).add(1, 'ms').toDate(),
+        session,
+        createdAt: new Date(),
+      });
+
+      const operationPayload = {
+        userId,
+        registers: restRegsIds,
+        emitDate,
+      };
+
+      const operation = await operationModel.create([operationPayload], { session });
+
+      await session.commitTransaction();
+
+      return res.json({ operation });
+    } catch (error) {
+      await session.abortTransaction();
+      return res.status(500).json(error);
     }
   },
 };

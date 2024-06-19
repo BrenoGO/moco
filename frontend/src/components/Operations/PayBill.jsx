@@ -15,7 +15,7 @@ import { resetBalance } from '../../actions/DefaultsActions';
 
 import './ListOfBills.css';
 
-export default function ListOfBills(props) {
+export default function PayBill(props) {
   const { bill, setAction } = props;
 
   const { defaultAccounts, balances, locale } = useSelector((state) => state.DefaultsReducer);
@@ -79,6 +79,8 @@ export default function ListOfBills(props) {
     setLoading(false);
     return setAction({ name: 'listBills', params: {} });
   }
+  // console.log('bill');
+  // console.log(bill);
 
   return (
     <>
@@ -107,6 +109,8 @@ export default function ListOfBills(props) {
           {OperMsgs[locale].confirmA}
         </button>
       </div>
+      Total:{' '}
+      {helper.currencyFormatter(locale, bill.value)}
       <Bill bill={bill} where="payBill" />
       <span
         className="returnToListBut actionBut"

@@ -1,4 +1,5 @@
 const billModel = require('../models/billModel');
+const registerModel = require('../models/registerModel');
 
 module.exports = {
   index: async (req, res) => {
@@ -12,8 +13,34 @@ module.exports = {
       userId: req.user._id,
       type,
       paymentDate: { $exists: false },
-    }, {}, { sort: { dueDate: 1, emitDate: 1 } });
-    res.json(bills);
+    }, {}, { sort: { dueDate: 1, emitDate: 1 } })
+      .populate({ path: 'operation', select: ['description', 'notes', 'registers'] });
+
+    const billsWithRegisters = await Promise.all(bills.map(async (bill) => {
+      const registers = await Promise.all(
+        bill.operation.registers.map(
+          async registerId => registerModel.findById(
+            registerId,
+            'description whatAccountId whereAccountId value notes',
+          ),
+        ),
+      );
+
+      // if (!registers[0]) {
+      //   console.log('\n\n bill with invalid register:');
+      //   console.log(bill);
+      // }
+
+      return {
+        ...bill._doc,
+        operation: {
+          ...bill._doc.operation._doc,
+          registers,
+        },
+      };
+    }));
+
+    res.json(billsWithRegisters);
   },
   all: async (req, res) => {
     const bills = await billModel.find({ userId: req.user._id });

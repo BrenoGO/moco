@@ -115,6 +115,7 @@ export const OperMsgs = {
     toPayOrToReceive: 'To Pay or To Receive:',
     transFromAc: 'From:',
     transToAc: 'To:',
+    detailBills: 'Detail bills',
   },
   'pt-BR': {
     title: 'Operações',
@@ -162,6 +163,7 @@ export const OperMsgs = {
     toPayOrToReceive: 'A Pagar ou A Receber:',
     transFromAc: 'Conta de Origem:',
     transToAc: 'Conta de Destino:',
+    detailBills: 'Detalhar Contas',
   },
 };
 export const AccMsgs = {

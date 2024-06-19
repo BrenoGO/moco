@@ -16,7 +16,11 @@ export default function Bill(props) {
     ? accounts.filter((item) => item.id === bill.bills[0].whereAccount)
     : accounts.filter((item) => item.id === bill.whereAccount);
 
-  const [detailed, setDetailed] = useState(false);
+  const [detailed, setDetailed] = useState(
+    where === 'payBill'
+      ? true
+      : false
+  );
 
   if (bill.group) {
     let sumValue = 0;
@@ -25,6 +29,28 @@ export default function Bill(props) {
     });
     bill.value = sumValue;
     bill.dueDate = bill.bills[0].dueDate;
+  }
+
+  const renderBillRegisters = () => {
+    if (bill.operation.registers?.length === 1) {
+      return bill.operation.registers[0].description
+    }
+
+    return (
+      <div>
+        {bill.operation.registers.map((register) => {
+          if (!register) {
+            console.log('bill with operation with falsy register');
+            console.log(bill)
+            return null;
+          }
+          return (
+          <div>
+              {register.description}:{' '}{helper.currencyFormatter(locale, register.value)}
+          </div>
+        )})}
+      </div>
+    )
   }
 
   if (detailed) {
@@ -58,12 +84,14 @@ export default function Bill(props) {
             {' '}
             {OperMsgs[locale].installments}
             {bill.installment}
+            <br />
+            {renderBillRegisters()}
           </div>
         )
         : (
           <div>
             <span className="payBut actionBut" onClick={() => setDetailed(true)}>
-              Detail bills
+              {OperMsgs[locale].detailBills}
             </span>
           </div>
         )}
