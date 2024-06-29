@@ -286,8 +286,6 @@ module.exports = {
       session = await startSession();
       session.startTransaction();
     } catch (err) {
-      console.log('error starting transaction...');
-      console.log(err);
       return res.status(500).json(err);
     }
 
@@ -306,8 +304,6 @@ module.exports = {
 
       return res.json({ success: 'future operation stored' });
     } catch (err) {
-      console.log('error trying to store future operation...');
-      console.log(err);
       await session.abortTransaction();
       return res.status(500).json(err);
     }
@@ -320,8 +316,6 @@ module.exports = {
       session = await startSession();
       session.startTransaction();
     } catch (err) {
-      console.log('error starting transaction...');
-      console.log(err);
       return res.status(500).json(err);
     }
 
@@ -352,8 +346,6 @@ module.exports = {
 
       return res.json({ success: 'Removed operation' });
     } catch (err) {
-      console.log('error trying to delete...');
-      console.log(err);
       await session.abortTransaction();
       return res.status(500).json(err);
     }
@@ -362,13 +354,11 @@ module.exports = {
     const userId = req.user._id;
     const {
       emitDate,
-      internAccountId,
-      dollarValue,
-      whatAccountIdForInter,
-      localAccountId,
-      totalValue,
-      incomeAccountIdForLocal,
+      opType,
+      opDesc,
+      opNotes,
       whatAccounts,
+      payments,
     } = req.body;
 
     let session;
@@ -379,96 +369,86 @@ module.exports = {
       return res.status(500).json(err);
     }
 
+    let signal = 1;
+    if (opType === 'expense') {
+      signal = -1;
+    }
+
     try {
-      // create international register
-      const registerBeforeNewInterReg = await registerService.getPreviousRegisterOfAccount({
-        userId,
-        whereAccountId: internAccountId,
-        emitDate,
-        createdAt: new Date(),
+      const allBills = [];
+      let billType = 'ToPay';
+      if (opType === 'income') billType = 'ToReceive';
+
+      payments.forEach((payment) => {
+        if (payment.bills) {
+          payment.bills.forEach((bill, index) => {
+            allBills.push({
+              type: billType,
+              value: bill.value,
+              dueDate: bill.date,
+              installment: `${index + 1}/${payment.bills.length}`,
+              whereAccount: payment.id,
+            });
+          });
+        }
       });
 
-      const internationalRegisterPayload = {
-        userId,
-        emitDate,
-        opType: 'expenseAtSight',
-        whereAccountId: internAccountId,
-        whereAccountBalance: registerBeforeNewInterReg.whereAccountBalance + dollarValue,
-        whatAccountId: whatAccountIdForInter,
-        value: dollarValue,
-      };
-      const internReg = await registerModel.create([internationalRegisterPayload], { session });
-
-      await registerService.updatePostRegistersOfAccount({
-        userId,
-        whereAccountId: internAccountId,
-        initialAccountBalance: internationalRegisterPayload.whereAccountBalance,
-        emitDate,
-        session,
-        notId: internReg._id,
-        createdAt: internReg.createdAt,
-      });
-
-      const registerBeforeNewLocalReg = await registerService.getPreviousRegisterOfAccount({
-        userId,
-        whereAccountId: localAccountId,
-        emitDate,
-        createdAt: new Date(),
-      });
-
-      let localAccountBalance = (registerBeforeNewLocalReg?.whereAccountBalance || 0)
-        + -totalValue; // totalValue is negative, to income register it will be positive
-
-      const incomeLocalRegPayload = {
-        userId,
-        emitDate,
-        opType: 'incomeAtSight',
-        whereAccountId: localAccountId,
-        whereAccountBalance: localAccountBalance,
-        whatAccountId: incomeAccountIdForLocal,
-        value: -totalValue,
-      };
-      const incomeLocalReg = await registerModel.create([incomeLocalRegPayload], { session });
-
-      const restRegsIds = [internReg[0].id, incomeLocalReg[0].id];
-
-      let newEmitDate = emitDate;
-      // eslint-disable-next-line no-undef, no-restricted-syntax
-      for (const whatAccount of whatAccounts) {
-        localAccountBalance -= whatAccount.value;
-        newEmitDate = dayjs(newEmitDate).add(1, 'ms').toDate();
-        // eslint-disable-next-line no-await-in-loop
-        const newReg = await registerModel.create([{
-          userId,
-          emitDate: newEmitDate,
-          opType: 'expenseAtSight',
-          whereAccountId: localAccountId,
-          whereAccountBalance: localAccountBalance,
+      const allRegs = whatAccounts.map((whatAccount) => {
+        const value = whatAccount.value * signal;
+        const newObj = {
+          opType: 'complex',
           whatAccountId: whatAccount.id,
-          value: -whatAccount.value,
-          description: whatAccount.description,
-          notes: whatAccount.notes,
-        }], { session });
+          value,
+        };
+        if (whatAccount.description) newObj.description = whatAccount.description;
+        if (whatAccount.notes) newObj.notes = whatAccount.notes;
 
-        restRegsIds.push(newReg[0]._id);
+        if (payments.length === 1) {
+          newObj.whereAccountId = payments[0].id;
+          newObj.opType = `${opType}${payments[0].type}`;
+        } else {
+          const distinctTypes = [...new Set(payments.map(item => item.type))];
+          if (distinctTypes.length === 1) {
+            newObj.opType = `${opType}${payments[0].type}`;
+          }
+        }
+        return newObj;
+      });
+
+      if (payments.length > 1) {
+        payments.forEach((payment) => {
+          if (payment.type === 'AtSight') {
+            const newObj = {
+              opType: `${opType}AtSight`,
+              whereAccountId: payment.id,
+              value: payment.value * signal,
+              description: `Op${opDesc ? `: ${opDesc}` : ''}`,
+            };
+            allRegs.push(newObj);
+          }
+        });
       }
 
-      await registerService.updatePostRegistersOfAccount({
-        userId,
-        whereAccountId: localAccountId,
-        initialAccountBalance: localAccountBalance,
-        emitDate: dayjs(newEmitDate).add(1, 'ms').toDate(),
-        session,
-        createdAt: new Date(),
-      });
+      // console.log('emitDate');
+      // console.log(emitDate);
+      // console.log('opDesc');
+      // console.log(opDesc);
+      // console.log('opNotes');
+      // console.log(opNotes);
+      // console.log('allBills');
+      // console.log(allBills);
+      // console.log('allRegs');
+      // console.log(allRegs);
 
-      const operationPayload = {
+      const operation = await OperationServices.storeComplexOperation({
         userId,
-        registers: restRegsIds,
         emitDate,
-      };
-
-      const operation = await operationModel.create([operationPayload], { session });
+        description: opDesc,
+        notes: opNotes,
+        registers: allRegs,
+        bills: allBills,
+        session,
+      });
 
       await session.commitTransaction();
 

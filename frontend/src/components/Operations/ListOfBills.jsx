@@ -78,8 +78,8 @@ export default function ListOfBills(props) {
       <div id="listOfBills">
         {billGroups().map((bill) => (
           <Bill
-            bill={bill}
             key={bill._id}
+            bill={bill}
             handlePayClick={handlePayClick}
             where="list"
           />

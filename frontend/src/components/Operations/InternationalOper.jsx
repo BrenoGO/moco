@@ -45,9 +45,7 @@ export default function InternationalOper() {
       notes: '',
     },
   ]);
-  // const [whatAccounts, setWhatAccounts] = useState({
-  //   id: defaultAccounts.expense, name: INIT_TYPE,
-  // });
+
   const sumWhatAccounts = whatAccounts.reduce((ac, current) => ac + current.value, 0);
   const [emitDate, setEmitDate] = useState(dayjs());
   const [loading, setLoading] = useState(false);

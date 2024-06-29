@@ -1,6 +1,26 @@
 const apiUrl = process.env.REACT_APP_API_URL;
 const api = apiUrl;
 
+async function responseHandler(resp) {
+  const json = await resp.json();
+  if (resp.status === 500) {
+    console.log(resp);
+    console.log(json);
+    console.log('500 Error!!');
+    throw new Error('Unknown Server Error');
+  }
+  if (resp.status === 401) {
+    console.log('not authorized!');
+    throw json;
+  }
+  if (!SUCCESS_STATUSES.includes(resp.status)) {
+    console.log('not accepted status!!');
+    throw json;
+  }
+  return json;
+}
+
+const SUCCESS_STATUSES = [200, 201, 203, 204];
 export const ApiService = {
   get(endpoint) {
     return fetch(`${api}${endpoint}`,
@@ -9,20 +29,7 @@ export const ApiService = {
           Authorization: `JWT ${localStorage.getItem('token')}`,
         },
       })
-      .then((resp) => {
-        if (resp.status === 401) {
-          console.log('not authorized!');
-          throw resp;
-        }
-        if (resp.status === 404) {
-          console.error('Route Not Found!');
-          throw resp;
-        }
-        if (resp.error) {
-          throw resp;
-        }
-        return resp.json();
-      });
+      .then(responseHandler);
   },
   post(endpoint, data) {
     return fetch(`${api}${endpoint}`,
@@ -34,20 +41,7 @@ export const ApiService = {
           Authorization: `JWT ${localStorage.getItem('token')}`,
         },
       })
-      .then(async (resp) => {
-        const json = await resp.json();
-        if (resp.status === 500) {
-          console.log('500 Error!!');
-          console.log(resp);
-          console.log(json);
-          throw new Error('Unknown Server Error');
-        }
-        if (resp.status === 401) {
-          console.log('not authorized!');
-          throw resp;
-        }
-        return json;
-      });
+      .then(responseHandler);
   },
   delete(endpoint, id) {
     return fetch(`${api}${endpoint}/${id}`,
@@ -57,13 +51,7 @@ export const ApiService = {
           Authorization: `JWT ${localStorage.getItem('token')}`,
         },
       })
-      .then((resp) => {
-        if (resp.status === 401) {
-          console.log('not authorized!');
-          throw resp;
-        }
-        return resp.json();
-      });
+      .then(responseHandler);
   },
   put(endpoint, id, data) {
     return fetch(`${api}${endpoint}/${id}`,
@@ -75,15 +63,6 @@ export const ApiService = {
           Authorization: `JWT ${localStorage.getItem('token')}`,
         },
       })
-      .then((resp) => {
-        if (resp.status === 401) {
-          console.log('not authorized!');
-          throw resp;
-        }
-        if (resp.error) {
-          throw resp;
-        }
-        return resp.json();
-      });
+      .then(responseHandler);
   },
 };

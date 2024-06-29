@@ -44,6 +44,70 @@ const RegisterServices = {
 
     return storedRegister;
   },
+  insertRegistersInWhereAccountWithValue: async ({
+    userId,
+    emitDate,
+    whereAccountId,
+    registers,
+    session,
+  }) => {
+    // console.log('register');
+    // console.log(register);
+
+    const registerBefore = await RegisterServices.getPreviousRegisterOfAccount({
+      userId,
+      whereAccountId,
+      emitDate,
+      createdAt: new Date(),
+    });
+
+    // console.log('register before:');
+    // console.log(registerBefore);
+
+    let balance = registerBefore?.whereAccountBalance || 0;
+
+    // console.log('initial account balance');
+    // console.log(balance);
+
+    const registersParams = registers.map((reg, index) => {
+      // console.log('reg');
+      // console.log(reg);
+
+      balance += reg.value;
+
+      // console.log('new balance');
+      // console.log(balance);
+
+      const regEmitDate = dayjs(emitDate).add(index, 'milliseconds').toDate();
+
+      return {
+        ...reg,
+        userId,
+        whereAccountId,
+        emitDate: regEmitDate,
+        whereAccountBalance: balance,
+      };
+    });
+
+    // console.log('registersParams:');
+    // console.log(registersParams);
+
+    const storedRegisters = await registerModel.create(registersParams, { session });
+
+    // console.log('storedRegisters:');
+    // console.log(storedRegisters);
+
+    await RegisterServices.updatePostRegistersOfAccount({
+      userId,
+      whereAccountId,
+      initialAccountBalance: balance,
+      emitDate,
+      createdAt: storedRegisters[storedRegisters.length - 1].createdAt,
+      session,
+    });
+
+    return storedRegisters;
+  },
   updatePostRegistersOfAccount: async ({
     userId, whereAccountId, initialAccountBalance, emitDate, postRegs: postRegsParam, session, createdAt, notId,
   }) => {

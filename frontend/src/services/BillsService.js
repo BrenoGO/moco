@@ -6,5 +6,6 @@ export const BillsService = {
   getTyped: type => ApiService.get(`${endpoint}/${type}`),
   getById: id => ApiService.get(`${endpoint}/id/${id}`),
   store: bills => ApiService.post(endpoint, bills),
-  pay: (id, paymentDate) => ApiService.put(`${endpoint}/pay`, id, paymentDate)
+  pay: (id, paymentDate) => ApiService.put(`${endpoint}/pay`, id, paymentDate),
+  update: (id, data) => ApiService.put(endpoint, id, data),
 };
