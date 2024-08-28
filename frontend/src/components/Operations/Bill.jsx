@@ -160,11 +160,11 @@ export default function Bill(props) {
           </span>
         </>
       )}
-      <ModalEditBill
+      {editModalVisible && (<ModalEditBill
         editModalVisible={editModalVisible}
         setEditModalVisible={setEditModalVisible}
         bill={bill}
-      />
+      />)}
     </div>
   );
 }
