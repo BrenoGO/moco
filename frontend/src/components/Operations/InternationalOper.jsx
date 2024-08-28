@@ -214,6 +214,7 @@ export default function InternationalOper() {
             label="Valor em dollar"
             value={dollarValue}
             onChange={setDollarValue}
+            forcedLocale="en-US"
           />
         </Col>
         <Col xs={24} sm={24} md={12} lg={12}>
@@ -253,6 +254,7 @@ export default function InternationalOper() {
         sumWhatAccounts={sumWhatAccounts}
         whatAccountToSelect={whatAccountToSelect}
       />
+      <div>Cotação: { helper.currencyFormatter(locale, sumWhatAccounts / dollarValue) }/ US$</div>
       <div id="divButRegister">
         <button type="button" className="btn btn-primary" onClick={submit}>
           {OperMsgs[locale].regBut}

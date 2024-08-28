@@ -5,9 +5,12 @@ import { Form, Input, Button } from 'antd';
 import helper from '../../services/helper';
 
 export default function InputValue({
-  onChange, onBlur, value, label, required, requiredMessage,
+  onChange, onBlur, value, label, required, requiredMessage, forcedLocale
 }) {
-  const { locale } = useSelector((state) => state.DefaultsReducer);
+  const { locale: localeReducer } = useSelector((state) => state.DefaultsReducer);
+
+  const locale = forcedLocale || localeReducer;
+
   InputValue.propTypes = {
     onChange: PropTypes.func.isRequired,
     onBlur: PropTypes.func,
