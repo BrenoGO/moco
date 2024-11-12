@@ -1,5 +1,4 @@
 const { startSession } = require('mongoose');
-const dayjs = require('dayjs');
 const operationModel = require('../models/operationModel');
 const billModel = require('../models/billModel');
 const registerModel = require('../models/registerModel');
@@ -140,15 +139,12 @@ module.exports = {
 
       const restRegsIds = [internReg[0].id, incomeLocalReg[0].id];
 
-      let newEmitDate = emitDate;
-      // eslint-disable-next-line no-undef, no-restricted-syntax
+      // eslint-disable-next-line no-restricted-syntax
       for (const whatAccount of whatAccounts) {
         localAccountBalance -= whatAccount.value;
-        newEmitDate = dayjs(newEmitDate).add(1, 'ms').toDate();
-        // eslint-disable-next-line no-await-in-loop
         const newReg = await registerModel.create([{
           userId,
-          emitDate: newEmitDate,
+          emitDate,
           opType: 'expenseAtSight',
           whereAccountId: localAccountId,
           whereAccountBalance: localAccountBalance,
@@ -165,7 +161,7 @@ module.exports = {
         userId,
         whereAccountId: localAccountId,
         initialAccountBalance: localAccountBalance,
-        emitDate: dayjs(newEmitDate).add(1, 'ms').toDate(),
+        emitDate,
         session,
         createdAt: new Date(),
       });
