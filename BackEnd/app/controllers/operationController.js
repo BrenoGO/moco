@@ -346,7 +346,7 @@ module.exports = {
       return res.status(500).json(err);
     }
   },
-  complex: async (req, res) => { // to be implemented, copied from international
+  complex: async (req, res) => {
     const userId = req.user._id;
     const {
       emitDate,
@@ -424,18 +424,6 @@ module.exports = {
           }
         });
       }
-
-      // console.log('emitDate');
-      // console.log(emitDate);
-      // console.log('opDesc');
-      // console.log(opDesc);
-      // console.log('opNotes');
-      // console.log(opNotes);
-      // console.log('allBills');
-      // console.log(allBills);
-      // console.log('allRegs');
-      // console.log(allRegs);
-
       const operation = await OperationServices.storeComplexOperation({
         userId,
         emitDate,
@@ -450,6 +438,64 @@ module.exports = {
 
       return res.json({ operation });
     } catch (error) {
+      await session.abortTransaction();
+      return res.status(500).json(error);
+    }
+  },
+  payment: async (req, res) => {
+    const userId = req.user._id;
+    const {
+      paymentDate,
+      value,
+      whereAccountId,
+      billIds,
+    } = req.body;
+
+    let session;
+    try {
+      session = await startSession();
+      session.startTransaction();
+    } catch (err) {
+      return res.status(500).json(err);
+    }
+
+    try {
+      await Promise.all(billIds.map(async (billId) => {
+        // console.log('will pay:', billId);
+        await billModel.findByIdAndUpdate(billId, { paymentDate }, { session });
+        // console.log('paid bill:', billId);
+      }));
+      const emitDate = paymentDate;
+
+      const register = await registerService.insertRegisterInWhereAccountWithValue({
+          register: {
+            userId,
+            emitDate,
+            opType: 'payment',
+            whereAccountId,
+            value,
+          },
+          session,
+        });
+
+        // console.log('register');
+        // console.log(register);
+
+      const [operation] = await operationModel.create([{
+            userId,
+            emitDate,
+            description: 'Payment',
+            bills: billIds,
+            registers: [register._id],
+          }], { session });
+
+      // console.log('operation in payment....:', operation);
+
+      await session.commitTransaction();
+
+      return res.json({ operation });
+    } catch (error) {
+      console.log('Error:', error);
       await session.abortTransaction();
       return res.status(500).json(error);
     }

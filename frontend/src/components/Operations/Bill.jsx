@@ -24,6 +24,8 @@ export default function Bill(props) {
     billIndex: 0,
   }
 
+  // console.log('Rendering Bill:', bill);
+
   const accounts = useSelector((state) => state.AccountsReducer.accounts);
   const { locale } = useSelector((state) => state.DefaultsReducer);
 

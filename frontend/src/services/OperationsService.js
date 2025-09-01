@@ -10,4 +10,5 @@ export const OperationsService = {
   storeTransferOperation: (payload) => ApiService.post('operations/transfer', payload),
   storeFutureOperation: (payload) => ApiService.post('operations/future', payload),
   storeComplexOperation: (payload) => ApiService.post('operations/complex', payload),
+  payment: (payload) => ApiService.post('operations/payment', payload),
 };

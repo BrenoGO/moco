@@ -7,8 +7,6 @@ import Spinner from '../Spinner';
 
 import { OperMsgs } from '../../services/Messages';
 import helper from '../../services/helper';
-import { BillsService } from '../../services/BillsService';
-import { RegistersService } from '../../services/RegistersService';
 import { OperationsService } from '../../services/OperationsService';
 
 import { resetBalance } from '../../actions/DefaultsActions';
@@ -36,51 +34,29 @@ export default function PayBill(props) {
 
   async function handlePayment() {
     setLoading(true);
-    if (bill.group) {
-      bill.bills.forEach(async (item) => {
-        await BillsService.pay(item._id, { paymentDate });
-      });
-    } else {
-      await BillsService.pay(bill._id, { paymentDate });
+    try {
+      const whereAccountBalance = balances.filter((ac) => ac.accountId === whereAccountId);
+  
+      const newBalance = bill.type === 'ToPay'
+        ? Number((whereAccountBalance[0].balance - bill.value).toFixed(2))
+        : Number((whereAccountBalance[0].balance + bill.value).toFixed(2));
+  
+      dispatch(resetBalance({ accountId: whereAccountId, balance: newBalance }));
+  
+      await OperationsService.payment({
+          billIds: bill.bills.map((item) => item._id),
+          paymentDate,
+          value: bill.type === 'ToPay' ? Number((-bill.value).toFixed(2)) : Number(bill.value.toFixed(2)),
+          whereAccountId,
+        });
+  
+      return setAction({ name: 'listBills', params: {} });
+    } catch (err) {
+      alert('Erro processando pagamento! Tente novamente. Se persistir contate o suporte.');
+    } finally {
+      setLoading(false);
     }
-
-    const whereAccountBalance = balances.filter((ac) => ac.accountId === whereAccountId);
-
-    const newBalance = bill.type === 'ToPay'
-      ? Number((whereAccountBalance[0].balance - bill.value).toFixed(2))
-      : Number((whereAccountBalance[0].balance + bill.value).toFixed(2));
-
-    dispatch(resetBalance({ accountId: whereAccountId, balance: newBalance }));
-
-    if (bill.group) {
-      const register = await RegistersService.store({
-        opType: 'payment',
-        emitDate: paymentDate,
-        whereAccountId,
-        whereAccountBalance: newBalance,
-        value: bill.type === 'ToPay' ? Number((-bill.value).toFixed(2)) : Number(bill.value.toFixed(2)),
-      });
-      await OperationsService.store({
-        bills: bill.bills.map((item) => item._id),
-        registers: [register._id],
-        emitDate: paymentDate,
-        description: 'Group Payment',
-      });
-    } else {
-      await RegistersService.store({
-        opType: 'payment',
-        emitDate: paymentDate,
-        whereAccountId,
-        whereAccountBalance: newBalance,
-        value: bill.type === 'ToPay' ? -bill.value : bill.value,
-        bill: bill._id,
-      });
-    }
-    setLoading(false);
-    return setAction({ name: 'listBills', params: {} });
   }
-  // console.log('bill');
-  // console.log(bill);
 
   return (
     <>

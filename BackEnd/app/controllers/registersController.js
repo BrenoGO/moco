@@ -11,6 +11,11 @@ module.exports = {
     );
     return res.json(registers);
   },
+  retrieve: async (req, res) => {
+    const { id } = req.params;
+    const register = await registerModel.findById(id);
+    res.json(register);
+  },
   store: async (req, res) => {
     const newRegisterData = {
       ...req.body,

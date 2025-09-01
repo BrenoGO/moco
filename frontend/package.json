@@ -17,8 +17,8 @@
     "redux": "^4.0.4"
   },
   "scripts": {
-    "dev": "env-cmd -f .env.dev react-scripts start",
-    "build": "env-cmd -f .env.prod react-scripts build",
+    "dev": "NODE_OPTIONS=--openssl-legacy-provider env-cmd -f .env.dev react-scripts start",
+    "build": "NODE_OPTIONS=--openssl-legacy-provider env-cmd -f .env.prod react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

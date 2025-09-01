@@ -37,6 +37,13 @@ mongo (starting with mongo and analyse if relational would be better)
 
 ### Development
 ## mongodb
+- install and start mongodb locally:
+  - brew tap mongodb/brew
+  - brew install mongodb-community
+  - to check: mongod --version
+  - brew services start/stop mongodb-community
+- if yet not installed, install run-rs: npm install -g run-rs
+- To use the replica, stop the brew service : brew services stop mongodb-community
 - To start replica keeping database: run-rs --keep --mongod
 - To start replica purging database: run-rs --mongod
 - the replica always restart the database, so it will be empty: create new users and accounts as needed to test

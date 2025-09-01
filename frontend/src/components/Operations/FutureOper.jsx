@@ -174,14 +174,14 @@ export default function FutureOper() {
         value,
       };
 
-      const resp = await OperationsService.storeFutureOperation({
+      await OperationsService.storeFutureOperation({
         registers: [reg],
         bills: billsModel,
         emitDate,
         description: opDesc,
         notes: opNotes,
       });
-      console.log('resp:', resp);
+      // console.log('resp:', resp);
 
       reSetState();
     } catch (err) {

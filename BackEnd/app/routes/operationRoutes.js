@@ -13,5 +13,6 @@ module.exports = function (app) {
   app.post('/operations/transfer', auth.authenticate, operationController.transfer);
   app.post('/operations/future', auth.authenticate, operationController.future);
   app.post('/operations/complex', auth.authenticate, operationController.complex);
+  app.post('/operations/payment', auth.authenticate, operationController.payment);
   return app;
 };

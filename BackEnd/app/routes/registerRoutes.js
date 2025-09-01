@@ -3,6 +3,7 @@ const { auth } = require('../../config/auth');
 
 module.exports = function (app) {
   app.get('/registers', auth.authenticate, registerController.index);
+  app.get('/registers/:id', auth.authenticate, registerController.retrieve);
   app.post('/registers/search', auth.authenticate, registerController.search);
   app.post('/registers/sum', auth.authenticate, registerController.sumWhatAccount);
   app.post('/registers', auth.authenticate, registerController.store);
