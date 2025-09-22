@@ -104,12 +104,12 @@ export default function Expenses() {
           value={acId}
           onChange={setAcId}
           options={type === 'expense'
-            ? [{value: undefined, disabled: false, label: 'Vazio'}].concat(expenseAccounts.map((account) => ({
+            ? [{value: undefined, disabled: false, label: 'Todos'}].concat(expenseAccounts.map((account) => ({
               value: account.id,
               disabled: !account.allowValue,
               label: account.name,
             })))
-            : [{value: undefined, disabled: false, label: 'Vazio'}].concat(incomeAccounts.map((account) => ({
+            : [{value: undefined, disabled: false, label: 'Todos'}].concat(incomeAccounts.map((account) => ({
               value: account.id,
               disabled: !account.allowValue,
               label: account.name,

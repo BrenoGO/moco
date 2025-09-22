@@ -120,4 +120,35 @@ module.exports = {
 
     return res.json(cashFlowReport);
   },
+  general: async (req, res) => {
+    console.log('fetching general report...');
+    try {
+      const { initDate, endDate } = req.query;
+      const userId = req.user._id;
+  
+      const registers = await registerModel.find(
+        {
+          userId,
+          whatAccountId: { $exists: true },
+          emitDate: {
+            $gt: initDate,
+            $lt: endDate
+          }
+        },
+        null,
+        { sort: { emitDate: -1, createdAt: -1 } },
+      );
+  
+      res.json(registers.map((r) => ({
+        opType: r.opType,
+        whatAccountId: r.whatAccountId,
+        whereAccountId: r.whereAccountId,
+        value: r.value,
+      })));
+    } catch (err) {
+      console.error('error in general report');
+      console.error(err);
+      res.status(500).json({ err });
+    }
+  }
 };
