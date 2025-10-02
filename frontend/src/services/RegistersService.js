@@ -28,4 +28,5 @@ export const RegistersService = {
     return desc;
   },
   update: (register) => ApiService.put(endpoint, register._id, register),
+  updateOnly: (id, registerData) => ApiService.put(endpoint, id, { updateOnly: true, ...registerData }),
 };

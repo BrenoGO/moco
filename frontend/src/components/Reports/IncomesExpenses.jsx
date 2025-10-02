@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import dayjs from 'dayjs';
 import { useSelector } from 'react-redux';
 import { Form, Input } from 'antd';
 
@@ -8,6 +9,8 @@ import Spinner from '../Spinner';
 import { RepMsgs } from '../../services/Messages';
 import helper from '../../services/helper';
 import { ReportsService } from '../../services/ReportsService';
+import ModalEditWhatInRegister from '../Registers/ModalEditWhatInRegister';
+import editBut from '../../imgs/editBut.png';
 
 import './IncomesExpenses.css';
 
@@ -28,6 +31,8 @@ export default function Expenses() {
   const [finalDate, setFinalDate] = useState(new Date());
   const [searchDesc, setSearchDesc] = useState('');
   const [registers, setRegisters] = useState([]);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [registerEditing, setRegisterEditing] = useState(null);
   let total = 0;
   if (registers[0]) {
     if (registers[1]) {
@@ -47,13 +52,14 @@ export default function Expenses() {
 
     async function getReportData() {
       setLoading(true);
+      const finalTimestamp = dayjs(finalDate).add(1, 'day').format('YYYY-MM-DD');
       const regs = await ReportsService.incomeOrExpense({
         searchDesc,
         opTypePrefix: type,
         whatAccountId: acId,
         emitDate: {
           $gt: initDate,
-          $lt: finalDate,
+          $lt: finalTimestamp,
         },
       });
 
@@ -89,6 +95,11 @@ export default function Expenses() {
         break;
     }
   }
+
+  function handleEditClick(reg) {
+      setEditModalVisible(true);
+      setRegisterEditing({ ...reg, emitDate: dayjs(reg.emitDate) });
+    }
 
   return (
     <div>
@@ -148,6 +159,7 @@ export default function Expenses() {
               <td>{RepMsgs[locale].thAcc}</td>
               <td>{RepMsgs[locale].value}</td>
               <td>{RepMsgs[locale].total}</td>
+              <td />
             </tr>
           </thead>
           <tbody>
@@ -187,11 +199,19 @@ export default function Expenses() {
                   <td>{desc}</td>
                   <td className={value < 0 ? 'red' : ''}>{helper.currencyFormatter(locale, value)}</td>
                   <td className={total > 0 ? 'red' : ''}>{helper.currencyFormatter(locale, -total)}</td>
+                  <td><img onClick={() => handleEditClick(reg)} src={editBut} width="10px" alt="editBut" /></td>
                 </tr>
               );
             })}
           </tbody>
         </table>
+        <ModalEditWhatInRegister
+            registerInitData={registerEditing}
+            editModalVisible={editModalVisible}
+            setEditModalVisible={setEditModalVisible}
+            registers={registers}
+            setRegisters={setRegisters}
+          />
       </div>
     </div>
   );
