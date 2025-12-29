@@ -11,7 +11,9 @@ export const RegistersService = {
   getRegDescToShow: (reg) => {
     const whatAc = AccountsService.getAccount(reg.whatAccountId);
     let desc = reg.description;
-    if (!desc) desc = whatAc && whatAc.name;
+    if (desc) desc = `${whatAc && whatAc.name} - ${desc}`;
+    else desc = whatAc && whatAc.name;
+
     if (!desc) {
       const { DefaultsReducer: { locale } } = store.getState();
       switch (reg.opType) {
