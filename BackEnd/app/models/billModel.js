@@ -43,4 +43,6 @@ const schema = mongoose.Schema(
   },
 );
 
+schema.index({ userId: 1, type: 1, dueDate: 1, paymentDate: 1 });
+
 module.exports = mongoose.model('Bill', schema);

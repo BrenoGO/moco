@@ -49,6 +49,10 @@ module.exports = {
     } catch (error) {
       await session.abortTransaction();
       return res.status(500).json(error);
+    } finally {
+      if (session) {
+        await session.endSession();
+      }
     }
   },
   search: async (req, res) => {
@@ -165,6 +169,10 @@ module.exports = {
       console.log('err');
       console.log(err);
       return res.status(400).json({ error: err.message });
+    } finally {
+      if (session) {
+        await session.endSession();
+      }
     }
   },
   removeById: (req, res) => {

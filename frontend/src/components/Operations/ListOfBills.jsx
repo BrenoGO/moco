@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-
+import { message } from 'antd';
 import helper from '../../services/helper';
 import { BillsService } from '../../services/BillsService';
 
@@ -26,6 +26,11 @@ export default function ListOfBills(props) {
       .then((resp) => {
         setBills(resp);
         setLoading(false);
+      }).catch((err) => {
+        setLoading(false);
+        console.error('Error fetching bills');
+        console.error(err);
+        message.error(`Erro! 'Ocorreu um error desconhecido! Tente novamente. Se persistir entre em contato com suporte`);
       });
   }, [type]);
 

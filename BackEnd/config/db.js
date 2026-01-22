@@ -2,11 +2,11 @@ const mongoose = require('mongoose');
 
 module.exports = function (url) {
   mongoose.connect(url, {
-    useNewUrlParser: true,
-    useFindAndModify: false,
-    useCreateIndex: true,
-    useUnifiedTopology: true,
+    maxPoolSize: 10,
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 45000,
   });
+
   mongoose.connection.on('connected', () => { console.log('Mongoose connected'); });
   process.on('SIGINT', () => {
     mongoose.connection.close(() => {

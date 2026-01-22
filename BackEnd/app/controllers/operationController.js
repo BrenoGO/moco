@@ -180,6 +180,10 @@ module.exports = {
     } catch (error) {
       await session.abortTransaction();
       return res.status(500).json(error);
+    } finally {
+      if (session) {
+        await session.endSession();
+      }
     }
   },
   transfer: async (req, res) => {
@@ -274,6 +278,10 @@ module.exports = {
     } catch (error) {
       await session.abortTransaction();
       return res.status(500).json(error);
+    } finally {
+      if (session) {
+        await session.endSession();
+      }
     }
   },
   future: async (req, res) => {
@@ -302,6 +310,10 @@ module.exports = {
     } catch (err) {
       await session.abortTransaction();
       return res.status(500).json(err);
+    } finally {
+      if (session) {
+        await session.endSession();
+      }
     }
   },
   removeOperation: async (req, res) => {
@@ -344,6 +356,10 @@ module.exports = {
     } catch (err) {
       await session.abortTransaction();
       return res.status(500).json(err);
+    } finally {
+      if (session) {
+        await session.endSession();
+      }
     }
   },
   complex: async (req, res) => {
@@ -440,6 +456,10 @@ module.exports = {
     } catch (error) {
       await session.abortTransaction();
       return res.status(500).json(error);
+    } finally {
+      if (session) {
+        await session.endSession();
+      }
     }
   },
   payment: async (req, res) => {
@@ -460,11 +480,31 @@ module.exports = {
     }
 
     try {
-      await Promise.all(billIds.map(async (billId) => {
-        // console.log('will pay:', billId);
-        await billModel.findByIdAndUpdate(billId, { paymentDate }, { session });
-        // console.log('paid bill:', billId);
-      }));
+      const bills = await billModel.find(
+        {
+          _id: { $in: billIds },
+          userId,
+          paymentDate: { $exists: false },
+        },
+        null,
+        { session }
+      );
+
+      if (bills.length !== billIds.length) {
+        throw new Error('Some bills are invalid or already paid');
+      }
+
+      // await Promise.all(billIds.map(async (billId) => {
+      //   // console.log('will pay:', billId);
+      //   await billModel.findByIdAndUpdate(billId, { paymentDate }, { session });
+      //   // console.log('paid bill:', billId);
+      // }));
+      await billModel.updateMany(
+        { _id: { $in: billIds }, userId },
+        { $set: { paymentDate } },
+        { session }
+      );
+
       const emitDate = paymentDate;
 
       const register = await registerService.insertRegisterInWhereAccountWithValue({
@@ -498,6 +538,10 @@ module.exports = {
       console.log('Error:', error);
       await session.abortTransaction();
       return res.status(500).json(error);
+    } finally {
+      if (session) {
+        await session.endSession();
+      }
     }
   },
 };
