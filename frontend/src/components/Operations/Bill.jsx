@@ -51,12 +51,25 @@ export default function Bill(props) {
   }
 
   const renderBillRegisters = () => {
-    // console.log(bill);
+    // console.log('bill rendering registers:', bill);
     if (!bill.operation?.registers?.[0]) {
       return null;
     }
     if (bill.operation.registers?.length === 1) {
-      return bill.operation.registers[0].description
+      const register = bill.operation.registers[0];
+      const whatAccount = accounts.find((acc) => acc.id === register.whatAccountId);
+      let description = whatAccount?.name;
+      if (register.description) {
+        description += ` - ${register.description}`;
+      } else if (bill.operation.description) {
+        description += ` - ${bill.operation.description}`;
+      }
+
+      return (
+        <div key={`bill-register-${register._id}`}>
+          {description}
+        </div>
+      )
     }
 
     return (
