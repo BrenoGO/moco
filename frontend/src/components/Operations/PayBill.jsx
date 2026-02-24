@@ -43,8 +43,9 @@ export default function PayBill(props) {
   
       dispatch(resetBalance({ accountId: whereAccountId, balance: newBalance }));
   
+      const billIds = bill.group ? bill.bills.map((item) => item._id) : [bill._id];
       await OperationsService.payment({
-          billIds: bill.bills.map((item) => item._id),
+          billIds,
           paymentDate,
           value: bill.type === 'ToPay' ? Number((-bill.value).toFixed(2)) : Number(bill.value.toFixed(2)),
           whereAccountId,
@@ -52,6 +53,7 @@ export default function PayBill(props) {
   
       return setAction({ name: 'listBills', params: {} });
     } catch (err) {
+      console.error(err);
       alert('Erro processando pagamento! Tente novamente. Se persistir contate o suporte.');
     } finally {
       setLoading(false);
