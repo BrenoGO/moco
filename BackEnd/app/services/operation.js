@@ -17,7 +17,7 @@ const OperationServices = {
     // console.log(operation);
 
     const { atSightRegistersByAccountId, whatAccountRegisters } = registers.reduce((acc, reg) => {
-      if (reg.opType.endsWith('AtSight')) {
+      if (reg.opType.endsWith('AtSight') && reg.whereAccountId) {
         // adding 1 millisecond to at sight registers to order
         if (acc.atSightRegistersByAccountId[reg.whereAccountId]) {
           return {
@@ -62,6 +62,8 @@ const OperationServices = {
     const registerIds = (await Promise.all((Object.keys(atSightRegistersByAccountId).map(async (accountId) => {
       // console.log(`accountId: ${accountId}`);
       const regsParams = atSightRegistersByAccountId[accountId];
+      // console.log(`regsParams`);
+      // console.log(regsParams);
       const regs = await RegisterServices.insertRegistersInWhereAccountWithValue({
         userId,
         emitDate,

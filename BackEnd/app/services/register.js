@@ -51,9 +51,6 @@ const RegisterServices = {
     registers,
     session,
   }) => {
-    // console.log('register');
-    // console.log(register);
-
     const registerBefore = await RegisterServices.getPreviousRegisterOfAccount({
       userId,
       whereAccountId,
@@ -95,7 +92,10 @@ const RegisterServices = {
     const storedRegisters = await registerModel.create(registersParams, { session });
 
     // console.log('storedRegisters:');
-    // console.log(storedRegisters);
+    // console.log(storedRegisters[0]);
+    // console.log(storedRegisters[1]);
+    // console.log(storedRegisters[2]);
+    // console.log(storedRegisters[3]);
 
     await RegisterServices.updatePostRegistersOfAccount({
       userId,

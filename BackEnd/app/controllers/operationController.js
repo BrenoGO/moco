@@ -434,12 +434,18 @@ module.exports = {
               opType: `${opType}AtSight`,
               whereAccountId: payment.id,
               value: payment.value * signal,
-              description: `Op${opDesc ? `: ${opDesc}` : ''}`,
+              description: `Complex Op${opDesc ? `: ${opDesc}` : ''}`,
             };
             allRegs.push(newObj);
           }
         });
       }
+
+      // console.log('allRegs..');
+      // console.log(allRegs[0]);
+      // console.log(allRegs[1]);
+      // console.log(allRegs[2]);
+      // console.log(allRegs[3]);
       const operation = await OperationServices.storeComplexOperation({
         userId,
         emitDate,
@@ -454,6 +460,8 @@ module.exports = {
 
       return res.json({ operation });
     } catch (error) {
+      console.log('Error.......:');
+      console.log(error);
       await session.abortTransaction();
       return res.status(500).json(error);
     } finally {

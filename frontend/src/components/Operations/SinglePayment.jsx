@@ -23,7 +23,13 @@ export default function SinglePayment({
   const ToReceiveAccounts = helper.organizedAccounts(accounts, defaultAccounts.ToReceive);
   const ToPayAccounts = helper.organizedAccounts(accounts, defaultAccounts.ToPay);
 
-  const todayPlus30 = dayjs().add(30, 'days').toDate();
+  const todayPlus30 = dayjs()
+    .add(30, 'days')
+    .set('hour', 12)
+    .set('minute', 0)
+    .set('second', 0)
+    .set('millisecond', 0)
+    .toDate();
 
   const whereAccountToSelect = useMemo(() => {
     switch (whereAccount.type) {
@@ -87,7 +93,7 @@ export default function SinglePayment({
           ...whereAccount,
           bills: whereAccount.bills.map((bill, i2) => {
             if (billI !== i2) return bill;
-            return { ...bill, date: value };
+            return { ...bill, date: new Date(value.setHours(12, 0, 0, 0)) };
           }),
         };
       }),
@@ -183,6 +189,8 @@ export default function SinglePayment({
       }),
     );
   }
+
+  console.log('whereAccount.bills', whereAccount.bills);
 
   return (
     <Card

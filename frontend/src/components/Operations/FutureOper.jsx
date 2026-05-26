@@ -27,6 +27,7 @@ export default function FutureOper() {
   const today = new Date();
   const todayPlus30 = new Date();
   todayPlus30.setDate(todayPlus30.getDate() + 30);
+  todayPlus30.setHours(12, 0, 0, 0);
 
   const [bills, setBills] = useState([
     {

@@ -33,9 +33,10 @@ export default function PaymentInstallments({ bills, setBills, setOpValue }) {
   }
 
   function editBillDate(index, value) {
+    console.log('editing bill date??')
     setBills(bills.map((item, i) => {
       if (index !== i) return item;
-      return { ...item, date: value?.toDate() };
+      return { ...item, date: new Date(value?.toDate().setHours(12, 0, 0, 0)) };
     }));
   }
 
