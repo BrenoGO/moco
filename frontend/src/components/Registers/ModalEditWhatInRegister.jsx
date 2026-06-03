@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import {
-  Form, Modal, Input, Spin, message,
+  Form, Modal, Input, Spin, message, DatePicker
 } from 'antd';
 import PropTypes from 'prop-types';
 import Select from '../Select';
 import { OperMsgs } from '../../services/Messages';
 import helper from '../../services/helper';
 import { RegistersService } from '../../services/RegistersService';
+import dayjs from 'dayjs';
 
 export default function ModalEditWhatInRegister({
   editModalVisible, setEditModalVisible, registerInitData, registers, setRegisters,
@@ -46,6 +47,7 @@ export default function ModalEditWhatInRegister({
       const resp = await RegistersService.updateOnly(register._id, {
         description: register.description,
         whatAccountId: register.whatAccountId,
+        emitDate: register.emitDate.toISOString(),
       });
       if (resp) {
         const index = registers.findIndex((r) => r._id === register._id);
@@ -66,6 +68,9 @@ export default function ModalEditWhatInRegister({
   }
 
   function changeFormValue(prop, value) {
+    if (prop === 'emitDate') {
+      value = dayjs(helper.startOfDay(new Date(value)).toISOString());
+    }
     setRegister({
       ...register,
       [prop]: value,
@@ -86,6 +91,16 @@ export default function ModalEditWhatInRegister({
         ? (<Spin />)
         : (
           <Form>
+            <Form.Item
+              label="Data de emissão"
+              rules={[{ required: true, message: 'É obrigatório' }]}
+            >
+              <DatePicker
+                onChange={(v) => changeFormValue('emitDate', v)}
+                value={register?.emitDate}
+                format="DD/MM/YYYY"
+              />
+            </Form.Item>
             <Form.Item
               label="Descrição"
               rules={[{ required: true, message: 'É obrigatório' }]}

@@ -111,6 +111,15 @@ const helpers = {
       clearTimeout(timer);
       timer = setTimeout(() => { func.apply(this, args); }, timeout);
     };
+  },
+  startOfDay(date) {
+    date.setHours(0, 0, 0, 0);
+    return date;
+  },
+  startOfMonth(date) {
+    date.setDate(1);
+    date.setHours(0, 0, 0, 0);
+    return date;
   }
 };
 

@@ -7,33 +7,80 @@ import { ReportsService } from '../../services/ReportsService';
 
 import Spinner from '../Spinner';
 // import GeneralsAccs from './GeneralsAccs';
-import { Table } from 'antd';
+import { Table, Modal } from 'antd';
 
 import './General.css';
 
 export default function General() {
-  const initialDate = new Date();
-  initialDate.setDate(initialDate.getDate() - 30);
-
   const { locale, defaultAccounts } = useSelector(state => state.DefaultsReducer);
   const { accounts } = useSelector(state => state.AccountsReducer);
 
-  console.log('accounts', accounts);
-  const [initDate, setInitDate] = useState(initialDate);
-  const [finalDate, setFinalDate] = useState(new Date());
+  const initialDate = new Date();
+  initialDate.setDate(initialDate.getDate() - 30);
+  const initialFinalDate = new Date();
+  helper.startOfMonth(initialFinalDate)
+  initialFinalDate.setDate(initialFinalDate.getDate() - 1);
+
+  const [initDate, setInitDate] = useState(helper.startOfMonth(initialDate));
+  const [finalDate, setFinalDate] = useState(initialFinalDate);
   // const [incomeAcs, setIncomeAcs] = useState([defaultAccounts.income]);
   // const [expenseAcs, setExpenseAcs] = useState([defaultAccounts.expense]);
 
   const [registers, setRegisters] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalRegisters, setModalRegisters] = useState([]);
 
   const [loading, setLoading] = useState(false);
+
+  function openValueModal(value, whereAccountId, whatAccountId) {
+    const isToPay = whereAccountId === 'to_pay';
+
+    const filteredRegisters = registers.filter(r => (
+      r.whatAccountId === whatAccountId
+      && (
+        (isToPay && r.opType.endsWith('ToPay'))
+        || r.whereAccountId === whereAccountId
+      )
+    ));
+
+    filteredRegisters.sort((a, b) => new Date(a.emitDate) - new Date(b.emitDate));
+    setModalRegisters(filteredRegisters);
+    setIsModalOpen(true);
+  }
+
+  function closeModal() {
+    setIsModalOpen(false);
+  }
+
+  const modalColumns = [
+    {
+      title: 'Data',
+      dataIndex: 'emitDate',
+      key: 'emitDate',
+      render: (date) => helper.formatDate(locale, new Date(date)),
+    },
+    {
+      title: 'Valor',
+      dataIndex: 'value',
+      key: 'value',
+      render: (value) => helper.currencyFormatter(locale, value),
+    },
+    {
+      title: 'Descrição',
+      dataIndex: 'description',
+      key: 'description',
+    },
+  ];
 
   useEffect(() => {
     setLoading(true);
     let mounted = true;
+    // convert finalDate to end of day
+    const endDate = new Date(finalDate);
+    endDate.setHours(23, 59, 59, 999);
     ReportsService.general({
       initDate,
-      endDate: finalDate
+      endDate
     })
       .then((resp) => {
         setLoading(false);
@@ -60,7 +107,7 @@ export default function General() {
     totalExpenses = expenses.reduce((acc, curr) => acc + curr.value, 0);
   }
 
-  function handleDateChange(when, date) {
+  function handleDateChange(when, date) {    
     switch (when) {
       case 'init':
         setInitDate(helper.inputDateToNewDate(date));
@@ -89,7 +136,7 @@ export default function General() {
     }, ['to_pay']);
     allColumns.push('total');
 
-    console.log('allColumns:', allColumns);
+    // console.log('allColumns:', allColumns);
     
     // array of objects. each element is an row
     const matrix = registers.reduce((acc, curr) => {
@@ -141,11 +188,15 @@ export default function General() {
       title: col === 'to_pay' ? 'Prazo' : col === 'total' ? 'Total' : accounts.find(ac => ac.id === col)?.name || 'N/A',
       dataIndex: col,
       key: col,
-      render: (value) => {
+      render: (value, record) => {
         if (col === 'total') {
           return <b>{helper.currencyFormatter(locale, value || 0)}</b>
         }
-        return helper.currencyFormatter(locale, value || 0);
+        return (
+          <a onClick={() => openValueModal(value, col, record.key)}>
+            {helper.currencyFormatter(locale, value || 0)}
+          </a>
+        );
       },
       align: 'right',
     }));
@@ -166,7 +217,7 @@ export default function General() {
     return { columns, dataSource };
   }, [registers, accounts, locale]);
 
-  console.log('columns:', columns);
+  // console.log('columns:', columns);
   console.log('dataSource:', dataSource);
   return (
     <div>
@@ -199,6 +250,9 @@ export default function General() {
           pagination={false}
           scroll={{ x: 'max-content' }}
           />
+        <Modal title="Detalhes" open={isModalOpen} onOk={closeModal} onCancel={closeModal} cancelButtonProps={{ style: { display: 'none' } }}>
+          <Table dataSource={modalRegisters} columns={modalColumns} pagination={false} />
+        </Modal>
         <p>
           Total de entradas:
           {' '}

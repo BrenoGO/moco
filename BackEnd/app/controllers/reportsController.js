@@ -131,8 +131,8 @@ module.exports = {
           userId,
           whatAccountId: { $exists: true },
           emitDate: {
-            $gt: initDate,
-            $lt: endDate
+            $gte: initDate,
+            $lte: endDate
           }
         },
         null,
@@ -144,6 +144,8 @@ module.exports = {
         whatAccountId: r.whatAccountId,
         whereAccountId: r.whereAccountId,
         value: r.value,
+        description: r.description,
+        emitDate: r.emitDate,
       })));
     } catch (err) {
       console.error('error in general report');
