@@ -38,7 +38,7 @@ export default function AcStatements() {
     RegistersService.search({
       whereAccountId: acId,
       emitDate: {
-        $gt: initDate,
+        $gte: initDate,
         $lt: dayjs(finalDate).endOf('day').toDate(),
       },
     }).then((regs) => {
