@@ -387,14 +387,14 @@ module.exports = {
     try {
       await OperationServices.removeOperation({ id, userId, session });
 
-      await OperationServices.storeOperation({
+      const operation = await OperationServices.storeOperation({
         opType, userId, emitDate, opDesc, opNotes, whatAccounts, payments,  
         session
       });
 
       await session.commitTransaction();
 
-      return res.json({ success: 'Removed operation' });
+      return res.json({ operation });
     } catch (err) {
       console.log('error removing operation...');
       console.error(err);
