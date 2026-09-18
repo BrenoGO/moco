@@ -10,11 +10,11 @@ import helper from '../../services/helper';
 import { OperMsgs } from '../../services/Messages';
 
 export default function SinglePayment({
-  whereAccount,
+  payment,
   whatAccountToSelect,
   index,
-  whereAccounts,
-  setWhereAccounts,
+  payments,
+  setPayments,
 }) {
   const accounts = useSelector((state) => state.AccountsReducer.accounts);
   const { defaultAccounts, locale } = useSelector((state) => state.DefaultsReducer);
@@ -32,7 +32,7 @@ export default function SinglePayment({
     .toDate();
 
   const whereAccountToSelect = useMemo(() => {
-    switch (whereAccount.type) {
+    switch (payment.type) {
       case 'AtSight':
         return currentAccounts;
       case 'ToPay':
@@ -42,11 +42,11 @@ export default function SinglePayment({
       default:
         break;
     }
-  }, [whereAccount.type, currentAccounts, ToPayAccounts, ToReceiveAccounts])
+  }, [payment.type, currentAccounts, ToPayAccounts, ToReceiveAccounts])
 
   function handleWhereTypeChange(type) {
-    setWhereAccounts(
-      whereAccounts.map((item, i) => {
+    setPayments(
+      payments.map((item, i) => {
         if (i !== index) return item;
         const newObj = {
           ...item,
@@ -62,8 +62,8 @@ export default function SinglePayment({
   }
 
   function handleWhereAccountsIdChange(id) {
-    setWhereAccounts(
-      whereAccounts.map((item, i) => {
+    setPayments(
+      payments.map((item, i) => {
         if (index !== i) return item;
         return { ...item, id };
       }),
@@ -71,12 +71,12 @@ export default function SinglePayment({
   }
 
   function editBillValue(billI, value) {
-    setWhereAccounts(
-      whereAccounts.map((whereAccount, i1) => {
-        if (index !== i1) return whereAccount;
+    setPayments(
+      payments.map((payment, i1) => {
+        if (index !== i1) return payment;
         return {
-          ...whereAccount,
-          bills: whereAccount.bills.map((bill, i2) => {
+          ...payment,
+          bills: payment.bills.map((bill, i2) => {
             if (billI !== i2) return bill;
             return { ...bill, value };
           }),
@@ -86,12 +86,12 @@ export default function SinglePayment({
   }
 
   function editBillDate(billI, value) {
-    setWhereAccounts(
-      whereAccounts.map((whereAccount, i1) => {
-        if (index !== i1) return whereAccount;
+    setPayments(
+      payments.map((payment, i1) => {
+        if (index !== i1) return payment;
         return {
-          ...whereAccount,
-          bills: whereAccount.bills.map((bill, i2) => {
+          ...payment,
+          bills: payment.bills.map((bill, i2) => {
             if (billI !== i2) return bill;
             return { ...bill, date: new Date(value.setHours(12, 0, 0, 0)) };
           }),
@@ -101,15 +101,15 @@ export default function SinglePayment({
   }
 
   function editOnBlur() {
-    const sum = whereAccounts[index].bills.reduce((a, b, i) => {
+    const sum = payments[index].bills.reduce((a, b, i) => {
       if (i === 1) {
         return a.value + b.value;
       }
       return a + b.value;
     });
 
-    setWhereAccounts(
-      whereAccounts.map((item, i) => {
+    setPayments(
+      payments.map((item, i) => {
         if (index !== i) return item;
         return { ...item, value: sum };
       }),
@@ -118,16 +118,16 @@ export default function SinglePayment({
 
   function handleWhereValueChange(value, type) {
     if (type === 'ToPay' || type === 'ToReceive') {
-      const newBills = distributeValue(value, whereAccounts[index].bills);
-      setWhereAccounts(
-        whereAccounts.map((item, i) => {
+      const newBills = distributeValue(value, payments[index].bills);
+      setPayments(
+        payments.map((item, i) => {
           if (i !== index) return item;
           return { ...item, value, bills: newBills };
         }),
       );
     } else {
-      setWhereAccounts(
-        whereAccounts.map((item, i) => {
+      setPayments(
+        payments.map((item, i) => {
           if (i !== index) return item;
           return { ...item, value };
         }),
@@ -136,9 +136,9 @@ export default function SinglePayment({
   }
 
   function handleCloseWhereAccount(index) {
-    setWhereAccounts([
-      ...whereAccounts.slice(0, index),
-      ...whereAccounts.slice(index + 1, whereAccounts.length),
+    setPayments([
+      ...payments.slice(0, index),
+      ...payments.slice(index + 1, payments.length),
     ]);
   }
 
@@ -161,12 +161,12 @@ export default function SinglePayment({
 
   function handleInstallmentsChange(installments) {
     let newBills = [];
-    if (installments > whereAccounts[index].bills.length) {
+    if (installments > payments[index].bills.length) {
       // aumentou parcela
-      if (installments - whereAccounts[index].bills.length === 1) {
-        const date = new Date(whereAccounts[index].bills[installments - 2].date);
+      if (installments - payments[index].bills.length === 1) {
+        const date = new Date(payments[index].bills[installments - 2].date);
         date.setDate(date.getDate() + 30);
-        newBills = [...whereAccounts[index].bills, { date, value: 0 }];
+        newBills = [...payments[index].bills, { date, value: 0 }];
       } else {
         // eslint-disable-next-line no-plusplus
         for (let i = 0; i < installments; i++) {
@@ -179,18 +179,16 @@ export default function SinglePayment({
           }
         }
       }
-    } else if (installments > 1) newBills = whereAccounts[index].bills.slice(0, installments);
-    else newBills = whereAccounts[index].bills.slice(0, 1);
-    newBills = distributeValue(whereAccounts[index].value, newBills);
-    setWhereAccounts(
-      whereAccounts.map((item, i) => {
+    } else if (installments > 1) newBills = payments[index].bills.slice(0, installments);
+    else newBills = payments[index].bills.slice(0, 1);
+    newBills = distributeValue(payments[index].value, newBills);
+    setPayments(
+      payments.map((item, i) => {
         if (i !== index) return item;
         return { ...item, bills: newBills };
       }),
     );
   }
-
-  console.log('whereAccount.bills', whereAccount.bills);
 
   return (
     <Card
@@ -202,7 +200,7 @@ export default function SinglePayment({
       style={{ marginTop: '3px' }}
       title={
         <select
-          value={whereAccount.type}
+          value={payment.type}
           onChange={(e) => handleWhereTypeChange(e.target.value)}
         >
           <option value="AtSight">{OperMsgs[locale].optAtSight}</option>
@@ -218,7 +216,7 @@ export default function SinglePayment({
           <Col xs={24} sm={24} md={12} lg={12}>
             <Form.Item label={OperMsgs[locale].whereAc} >
               <SelectAccount
-                value={whereAccount.id}
+                value={payment.id}
                 onChange={(id) => handleWhereAccountsIdChange(id)}
                 options={whereAccountToSelect.map((account) => ({
                   value: account.id,
@@ -231,20 +229,20 @@ export default function SinglePayment({
           <Col xs={24} sm={24} md={12} lg={12}>
             <InputValue
               label={OperMsgs[locale].value}
-              value={whereAccount.value}
-              onChange={(v) => handleWhereValueChange(v, whereAccount.type)}
+              value={payment.value}
+              onChange={(v) => handleWhereValueChange(v, payment.type)}
             />
           </Col>
         </Row>
 
-        {whereAccount.bills && (
+        {payment.bills && (
           <div className="whereBillsDiv">
             <div className="divPaymentInstallments">
               <label htmlFor="paymentInstallments">
                 {OperMsgs[locale].installments}
                 <select
                   id="paymentInstallments"
-                  value={whereAccount.bills.length}
+                  value={payment.bills.length}
                   onChange={(e) => handleInstallmentsChange(e.target.value)}
                 >
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((i) => (
@@ -256,11 +254,14 @@ export default function SinglePayment({
               </label>
             </div>
             <div className="installmentsDiv">
-              {whereAccount.bills.map((bill, billI) => (
+              {payment.bills.map((bill, billI) => (
                 <div key={billI} className="installment">
                   <div className="installmentDate">
-                    {OperMsgs[locale].date}
+                    <label htmlFor={`installmentDate${billI}`}>
+                      {OperMsgs[locale].date}{' '}
+                    </label>
                     <input
+                      id={`installmentDate${billI}`}
                       type="date"
                       value={helper.dateToInput(bill.date)}
                       onChange={(e) => editBillDate(billI, helper.inputDateToNewDate(e.target.value))}
@@ -270,7 +271,7 @@ export default function SinglePayment({
                     <InputValue
                       label={OperMsgs[locale].value}
                       value={bill.value}
-                      onChange={(e) => editBillValue(billI, e.target.value)}
+                      onChange={(value) => editBillValue(billI, value)}
                       onBlur={() => editOnBlur()}
                     />
                   </div>

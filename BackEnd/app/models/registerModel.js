@@ -18,7 +18,8 @@ const RegisterSchema = mongoose.Schema({
       'incomeToReceive', // where is a future.. generates a bill, have to have operation
       'payment',
       'transference',
-      'complex', // when has many registers and bills. have to have a operation
+      'expense', // expense in complex operation, part at sight and part to pay
+      'income', // income in complex operation, part at sight and part to pay
     ],
   },
   emitDate: {

@@ -15,6 +15,7 @@ const RegisterServices = {
       emitDate: register.emitDate,
       notId: register._id,
       createdAt: new Date(),
+      session,
     });
 
     // console.log('register before:');
@@ -44,6 +45,37 @@ const RegisterServices = {
 
     return storedRegister;
   },
+  removeRegisterInWhereAccountWithValue: async ({
+    register,
+    session,
+  }) => {
+    // console.log('register');
+    // console.log(register);
+
+    const registerBefore = await RegisterServices.getPreviousRegisterOfAccount({
+      userId: register.userId,
+      whereAccountId: register.whereAccountId,
+      emitDate: register.emitDate,
+      notId: register._id,
+      createdAt: register.createdAt,
+      session,
+    });
+
+    // console.log('registerBefore');
+    // console.log(registerBefore);
+
+    await RegisterServices.updatePostRegistersOfAccount({
+      userId: register.userId,
+      notId: register._id,
+      whereAccountId: register.whereAccountId,
+      initialAccountBalance: registerBefore.whereAccountBalance,
+      emitDate: registerBefore.emitDate,
+      createdAt: registerBefore.createdAt,
+      session,
+    });
+
+    await registerModel.findByIdAndDelete(register._id, { session });
+  },
   insertRegistersInWhereAccountWithValue: async ({
     userId,
     emitDate,
@@ -56,6 +88,7 @@ const RegisterServices = {
       whereAccountId,
       emitDate,
       createdAt: new Date(),
+      session
     });
 
     // console.log('register before:');
@@ -156,7 +189,7 @@ const RegisterServices = {
   },
 
   getPreviousRegisterOfAccount: async ({
-    userId, whereAccountId, emitDate, notId, createdAt,
+    userId, whereAccountId, emitDate, notId, createdAt, session
   }) => {
     const previousRegs = await registerModel.find(
       {
@@ -168,7 +201,7 @@ const RegisterServices = {
         },
       },
       null,
-      { sort: { emitDate: -1, createdAt: -1 } },
+      { sort: { emitDate: -1, createdAt: -1 }, session },
     );
     // console.log('previousRegs:');
     // console.log(previousRegs);

@@ -123,7 +123,7 @@ const OperationServices = {
     // console.log(updatedOperation);
     return updatedOperation;
   },
-  storeOperation: async ({
+  storeFutureOperation: async ({
     userId, emitDate, description, notes, registers, bills, session,
   }) => {
     const [operation] = await operationModel.create([{
@@ -152,6 +152,140 @@ const OperationServices = {
       { session, new: true },
     );
   },
+  removeOperation: async ({ id, userId, session }) => {
+    const operationRegisters = await registerModel.find({
+      operation: id,
+    });
+
+    const operationBills = await billModel.find({
+      operation: id,
+    });
+
+    // validate registers belong to user
+    if (operationRegisters.some(r => r.userId.toString() !== userId.toString())) {
+      throw new Error('Some registers do not belong to the user');
+    }
+
+    // validate bills belong to user
+    if (operationBills.some(b => b.userId.toString() !== userId.toString())) {
+      throw new Error('Some bills do not belong to the user');
+    }
+
+    if (operationRegisters) {
+      const {atSightRegs, restRegs} = operationRegisters.reduce((acc, r) => {
+        if (r.opType.endsWith('AtSight') && r.whereAccountId) {
+          return {
+            atSightRegs: [...acc.atSightRegs, r],
+            restRegs: [...acc.restRegs],
+          }
+        }
+        return {
+          atSightRegs: [...acc.atSightRegs],
+          restRegs: [...acc.restRegs, r],
+        }
+      }, { atSightRegs: [], restRegs: [] });
+
+      await Promise.all(atSightRegs.map(async (reg) => {
+        await RegisterServices.removeRegisterInWhereAccountWithValue({ register: reg, session });
+      }));
+
+      // delete rest registers
+      await Promise.all(restRegs.map(async (reg) => {
+        await registerModel.findByIdAndDelete(reg._id, { session });
+      }));
+    }
+
+    if (operationBills) {
+      await Promise.all(operationBills.map(async (bill) => {
+        await billModel.findByIdAndDelete(bill._id, { session });
+      }));
+    }
+
+    await operationModel.findByIdAndDelete(id, { session });
+  },
+  storeOperation: async ({
+    opType, userId, emitDate, opDesc, opNotes, whatAccounts, payments, session,
+  }) => {
+    if (!opType || !userId || !emitDate || !whatAccounts || !payments || !session) {
+      throw new Error('Missing required parameters');
+    }
+
+    if (!Array.isArray(whatAccounts) || !Array.isArray(payments)) {
+      throw new Error('whatAccounts and payments must be arrays');
+    }
+
+    console.log('storing operation...');
+    let signal = 1;
+    if (opType === 'expense') {
+      signal = -1;
+    }
+    const allBills = [];
+    let billType = 'ToPay';
+    if (opType === 'income') billType = 'ToReceive';
+
+    payments.forEach((payment) => {
+      if (payment.bills) {
+        payment.bills.forEach((bill, index) => {
+          allBills.push({
+            type: billType,
+            value: bill.value,
+            dueDate: bill.date,
+            installment: `${index + 1}/${payment.bills.length}`,
+            whereAccount: payment.id,
+            paymentKey: payment.paymentKey || null,
+          });
+        });
+      }
+    });
+
+    const allRegs = whatAccounts.map((whatAccount) => {
+      const value = whatAccount.value * signal;
+      const newObj = {
+        opType,
+        whatAccountId: whatAccount.id,
+        value,
+      };
+      if (whatAccount.description) newObj.description = whatAccount.description;
+      if (whatAccount.notes) newObj.notes = whatAccount.notes;
+
+      if (payments.length === 1) {
+        newObj.whereAccountId = payments[0].id;
+        newObj.opType = `${opType}${payments[0].type}`;
+      } else {
+        const distinctTypes = [...new Set(payments.map(item => item.type))];
+        if (distinctTypes.length === 1) {
+          newObj.opType = `${opType}${payments[0].type}`;
+        }
+      }
+      return newObj;
+    });
+
+    if (payments.length > 1) {
+      payments.forEach((payment) => {
+        if (payment.type === 'AtSight') {
+          const newObj = {
+            opType: `${opType}AtSight`,
+            whereAccountId: payment.id,
+            value: payment.value * signal,
+            description: `Complex Op${opDesc ? `: ${opDesc}` : ''}`,
+          };
+          allRegs.push(newObj);
+        }
+      });
+    }
+
+    const operation = await OperationServices.storeComplexOperation({
+      userId,
+      emitDate,
+      description: opDesc,
+      notes: opNotes,
+      registers: allRegs,
+      bills: allBills,
+      session,
+    });
+
+    return operation;
+  }
 };
 
 module.exports = OperationServices;

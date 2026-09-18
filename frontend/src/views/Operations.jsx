@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Select } from 'antd';
+import { useParams } from 'react-router-dom';
 
 import './views.css';
 
@@ -14,9 +15,13 @@ import Transference from '../components/Operations/Transference';
 import InternationalOper from '../components/Operations/InternationalOper';
 
 export default function Operations() {
+  const params = useParams();
+  const { id } = params;
   const { locale } = useSelector((state) => state.DefaultsReducer);
 
-  const [opType, setOpType] = useState('atSight');
+  const initialOpType = id ? 'complex' : 'atSight';
+
+  const [opType, setOpType] = useState(initialOpType);
 
   function typeComponent() {
     switch (opType) {
@@ -43,14 +48,16 @@ export default function Operations() {
         <div id="header">
           <h1>{OperMsgs[locale].title}</h1>
         </div>
-        <Select value={opType} onChange={setOpType} className="divOpTypeSelect">
-          <Select.Option value="atSight">{OperMsgs[locale].optAtSight}</Select.Option>
-          <Select.Option value="future">{OperMsgs[locale].optFuture}</Select.Option>
-          <Select.Option value="complex">{OperMsgs[locale].optComp}</Select.Option>
-          <Select.Option value="international">{OperMsgs[locale].optInternational}</Select.Option>
-          <Select.Option value="payOrReceiveBill">{OperMsgs[locale].optPayRecBill}</Select.Option>
-          <Select.Option value="transference">{OperMsgs[locale].optTransf}</Select.Option>
-        </Select>
+        {!id && (
+          <Select value={opType} onChange={setOpType} className="divOpTypeSelect">
+            <Select.Option value="atSight">{OperMsgs[locale].optAtSight}</Select.Option>
+            <Select.Option value="future">{OperMsgs[locale].optFuture}</Select.Option>
+            <Select.Option value="complex">{OperMsgs[locale].optComp}</Select.Option>
+            <Select.Option value="international">{OperMsgs[locale].optInternational}</Select.Option>
+            <Select.Option value="payOrReceiveBill">{OperMsgs[locale].optPayRecBill}</Select.Option>
+            <Select.Option value="transference">{OperMsgs[locale].optTransf}</Select.Option>
+          </Select>
+        )}
         {typeComponent()}
       </div>
     </div>

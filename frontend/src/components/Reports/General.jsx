@@ -34,11 +34,12 @@ export default function General() {
 
   function openValueModal(value, whereAccountId, whatAccountId) {
     const isToPay = whereAccountId === 'to_pay';
+    // console.log('openValueModal', value, whereAccountId, whatAccountId, isToPay);
 
     const filteredRegisters = registers.filter(r => (
       r.whatAccountId === whatAccountId
       && (
-        (isToPay && r.opType.endsWith('ToPay'))
+        isToPay
         || r.whereAccountId === whereAccountId
       )
     ));
@@ -123,7 +124,9 @@ export default function General() {
   const { columns, dataSource } = useMemo(() => {
     const allColumns = registers.reduce((acc, curr) => {
       const isToPay = curr.opType.endsWith('ToPay');
-      if (isToPay) {
+      // register that is complex (have both at sight and to pay in same operation) will be counted in to_pay
+      const isComplex = curr.opType === 'expense' || curr.opType === 'income';
+      if (isToPay || isComplex) {
         return acc;
       }
       if (!acc.includes(curr.whereAccountId)) {
@@ -141,12 +144,13 @@ export default function General() {
     // array of objects. each element is an row
     const matrix = registers.reduce((acc, curr) => {
       const isToPay = curr.opType.endsWith('ToPay');
+      const isComplex = curr.opType === 'expense' || curr.opType === 'income';
       if (!acc.find(item => item.whatAccountId === curr.whatAccountId)) {
         // no expense/income yet
 
         const columns = {
           ...allColumns.reduce((a, c) => ({ ...a, [c]: 0 }), {}),
-          [isToPay ? 'to_pay' : curr.whereAccountId]: curr.value,
+          [(isToPay || isComplex) ? 'to_pay' : curr.whereAccountId]: curr.value,
           total: curr.value,
         }
         const isIncome = curr.opType.startsWith('income');
@@ -167,7 +171,7 @@ export default function General() {
       }
       
       const index = acc.findIndex(item => item.whatAccountId === curr.whatAccountId);
-      const column = isToPay ? 'to_pay' : curr.whereAccountId;
+      const column = (isToPay || isComplex) ? 'to_pay' : curr.whereAccountId;
       return [
         ...acc.slice(0, index),
         {
@@ -217,7 +221,6 @@ export default function General() {
     return { columns, dataSource };
   }, [registers, accounts, locale]);
 
-  // console.log('columns:', columns);
   console.log('dataSource:', dataSource);
   return (
     <div>

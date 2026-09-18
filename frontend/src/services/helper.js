@@ -120,6 +120,9 @@ const helpers = {
     date.setDate(1);
     date.setHours(0, 0, 0, 0);
     return date;
+  },
+  random100() {
+    return Math.round(Math.random() * 100);
   }
 };
 

@@ -135,6 +135,7 @@ module.exports = {
         emitDate: restRegisterData.emitDate,
         notId: id,
         createdAt: oldRegister.createdAt,
+        session,
       });
       const whereAccountBalance = registerBeforeUpdatedRegister
         ? registerBeforeUpdatedRegister.whereAccountBalance + restRegisterData.value

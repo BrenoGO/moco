@@ -22,6 +22,12 @@
 .ant-picker {
   width: 100%;
 }
+
+.ant-picker-date-panel .ant-picker-header-super-prev-btn,
+.ant-picker-date-panel .ant-picker-header-super-next-btn {
+  display: none;
+}
+
 /* .flex-column{
   display: flex;
   flex-direction: column;

@@ -7,8 +7,22 @@ const OperationServices = require('../services/operation');
 
 module.exports = {
   index: async (req, res) => {
+    console.log('getting operation by id...');
+    const userId = req.user._id;
     const { id } = req.params;
-    const operation = await operationModel.findById(id);
+    const operation = await operationModel.findById(id).populate({
+      path: 'registers bills',
+      select: [
+        'description', 'notes', 'value', 'opType', 'whatAccountId', 'whereAccountId',
+        'dueDate', 'installment', 'whereAccount', 'type', 'paymentKey', 'paymentDate'
+      ],
+    });
+    // console.log('operation///');
+    // console.log(operation)
+
+    if (operation && operation.userId.toString() !== userId.toString()) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
     res.json(operation);
   },
   // all: async (req, res) => {
@@ -49,7 +63,7 @@ module.exports = {
     }
     res.json(operation);
   },
-  delete: async (req, res) => {
+  deleteOnly: async (req, res) => {
     const { id } = req.params;
     await operationModel.findByIdAndDelete(id);
     res.json({ ok: 'deleted' });
@@ -93,6 +107,7 @@ module.exports = {
         whereAccountId: internAccountId,
         emitDate,
         createdAt: new Date(),
+        session,
       });
 
       const internationalRegisterPayload = {
@@ -121,6 +136,7 @@ module.exports = {
         whereAccountId: localAccountId,
         emitDate,
         createdAt: new Date(),
+        session,
       });
 
       let localAccountBalance = (registerBeforeNewLocalReg?.whereAccountBalance || 0)
@@ -210,6 +226,7 @@ module.exports = {
         whereAccountId: fromWhereAccountId,
         emitDate,
         createdAt: new Date(), // we will create the new register now
+        session,
       });
 
       const fromRegisterPayload = {
@@ -238,6 +255,7 @@ module.exports = {
         whereAccountId: toWhereAccountId,
         emitDate,
         createdAt: new Date(), // we will create the new register now
+        session,
       });
 
       const toRegisterPayload = {
@@ -294,7 +312,7 @@ module.exports = {
     }
 
     try {
-      await OperationServices.storeOperation({
+      await OperationServices.storeFutureOperation({
         userId: req.user._id,
         emitDate: req.body.emitDate,
         description: req.body.description,
@@ -318,6 +336,7 @@ module.exports = {
   },
   removeOperation: async (req, res) => {
     const { id } = req.params;
+    const userId = req.user._id;
 
     let session;
     try {
@@ -328,32 +347,57 @@ module.exports = {
     }
 
     try {
-      const operationRegisters = await registerModel.find({
-        operation: id,
-      });
-
-      const operationBills = await billModel.find({
-        operation: id,
-      });
-
-      if (operationRegisters) {
-        await Promise.all(operationRegisters.map(async (reg) => {
-          await registerModel.findByIdAndDelete(reg._id, { session });
-        }));
-      }
-
-      if (operationBills) {
-        await Promise.all(operationBills.map(async (bill) => {
-          await billModel.findByIdAndDelete(bill._id, { session });
-        }));
-      }
-
-      await operationModel.findByIdAndDelete(id, { session });
+      await OperationServices.removeOperation({ id, userId, session });
 
       await session.commitTransaction();
 
       return res.json({ success: 'Removed operation' });
     } catch (err) {
+      console.log('error removing operation...');
+      console.error(err);
+      await session.abortTransaction();
+      return res.status(500).json(err);
+    } finally {
+      if (session) {
+        await session.endSession();
+      }
+    }
+  },
+  editOperation: async (req, res) => {
+    console.log('editing operation...');
+    const { id } = req.params;
+    const userId = req.user._id;
+    const {
+      emitDate,
+      opType,
+      opDesc,
+      opNotes,
+      whatAccounts,
+      payments,
+    } = req.body;
+
+    let session;
+    try {
+      session = await startSession();
+      session.startTransaction();
+    } catch (err) {
+      return res.status(500).json(err);
+    }
+
+    try {
+      await OperationServices.removeOperation({ id, userId, session });
+
+      await OperationServices.storeOperation({
+        opType, userId, emitDate, opDesc, opNotes, whatAccounts, payments,  
+        session
+      });
+
+      await session.commitTransaction();
+
+      return res.json({ success: 'Removed operation' });
+    } catch (err) {
+      console.log('error removing operation...');
+      console.error(err);
       await session.abortTransaction();
       return res.status(500).json(err);
     } finally {
@@ -373,6 +417,10 @@ module.exports = {
       payments,
     } = req.body;
 
+    // console.log('payments');
+    // console.log(payments);
+    // console.log('whatAccounts');
+    // console.log(whatAccounts);
     let session;
     try {
       session = await startSession();
@@ -380,80 +428,11 @@ module.exports = {
     } catch (err) {
       return res.status(500).json(err);
     }
-
-    let signal = 1;
-    if (opType === 'expense') {
-      signal = -1;
-    }
-
+    
     try {
-      const allBills = [];
-      let billType = 'ToPay';
-      if (opType === 'income') billType = 'ToReceive';
-
-      payments.forEach((payment) => {
-        if (payment.bills) {
-          payment.bills.forEach((bill, index) => {
-            allBills.push({
-              type: billType,
-              value: bill.value,
-              dueDate: bill.date,
-              installment: `${index + 1}/${payment.bills.length}`,
-              whereAccount: payment.id,
-            });
-          });
-        }
-      });
-
-      const allRegs = whatAccounts.map((whatAccount) => {
-        const value = whatAccount.value * signal;
-        const newObj = {
-          opType: 'complex',
-          whatAccountId: whatAccount.id,
-          value,
-        };
-        if (whatAccount.description) newObj.description = whatAccount.description;
-        if (whatAccount.notes) newObj.notes = whatAccount.notes;
-
-        if (payments.length === 1) {
-          newObj.whereAccountId = payments[0].id;
-          newObj.opType = `${opType}${payments[0].type}`;
-        } else {
-          const distinctTypes = [...new Set(payments.map(item => item.type))];
-          if (distinctTypes.length === 1) {
-            newObj.opType = `${opType}${payments[0].type}`;
-          }
-        }
-        return newObj;
-      });
-
-      if (payments.length > 1) {
-        payments.forEach((payment) => {
-          if (payment.type === 'AtSight') {
-            const newObj = {
-              opType: `${opType}AtSight`,
-              whereAccountId: payment.id,
-              value: payment.value * signal,
-              description: `Complex Op${opDesc ? `: ${opDesc}` : ''}`,
-            };
-            allRegs.push(newObj);
-          }
-        });
-      }
-
-      // console.log('allRegs..');
-      // console.log(allRegs[0]);
-      // console.log(allRegs[1]);
-      // console.log(allRegs[2]);
-      // console.log(allRegs[3]);
-      const operation = await OperationServices.storeComplexOperation({
-        userId,
-        emitDate,
-        description: opDesc,
-        notes: opNotes,
-        registers: allRegs,
-        bills: allBills,
-        session,
+      const operation = await OperationServices.storeOperation({
+        opType, userId, emitDate, opDesc, opNotes, whatAccounts, payments,  
+        session
       });
 
       await session.commitTransaction();

@@ -6,10 +6,13 @@ module.exports = {
     const {
       opTypePrefix, whatAccountId, emitDate, searchDesc,
     } = req.body;
+    // console.log('incomeOrExpense report');
     const objSearch = {
       userId: req.user._id, whatAccountId, emitDate, opType: { $regex: opTypePrefix },
     };
 
+    // console.log('objSearch');
+    // console.log(objSearch);
     if (!objSearch.whatAccountId) {
       // sempre precisa de uma whatAccountId para relatório de despesa ou receita
       objSearch.whatAccountId = {
@@ -22,12 +25,17 @@ module.exports = {
       };
     }
 
+    // console.log('objSearch');
+    // console.log(objSearch);
+
     const registers = await registerModel.find(
       objSearch,
       null,
       { sort: { emitDate: -1, createdAt: -1 } },
     );
 
+    // console.log('registers');
+    // console.log(registers);
     res.json(registers);
   },
   // Find todas as contas correntes
@@ -138,6 +146,9 @@ module.exports = {
         null,
         { sort: { emitDate: -1, createdAt: -1 } },
       );
+
+      // console.log('registers');
+      // console.log(registers);
   
       res.json(registers.map((r) => ({
         opType: r.opType,

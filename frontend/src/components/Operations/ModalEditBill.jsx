@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import dayjs from 'dayjs';
 import {
-  Form, Modal, DatePicker, Spin, message,
+  Form, Modal, DatePicker, Spin, message, Button
 } from 'antd';
 import PropTypes from 'prop-types';
 
@@ -74,6 +74,17 @@ export default function ModalEditBill({
       closable={false}
       okText="Editar"
       cancelText="Cancelar"
+      footer={(_, { OkBtn, CancelBtn }) => (
+          <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+            {bill?.operation?._id ?(
+              <Button onClick={() => window.open(`/operations/${bill.operation._id}`, '_self')}>Editar Operação</Button>
+            ): <div></div>}
+            <div>
+              <CancelBtn />
+              <OkBtn />
+            </div>
+          </div>
+        )}
     >
       {loading
         ? (<Spin />)
