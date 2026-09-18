@@ -108,6 +108,7 @@ const RegisterServices = {
       // console.log('new balance');
       // console.log(balance);
 
+      // adding 1 millisecond to at sight registers to order
       const regEmitDate = dayjs(emitDate).add(index, 'milliseconds').toDate();
 
       return {
@@ -134,7 +135,7 @@ const RegisterServices = {
       userId,
       whereAccountId,
       initialAccountBalance: balance,
-      emitDate,
+      emitDate: storedRegisters[storedRegisters.length - 1].emitDate,
       createdAt: storedRegisters[storedRegisters.length - 1].createdAt,
       session,
     });

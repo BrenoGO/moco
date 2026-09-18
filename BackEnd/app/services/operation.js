@@ -18,7 +18,6 @@ const OperationServices = {
 
     const { atSightRegistersByAccountId, whatAccountRegisters } = registers.reduce((acc, reg) => {
       if (reg.opType.endsWith('AtSight') && reg.whereAccountId) {
-        // adding 1 millisecond to at sight registers to order
         if (acc.atSightRegistersByAccountId[reg.whereAccountId]) {
           return {
             atSightRegistersByAccountId: {
@@ -238,6 +237,9 @@ const OperationServices = {
       }
     });
 
+    // console.log('allBills');
+    // console.log(allBills);
+
     const allRegs = whatAccounts.map((whatAccount) => {
       const value = whatAccount.value * signal;
       const newObj = {
@@ -273,6 +275,8 @@ const OperationServices = {
         }
       });
     }
+    // console.log('allRegs');
+    // console.log(allRegs);
 
     const operation = await OperationServices.storeComplexOperation({
       userId,
