@@ -8,6 +8,7 @@ import Spinner from '../Spinner';
 import { RepMsgs } from '../../services/Messages';
 import helper from '../../services/helper';
 import { RegistersService } from '../../services/RegistersService';
+import { ReportsService } from '../../services/ReportsService';
 import ModalEditRegister from '../Registers/ModalEditRegister';
 import editBut from '../../imgs/editBut.png';
 
@@ -22,6 +23,7 @@ export default function AcStatements() {
   const [initDate, setInitDate] = useState(new Date(initialDate));
   const [finalDate, setFinalDate] = useState(new Date());
   const [registers, setRegisters] = useState([]);
+  const [lastRegister, setLastRegister] = useState(null);
   const [loading, setLoading] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [registerEditing, setRegisterEditing] = useState(null);
@@ -35,15 +37,31 @@ export default function AcStatements() {
   useEffect(() => {
     setLoading(true);
     let mounted = true;
-    RegistersService.search({
-      whereAccountId: acId,
-      emitDate: {
-        $gte: initDate,
-        $lt: dayjs(finalDate).endOf('day').toDate(),
-      },
-    }).then((regs) => {
+    if (!acId) return;
+    // RegistersService.search({
+    //   whereAccountId: acId,
+    //   emitDate: {
+    //     $gte: initDate,
+    //     $lt: dayjs(finalDate).endOf('day').toDate(),
+    //   },
+    // }).then((regs) => {
+    //   setLoading(false);
+    //   console.log('regs report not used:');
+    //     console.log(regs);
+    //   // if (mounted) setRegisters(regs);
+    // });
+    ReportsService.acStatements({
+      accountId: acId,
+      initDate,
+      endDate: dayjs(finalDate).endOf('day').toDate(),
+    }).then((result) => {
+      if (mounted) {
+        console.log('acStatements report:');
+        console.log(result);
+        setRegisters(result.regs);
+        setLastRegister(result.lastRegister || null);
+      }
       setLoading(false);
-      if (mounted) setRegisters(regs);
     });
     return () => { mounted = false; };
   }, [acId, initDate, finalDate]);
@@ -65,6 +83,8 @@ export default function AcStatements() {
     setEditModalVisible(true);
     setRegisterEditing({ ...reg, emitDate: dayjs(reg.emitDate) });
   }
+
+  const finalBalance = registers[0]?.whereAccountBalance || lastRegister?.whereAccountBalance || 0;
 
   return (
     <div>
@@ -101,7 +121,7 @@ export default function AcStatements() {
         <h3>
           {RepMsgs[locale].balanceP}
           {' '}
-          {helper.currencyFormatter(locale, registers[0]?.whereAccountBalance || 0)}
+          {helper.currencyFormatter(locale, finalBalance)}
         </h3>
       </div>
       <div id="report" className="table-responsive">

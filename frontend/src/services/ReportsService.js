@@ -10,4 +10,7 @@ export const ReportsService = {
   general: ({ initDate, endDate }) => {
     return ApiService.get(`${endpoint}/general?initDate=${initDate}&endDate=${endDate}`)
   },
+  acStatements: ({ accountId, initDate, endDate }) => {
+    return ApiService.get(`${endpoint}/acStatements?accountId=${accountId}&initDate=${initDate}&endDate=${endDate}`)
+  },
 };

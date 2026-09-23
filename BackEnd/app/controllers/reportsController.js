@@ -163,5 +163,50 @@ module.exports = {
       console.error(err);
       res.status(500).json({ err });
     }
+  },
+  acStatements: async (req, res) => {
+    // console.log('fetching acStatements report...', req.query);
+    try {
+      const { accountId, initDate, endDate } = req.query;
+      const userId = req.user._id;
+
+      const registers = await registerModel.find(
+        {
+          userId,
+          whereAccountId: accountId,
+          emitDate: {
+            $gte: initDate,
+            $lte: endDate
+          }
+        },
+        null,
+        { sort: { emitDate: -1, createdAt: -1 } },
+      );
+
+      // console.log('registers');
+      // console.log(registers);
+      if (!registers.length) {
+        const lastRegister = await registerModel.find(
+          {
+            userId,
+            whereAccountId: accountId,
+          },
+          null,
+          { sort: { emitDate: -1, createdAt: -1 }, limit: 1 },
+        );
+
+        // console.log(`lastRegister for ${accountId}`);
+        // console.log(lastRegister);
+        
+        return res.json({regs: [], lastRegister: lastRegister[0] || null});
+      }
+
+      res.json({ regs: registers });
+    } catch (err) {
+      console.error('error in acStatements report');
+      console.error(err);
+      res.status(500).json({ err });
+    }
   }
+
 };
