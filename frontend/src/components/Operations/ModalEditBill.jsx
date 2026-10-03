@@ -77,7 +77,7 @@ export default function ModalEditBill({
       footer={(_, { OkBtn, CancelBtn }) => (
           <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
             {bill?.operation?._id ?(
-              <Button onClick={() => window.open(`/operations/${bill.operation._id}`, '_self')}>Editar Operação</Button>
+              <Button onClick={() => window.open(`${process.env.PUBLIC_URL}/operations/${bill.operation._id}`, '_self')}>Editar Operação</Button>
             ): <div></div>}
             <div>
               <CancelBtn />
