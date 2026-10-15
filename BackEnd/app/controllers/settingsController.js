@@ -10,6 +10,7 @@ module.exports = {
 
     response.defaultAccounts = settings.data.defaultAccounts;
     response.locale = settings.data.locale;
+    response.maxInstallments = settings.data.maxInstallments || initialSettings.maxInstallments;
     const currentAccounts = await accountModel.find(
       {
         userId: req.user._id,

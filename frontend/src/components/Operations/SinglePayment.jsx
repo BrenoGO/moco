@@ -17,7 +17,7 @@ export default function SinglePayment({
   setPayments,
 }) {
   const accounts = useSelector((state) => state.AccountsReducer.accounts);
-  const { defaultAccounts, locale } = useSelector((state) => state.DefaultsReducer);
+  const { defaultAccounts, locale, maxInstallments = 12 } = useSelector((state) => state.DefaultsReducer);
 
   const currentAccounts = helper.organizedAccounts(accounts, defaultAccounts.currentAccounts);
   const ToReceiveAccounts = helper.organizedAccounts(accounts, defaultAccounts.ToReceive);
@@ -245,7 +245,7 @@ export default function SinglePayment({
                   value={payment.bills.length}
                   onChange={(e) => handleInstallmentsChange(e.target.value)}
                 >
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((i) => (
+                  {Array.from({ length: maxInstallments || 12 }, (_, i) => i + 1).map((i) => (
                     <option key={i} value={i}>
                       {i}
                     </option>

@@ -12,6 +12,7 @@ import { SettingsMsgs } from '../services/Messages';
 import Flags from '../components/Flags';
 import DefaultAccounts from '../components/Settings/DefaultAccounts';
 import PaymentOptions from '../components/Settings/PaymentOptions';
+import MaxInstallments from '../components/Settings/MaxInstallments';
 import TransferenceAccounts from '../components/Settings/TransferenceAccounts';
 import ChangePassword from '../components/Settings/ChangePassword';
 
@@ -44,6 +45,7 @@ export default function Settings() {
       <ChangePassword />
       <DefaultAccounts />
       <PaymentOptions />
+      <MaxInstallments />
       <TransferenceAccounts />
     </div>
   );

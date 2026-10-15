@@ -21,7 +21,7 @@ const INIT_TYPE = 'expense';
 
 export default function FutureOper() {
   const accounts = useSelector((state) => state.AccountsReducer.accounts);
-  const { defaultAccounts, locale } = useSelector((state) => (state.DefaultsReducer));
+  const { defaultAccounts, locale, maxInstallments = 12 } = useSelector((state) => (state.DefaultsReducer));
 
   const initialValue = 0;
   const today = new Date();
@@ -301,7 +301,7 @@ export default function FutureOper() {
             <Select
               value={bills.length}
               onChange={handleInstallmentsChange}
-              options={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((n) => ({
+              options={Array.from({ length: maxInstallments || 12 }, (_, i) => i + 1).map((n) => ({
                 value: n,
                 label: n,
               }))}

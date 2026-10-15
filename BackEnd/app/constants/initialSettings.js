@@ -21,6 +21,7 @@ module.exports = {
     },
   },
   locale: 'pt-BR',
+  maxInstallments: 12,
   balances: [
     { accountId: 12, balance: 0 },
     { accountId: 13, balance: 0 },
